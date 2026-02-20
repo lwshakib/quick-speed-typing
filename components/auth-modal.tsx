@@ -218,7 +218,13 @@ export function AuthModal({ isOpen, onOpenChange, onSuccess }: AuthModalProps) {
         setTimeout(resetModal, 300);
       }
     }}>
-      <DialogContent className="sm:max-w-[400px]">
+      <DialogContent 
+        className="sm:max-w-[400px] border-2"
+        style={{
+          backgroundColor: 'var(--background)',
+          borderColor: 'var(--border)'
+        }}
+      >
         {view === "auth" && (
           <>
             <DialogHeader>
@@ -234,23 +240,29 @@ export function AuthModal({ isOpen, onOpenChange, onSuccess }: AuthModalProps) {
               </div>
             )}
 
-            <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)} className="w-full">
-              <TabsList className="grid w-full grid-cols-2 mb-4">
-                <TabsTrigger value="login">Login</TabsTrigger>
-                <TabsTrigger value="signup">Sign Up</TabsTrigger>
+            <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)} className="w-full mt-2">
+              <TabsList 
+                className="grid w-full grid-cols-2 mb-6 border"
+                style={{
+                  backgroundColor: 'rgba(0,0,0,0.03)',
+                  borderColor: 'var(--border)'
+                }}
+              >
+                <TabsTrigger value="login" className="data-[state=active]:shadow-sm data-[state=active]:bg-background">Login</TabsTrigger>
+                <TabsTrigger value="signup" className="data-[state=active]:shadow-sm data-[state=active]:bg-background">Sign Up</TabsTrigger>
               </TabsList>
 
-              <TabsContent value="login">
+              <TabsContent value="login" className="animate-in fade-in-50 duration-300">
                 <form onSubmit={handleSignIn} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="login-email">Email</Label>
-                    <div className="relative">
-                      <Mail className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                    <Label htmlFor="login-email" className="text-xs font-bold uppercase opacity-50 ml-1">Email</Label>
+                    <div className="relative group">
+                      <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
                       <Input
                         id="login-email"
                         placeholder="name@example.com"
                         type="email"
-                        className="pl-9"
+                        className="pl-9 h-11 bg-muted/30 border-2 border-transparent focus:border-primary/20 transition-all font-mono text-sm"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         required
@@ -258,45 +270,45 @@ export function AuthModal({ isOpen, onOpenChange, onSuccess }: AuthModalProps) {
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <Label htmlFor="login-password">Password</Label>
+                    <div className="flex items-center justify-between ml-1">
+                      <Label htmlFor="login-password" className="text-xs font-bold uppercase opacity-50">Password</Label>
                       <button
                         type="button"
                         onClick={() => setView("forgot-password")}
-                        className="text-xs text-primary hover:underline"
+                        className="text-[10px] text-primary hover:underline font-bold uppercase tracking-wider"
                       >
                         Forgot password?
                       </button>
                     </div>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                    <div className="relative group">
+                      <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
                       <Input
                         id="login-password"
                         type="password"
-                        className="pl-9"
+                        className="pl-9 h-11 bg-muted/30 border-2 border-transparent focus:border-primary/20 transition-all font-mono text-sm"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         required
                       />
                     </div>
                   </div>
-                  <Button type="submit" className="w-full" disabled={isLoading}>
+                  <Button type="submit" className="w-full h-11 font-bold text-sm uppercase tracking-wide mt-2" disabled={isLoading}>
                     {loading === "signIn" ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                     Sign In
                   </Button>
                 </form>
               </TabsContent>
 
-              <TabsContent value="signup">
+              <TabsContent value="signup" className="animate-in fade-in-50 duration-300">
                 <form onSubmit={handleSignUp} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="signup-name">Full Name</Label>
-                    <div className="relative">
-                      <User className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                    <Label htmlFor="signup-name" className="text-xs font-bold uppercase opacity-50 ml-1">Full Name</Label>
+                    <div className="relative group">
+                      <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
                       <Input
                         id="signup-name"
                         placeholder="John Doe"
-                        className="pl-9"
+                        className="pl-9 h-11 bg-muted/30 border-2 border-transparent focus:border-primary/20 transition-all font-mono text-sm"
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                         required
@@ -304,14 +316,14 @@ export function AuthModal({ isOpen, onOpenChange, onSuccess }: AuthModalProps) {
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="signup-email">Email</Label>
-                    <div className="relative">
-                      <Mail className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                    <Label htmlFor="signup-email" className="text-xs font-bold uppercase opacity-50 ml-1">Email</Label>
+                    <div className="relative group">
+                      <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
                       <Input
                         id="signup-email"
                         placeholder="name@example.com"
                         type="email"
-                        className="pl-9"
+                        className="pl-9 h-11 bg-muted/30 border-2 border-transparent focus:border-primary/20 transition-all font-mono text-sm"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         required
@@ -319,20 +331,20 @@ export function AuthModal({ isOpen, onOpenChange, onSuccess }: AuthModalProps) {
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="signup-password">Password</Label>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                    <Label htmlFor="signup-password" className="text-xs font-bold uppercase opacity-50 ml-1">Password</Label>
+                    <div className="relative group">
+                      <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
                       <Input
                         id="signup-password"
                         type="password"
-                        className="pl-9"
+                        className="pl-9 h-11 bg-muted/30 border-2 border-transparent focus:border-primary/20 transition-all font-mono text-sm"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         required
                       />
                     </div>
                   </div>
-                  <Button type="submit" className="w-full" disabled={isLoading}>
+                  <Button type="submit" className="w-full h-11 font-bold text-sm uppercase tracking-wide mt-2" disabled={isLoading}>
                     {loading === "signUp" ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                     Create Account
                   </Button>
@@ -340,19 +352,18 @@ export function AuthModal({ isOpen, onOpenChange, onSuccess }: AuthModalProps) {
               </TabsContent>
             </Tabs>
 
-            <div className="relative my-4">
+            <div className="relative my-6">
               <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t border-border" />
+                <span className="w-full border-t border-border/50" />
               </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
+              <div className="relative flex justify-center text-[10px] uppercase font-bold tracking-widest text-muted-foreground/50">
+                <span className="bg-background px-4">Or continue with</span>
               </div>
             </div>
 
             <Button
-              variant="outline"
               type="button"
-              className="w-full shadow-sm"
+              className="w-full h-11 border-none font-bold uppercase tracking-wide bg-primary text-primary-foreground opacity-80 hover:opacity-100 transition-all duration-300"
               onClick={handleGoogleSignIn}
               disabled={isLoading}
             >
@@ -363,7 +374,7 @@ export function AuthModal({ isOpen, onOpenChange, onSuccess }: AuthModalProps) {
                   <path fill="currentColor" d="M488 261.8C488 403.3 391.1 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 123 24.5 166.3 64.9l-67.5 64.9C258.5 52.6 94.3 116.6 94.3 256c0 86.5 69.1 156.6 153.7 156.6 98.2 0 135-70.4 140.8-106.9H248v-85.3h236.1c2.3 12.7 3.9 24.9 3.9 41.4z"></path>
                 </svg>
               )}
-              Google
+              Continue with Google
             </Button>
           </>
         )}

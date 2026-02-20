@@ -9,6 +9,7 @@ import { Kbd } from "@/components/ui/kbd";
 import { LanguageDialog } from "@/components/language-dialog";
 import { ThemeDialog } from "@/components/theme-dialog";
 import { NotificationDrawer } from "@/components/notification-drawer";
+import { TestDurationDialog } from "@/components/test-duration-dialog";
 import { saveTypingHistory, updateUserTheme, getUserTheme } from "@/lib/actions";
 import { useSession } from "@/lib/auth-client";
 import { useTypingEngine, GameMode } from "@/hooks/use-typing-engine";
@@ -65,6 +66,7 @@ export default function Home() {
   
   const [isLangOpen, setIsLangOpen] = useState(false);
   const [isThemeOpen, setIsThemeOpen] = useState(false);
+  const [isCustomDurationOpen, setIsCustomDurationOpen] = useState(false);
   
   const [config, setConfig] = useState({
     punctuation: false,
@@ -101,7 +103,7 @@ export default function Home() {
     includeNumbers: config.numbers,
     includePunctuation: config.punctuation,
     language,
-    disabled: showAuthModal || isLangOpen || isThemeOpen || isNotificationsOpen,
+    disabled: showAuthModal || isLangOpen || isThemeOpen || isNotificationsOpen || isCustomDurationOpen,
   });
 
   const lastFinishRef = useRef<boolean>(false);
@@ -424,7 +426,10 @@ export default function Home() {
                           {t}
                         </button>
                       ))}
-                      <button className="hover:text-foreground transition-colors hover:rotate-90 duration-300 ml-1">
+                      <button 
+                        onClick={() => setIsCustomDurationOpen(true)}
+                        className="hover:text-foreground transition-colors hover:rotate-90 duration-300 ml-1"
+                      >
                         <Settings size={12} />
                       </button>
                     </div>
@@ -857,6 +862,17 @@ export default function Home() {
         onOpenChange={setIsThemeOpen}
         currentTheme={currentTheme.id}
         onSelectTheme={applyTheme}
+      />
+
+      <TestDurationDialog 
+        isOpen={isCustomDurationOpen}
+        onOpenChange={setIsCustomDurationOpen}
+        onSetDuration={(s) => {
+          if (mode === 'time') setDuration(s);
+          else setWordCount(s);
+          restart();
+        }}
+        currentDuration={amount}
       />
     </div>
   );

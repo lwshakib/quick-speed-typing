@@ -32,49 +32,64 @@ export function UserMenu() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-          <Avatar className="h-10 w-10 border border-border/50">
+        <button className="relative h-10 w-10 rounded-full outline-none group transition-transform active:scale-95 duration-200">
+          <Avatar className="h-10 w-10 border-2 border-transparent group-hover:border-primary transition-all duration-300">
             <AvatarImage src={user.image || ""} alt={user.name || "User"} />
             <AvatarFallback className="bg-primary/10 text-primary font-bold">
               {initials}
             </AvatarFallback>
           </Avatar>
-        </Button>
+        </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-56" align="end" forceMount>
-        <DropdownMenuLabel className="font-normal">
+      <DropdownMenuContent 
+        className="w-56 p-2 border-2 rounded-xl shadow-2xl font-mono" 
+        align="end" 
+        forceMount
+        style={{
+            backgroundColor: 'var(--background)',
+            borderColor: 'var(--border)',
+            color: 'var(--sub-color)'
+        }}
+      >
+        <DropdownMenuLabel className="font-normal px-3 py-3">
           <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none">{user.name}</p>
-            <p className="text-xs leading-none text-muted-foreground">
+            <p className="text-sm font-bold leading-none text-foreground" style={{ color: 'var(--text-color)' }}>{user.name}</p>
+            <p className="text-[10px] font-medium leading-none opacity-50">
               {user.email}
             </p>
           </div>
         </DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem asChild>
-          <Link href="/profile" className="cursor-pointer">
-            <LayoutDashboard className="mr-2 h-4 w-4" />
-            <span>Dashboard</span>
-          </Link>
-        </DropdownMenuItem>
-        <DropdownMenuItem asChild>
-          <Link href="/settings" className="cursor-pointer">
-            <Settings className="mr-2 h-4 w-4" />
-            <span>Settings</span>
-          </Link>
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem
-          className="text-destructive focus:text-destructive cursor-pointer"
-          onClick={async () => {
-            await signOut();
-            toast.success("Logged out successfully");
-            window.location.href = "/";
-          }}
-        >
-          <LogOut className="mr-2 h-4 w-4" />
-          <span>Log out</span>
-        </DropdownMenuItem>
+        <DropdownMenuSeparator className="opacity-10 bg-current" />
+        <div className="p-1 flex flex-col gap-1">
+            <DropdownMenuItem asChild className="rounded-lg cursor-pointer hover:bg-primary/10 focus:bg-primary/10 group transition-all duration-200">
+              <Link href="/profile" className="flex items-center w-full px-2 py-2">
+                <LayoutDashboard size={16} className="mr-3 text-primary" />
+                <span className="text-xs font-bold lowercase group-hover:text-foreground transition-colors">Dashboard</span>
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild className="rounded-lg cursor-pointer hover:bg-primary/10 focus:bg-primary/10 group transition-all duration-200">
+              <Link href="/settings" className="flex items-center w-full px-2 py-2">
+                <Settings size={16} className="mr-3 text-primary" />
+                <span className="text-xs font-bold lowercase group-hover:text-foreground transition-colors">Settings</span>
+              </Link>
+            </DropdownMenuItem>
+        </div>
+        <DropdownMenuSeparator className="opacity-10 bg-current" />
+        <div className="p-1">
+            <DropdownMenuItem
+              className="rounded-lg cursor-pointer hover:bg-destructive/10 focus:bg-destructive/10 group transition-all duration-200"
+              onClick={async () => {
+                await signOut();
+                toast.success("Logged out successfully");
+                window.location.href = "/";
+              }}
+            >
+              <div className="flex items-center w-full px-2 py-2 text-destructive">
+                <LogOut size={16} className="mr-3" />
+                <span className="text-xs font-bold lowercase">Log out</span>
+              </div>
+            </DropdownMenuItem>
+        </div>
       </DropdownMenuContent>
     </DropdownMenu>
   );

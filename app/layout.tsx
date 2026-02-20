@@ -115,6 +115,25 @@ export default function RootLayout({
                     root.style.setProperty('--primary-foreground', themeData.background);
                     root.style.setProperty('--secondary-foreground', themeData.text);
                     root.style.setProperty('--accent-foreground', themeData.background);
+
+                    // Add adaptive utility variables
+                    var isLight = function(color) {
+                      var hex = color.replace('#', '');
+                      var r = parseInt(hex.substring(0, 2), 16);
+                      var g = parseInt(hex.substring(2, 4), 16);
+                      var b = parseInt(hex.substring(4, 6), 16);
+                      var brightness = (r * 299 + g * 587 + b * 114) / 1000;
+                      return brightness > 155;
+                    };
+
+                    var lightTheme = isLight(themeData.background);
+                    root.style.setProperty('--muted', lightTheme ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.05)');
+                    root.style.setProperty('--border', lightTheme ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.1)');
+                    root.style.setProperty('--input', lightTheme ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.1)');
+                    root.style.setProperty('--popover', themeData.background);
+                    root.style.setProperty('--card', themeData.background);
+                    root.style.setProperty('--popover-foreground', themeData.text);
+                    root.style.setProperty('--card-foreground', themeData.text);
                   }
                 } catch (e) {}
               })();
