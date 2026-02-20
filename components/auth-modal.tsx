@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { signIn, signUp, authClient, requestPasswordReset } from "@/lib/auth-client";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -22,16 +23,19 @@ interface AuthModalProps {
   onSuccess?: () => void;
 }
 
-type AuthView = "auth" | "check-email" | "forgot-password" | "verified" | "verifying";
+type AuthView = "auth" | "check-email" | "forgot-password" | "verified" | "verifying" | "password-reset";
 
 export function AuthModal({ isOpen, onOpenChange, onSuccess }: AuthModalProps) {
-  const [isLoading, setIsLoading] = useState(false);
+  const [loading, setLoading] = useState<"signIn" | "signUp" | "google" | "forgotPassword" | "resend" | "verifying" | null>(null);
   const [view, setView] = useState<AuthView>("auth");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [activeTab, setActiveTab] = useState<"login" | "signup">("login");
   const [verificationError, setVerificationError] = useState<string | null>(null);
+  const router = useRouter();
+
+  const isLoading = loading !== null;
 
   // Handle URL parameters for initial view and verification
   useEffect(() => {
@@ -39,24 +43,28 @@ export function AuthModal({ isOpen, onOpenChange, onSuccess }: AuthModalProps) {
       const params = new URLSearchParams(window.location.search);
       const token = params.get("token");
       const verified = params.get("verified");
+      const passwordReset = params.get("reset-password");
 
       if (token) {
         handleTokenVerification(token);
       } else if (verified === "true") {
         setView("verified");
-        clearParams();
+        // We delay clearing slightly to avoid triggering other effects
+        setTimeout(clearParams, 500);
+      } else if (passwordReset === "true") {
+        setView("password-reset");
+        setTimeout(clearParams, 500);
       }
     }
   }, [isOpen]);
 
   const clearParams = () => {
-    const newUrl = window.location.pathname;
-    window.history.replaceState({}, "", newUrl);
+    router.replace("/", { scroll: false });
   };
 
   const handleTokenVerification = async (token: string) => {
     setView("verifying");
-    setIsLoading(true);
+    setLoading("verifying");
     try {
       await authClient.verifyEmail({
         query: { token }
@@ -78,13 +86,13 @@ export function AuthModal({ isOpen, onOpenChange, onSuccess }: AuthModalProps) {
       setVerificationError("An unexpected error occurred.");
       clearParams();
     } finally {
-      setIsLoading(false);
+      setLoading(null);
     }
   };
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
+    setLoading("signIn");
     try {
       await signIn.email({
         email,
@@ -103,13 +111,13 @@ export function AuthModal({ isOpen, onOpenChange, onSuccess }: AuthModalProps) {
     } catch (error) {
       toast.error("Something went wrong");
     } finally {
-      setIsLoading(false);
+      setLoading(null);
     }
   };
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
+    setLoading("signUp");
     try {
       await signUp.email({
         email,
@@ -127,13 +135,13 @@ export function AuthModal({ isOpen, onOpenChange, onSuccess }: AuthModalProps) {
     } catch (error) {
       toast.error("Something went wrong");
     } finally {
-      setIsLoading(false);
+      setLoading(null);
     }
   };
 
   const handleForgotPassword = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
+    setLoading("forgotPassword");
     try {
       await requestPasswordReset({
         email,
@@ -150,12 +158,12 @@ export function AuthModal({ isOpen, onOpenChange, onSuccess }: AuthModalProps) {
     } catch (error) {
       toast.error("Something went wrong");
     } finally {
-      setIsLoading(false);
+      setLoading(null);
     }
   };
 
   const handleResendVerification = async () => {
-    setIsLoading(true);
+    setLoading("resend");
     try {
       const { sendVerificationEmail } = await import("@/lib/auth-client");
       await sendVerificationEmail({
@@ -172,13 +180,13 @@ export function AuthModal({ isOpen, onOpenChange, onSuccess }: AuthModalProps) {
     } catch (error) {
       toast.error("Something went wrong");
     } finally {
-      setIsLoading(false);
+      setLoading(null);
     }
   };
 
 
   const handleGoogleSignIn = async () => {
-    setIsLoading(true);
+    setLoading("google");
     try {
       await signIn.social({
         provider: "google",
@@ -186,7 +194,7 @@ export function AuthModal({ isOpen, onOpenChange, onSuccess }: AuthModalProps) {
       });
     } catch (error) {
       toast.error("Failed to sign in with Google");
-      setIsLoading(false);
+      setLoading(null);
     }
   };
 
@@ -200,6 +208,7 @@ export function AuthModal({ isOpen, onOpenChange, onSuccess }: AuthModalProps) {
     setEmail("");
     setPassword("");
     setName("");
+    setVerificationError(null);
   };
 
   return (
@@ -272,7 +281,7 @@ export function AuthModal({ isOpen, onOpenChange, onSuccess }: AuthModalProps) {
                     </div>
                   </div>
                   <Button type="submit" className="w-full" disabled={isLoading}>
-                    {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                    {loading === "signIn" ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                     Sign In
                   </Button>
                 </form>
@@ -324,7 +333,7 @@ export function AuthModal({ isOpen, onOpenChange, onSuccess }: AuthModalProps) {
                     </div>
                   </div>
                   <Button type="submit" className="w-full" disabled={isLoading}>
-                    {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                    {loading === "signUp" ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                     Create Account
                   </Button>
                 </form>
@@ -347,7 +356,7 @@ export function AuthModal({ isOpen, onOpenChange, onSuccess }: AuthModalProps) {
               onClick={handleGoogleSignIn}
               disabled={isLoading}
             >
-              {isLoading ? (
+              {loading === "google" ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               ) : (
                 <svg className="mr-2 h-4 w-4" aria-hidden="true" focusable="false" data-prefix="fab" data-icon="google" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 488 512">
@@ -383,7 +392,7 @@ export function AuthModal({ isOpen, onOpenChange, onSuccess }: AuthModalProps) {
                   disabled={isLoading}
                   className="text-xs text-primary hover:underline font-medium disabled:opacity-50"
                 >
-                  {isLoading ? "Sending..." : "Click to resend"}
+                  {loading === "resend" ? "Sending..." : "Click to resend"}
                 </button>
               </div>
               <Button onClick={() => setView("auth")} variant="ghost" className="w-full text-muted-foreground hover:text-foreground">
@@ -427,7 +436,7 @@ export function AuthModal({ isOpen, onOpenChange, onSuccess }: AuthModalProps) {
                 </div>
               </div>
               <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                {loading === "forgotPassword" ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                 Send Reset Link
               </Button>
             </form>
