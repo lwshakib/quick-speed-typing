@@ -22,7 +22,7 @@ interface AuthModalProps {
   onSuccess?: () => void;
 }
 
-type AuthView = "auth" | "check-email" | "forgot-password" | "verified";
+type AuthView = "auth" | "check-email" | "forgot-password" | "verified" | "verifying";
 
 export function AuthModal({ isOpen, onOpenChange, onSuccess }: AuthModalProps) {
   const [isLoading, setIsLoading] = useState(false);
@@ -31,19 +31,56 @@ export function AuthModal({ isOpen, onOpenChange, onSuccess }: AuthModalProps) {
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [activeTab, setActiveTab] = useState<"login" | "signup">("login");
+  const [verificationError, setVerificationError] = useState<string | null>(null);
 
-  // Handle URL parameters for initial view
+  // Handle URL parameters for initial view and verification
   useEffect(() => {
     if (isOpen) {
       const params = new URLSearchParams(window.location.search);
-      if (params.get("verified") === "true") {
+      const token = params.get("token");
+      const verified = params.get("verified");
+
+      if (token) {
+        handleTokenVerification(token);
+      } else if (verified === "true") {
         setView("verified");
-        // Clear the param after showing the view
-        const newUrl = window.location.pathname;
-        window.history.replaceState({}, "", newUrl);
+        clearParams();
       }
     }
   }, [isOpen]);
+
+  const clearParams = () => {
+    const newUrl = window.location.pathname;
+    window.history.replaceState({}, "", newUrl);
+  };
+
+  const handleTokenVerification = async (token: string) => {
+    setView("verifying");
+    setIsLoading(true);
+    try {
+      await authClient.verifyEmail({
+        query: { token }
+      }, {
+        onSuccess: () => {
+          setView("verified");
+          toast.success("Email verified successfully!");
+          clearParams();
+        },
+        onError: (ctx) => {
+          setView("auth");
+          setVerificationError(ctx.error.message || "Failed to verify email.");
+          toast.error(ctx.error.message || "Verification failed");
+          clearParams();
+        }
+      });
+    } catch (err) {
+      setView("auth");
+      setVerificationError("An unexpected error occurred.");
+      clearParams();
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -181,6 +218,12 @@ export function AuthModal({ isOpen, onOpenChange, onSuccess }: AuthModalProps) {
                 Sign in to save your typing progress and track your speed over time.
               </DialogDescription>
             </DialogHeader>
+
+            {verificationError && (
+              <div className="bg-destructive/10 text-destructive text-sm p-3 rounded-md border border-destructive/20 mb-4 animate-in fade-in slide-in-from-top-1">
+                {verificationError}
+              </div>
+            )}
 
             <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)} className="w-full">
               <TabsList className="grid w-full grid-cols-2 mb-4">
@@ -390,6 +433,20 @@ export function AuthModal({ isOpen, onOpenChange, onSuccess }: AuthModalProps) {
             </form>
           </div>
         )}
+        {view === "verifying" && (
+          <div className="py-12 flex flex-col items-center text-center space-y-4">
+            <div className="h-20 w-20 bg-primary/10 rounded-full flex items-center justify-center mb-2">
+              <Loader2 className="h-10 w-10 text-primary animate-spin" />
+            </div>
+            <DialogHeader>
+              <DialogTitle className="text-2xl font-bold">Verifying your email</DialogTitle>
+              <DialogDescription className="text-base text-secondary/70">
+                Please wait while we confirm your account. This will only take a moment.
+              </DialogDescription>
+            </DialogHeader>
+          </div>
+        )}
+
         {view === "verified" && (
           <div className="py-6 flex flex-col items-center text-center space-y-4">
             <div className="h-20 w-20 bg-green-500/10 rounded-full flex items-center justify-center mb-2 animate-in zoom-in duration-500">
