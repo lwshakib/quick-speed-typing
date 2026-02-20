@@ -32,7 +32,11 @@ function VerifyEmailContent() {
         }, {
           onSuccess: () => {
             setStatus("success");
-            toast.success("Email verified successfully!");
+            toast.success("Email verified successfully! Redirecting to login...");
+            // Automatically redirect to home after a brief delay
+            setTimeout(() => {
+              router.push("/?verified=true");
+            }, 2000);
           },
           onError: (ctx) => {
             setStatus("error");
@@ -85,7 +89,7 @@ function VerifyEmailContent() {
       <CardFooter className="pt-2">
         {(status === "success" || status === "error") && (
           <Button asChild className="w-full font-bold h-11 shadow-lg shadow-primary/20">
-            <Link href="/">
+            <Link href={status === "success" ? "/?verified=true" : "/"}>
               {status === "success" ? "Go to Login" : "Back to Home"}
               <ArrowRight className="ml-2 h-4 w-4" />
             </Link>
@@ -98,9 +102,14 @@ function VerifyEmailContent() {
 
 export default function VerifyEmailPage() {
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/10 via-background to-background">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-background font-mono select-none" style={{ backgroundColor: 'var(--background)' }}>
+      <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-20">
+        <div className="absolute top-[10%] left-[10%] w-[40%] h-[40%] rounded-full bg-primary/20 blur-[120px]" />
+        <div className="absolute bottom-[10%] right-[10%] w-[40%] h-[40%] rounded-full bg-primary/10 blur-[120px]" />
+      </div>
+      
       <Suspense fallback={
-        <Card className="w-full max-w-[450px] border-border/40 shadow-2xl bg-card/50 backdrop-blur-md animate-pulse">
+        <Card className="w-full max-w-[450px] border-border/40 shadow-2xl bg-card/30 backdrop-blur-xl animate-pulse">
            <CardHeader className="text-center">
              <div className="mx-auto h-16 w-16 bg-muted rounded-full mb-4" />
              <div className="h-8 bg-muted rounded w-3/4 mx-auto mb-2" />
@@ -108,7 +117,9 @@ export default function VerifyEmailPage() {
            </CardHeader>
         </Card>
       }>
-        <VerifyEmailContent />
+        <div className="relative z-10 w-full flex justify-center">
+          <VerifyEmailContent />
+        </div>
       </Suspense>
     </div>
   );

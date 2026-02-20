@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { signIn, signUp, authClient, requestPasswordReset } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,7 +13,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Mail, Lock, User, Loader2, ArrowLeft, CheckCircle2, ExternalLink } from "lucide-react";
+import { Mail, Lock, User, Loader2, ArrowLeft, CheckCircle2, ExternalLink, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 
 interface AuthModalProps {
@@ -22,7 +22,7 @@ interface AuthModalProps {
   onSuccess?: () => void;
 }
 
-type AuthView = "auth" | "check-email" | "forgot-password";
+type AuthView = "auth" | "check-email" | "forgot-password" | "verified";
 
 export function AuthModal({ isOpen, onOpenChange, onSuccess }: AuthModalProps) {
   const [isLoading, setIsLoading] = useState(false);
@@ -31,6 +31,19 @@ export function AuthModal({ isOpen, onOpenChange, onSuccess }: AuthModalProps) {
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [activeTab, setActiveTab] = useState<"login" | "signup">("login");
+
+  // Handle URL parameters for initial view
+  useEffect(() => {
+    if (isOpen) {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("verified") === "true") {
+        setView("verified");
+        // Clear the param after showing the view
+        const newUrl = window.location.pathname;
+        window.history.replaceState({}, "", newUrl);
+      }
+    }
+  }, [isOpen]);
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -375,6 +388,28 @@ export function AuthModal({ isOpen, onOpenChange, onSuccess }: AuthModalProps) {
                 Send Reset Link
               </Button>
             </form>
+          </div>
+        )}
+        {view === "verified" && (
+          <div className="py-6 flex flex-col items-center text-center space-y-4">
+            <div className="h-20 w-20 bg-green-500/10 rounded-full flex items-center justify-center mb-2 animate-in zoom-in duration-500">
+              <CheckCircle2 className="h-10 w-10 text-green-500" />
+            </div>
+            <DialogHeader>
+              <DialogTitle className="text-2xl font-bold">Verified successfully!</DialogTitle>
+              <DialogDescription className="text-base text-secondary/70">
+                Your email has been confirmed. You can now log in to your account and start tracking your progress.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="w-full pt-4">
+              <Button 
+                onClick={() => setView("auth")} 
+                className="w-full font-bold h-11 bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/20"
+              >
+                Go to Login
+                <ChevronRight className="ml-2 h-4 w-4" />
+              </Button>
+            </div>
           </div>
         )}
       </DialogContent>

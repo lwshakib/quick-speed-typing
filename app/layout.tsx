@@ -46,6 +46,7 @@ export const metadata: Metadata = {
 
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
+import { CustomThemeManager } from "@/components/custom-theme-manager";
 
 export default function RootLayout({
   children,
@@ -63,6 +64,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
+          <CustomThemeManager />
           {children}
           <Toaster />
         </ThemeProvider>

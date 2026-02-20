@@ -106,6 +106,13 @@ export default function Home() {
 
   useEffect(() => {
     setIsMounted(true);
+    
+    // Check for verification success redirect
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('verified') === 'true') {
+      setShowAuthModal(true);
+    }
+
     const savedThemeId = localStorage.getItem('typing-theme');
     if (savedThemeId) {
         if (savedThemeId === 'custom') {
