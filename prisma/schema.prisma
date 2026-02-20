@@ -78,14 +78,18 @@ model Verification {
 }
 
 model TypingHistory {
-  id        String   @id @default(cuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  wpm       Int
-  accuracy  Int
-  errors    Int
-  duration  Int
-  createdAt DateTime @default(now())
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  wpm         Int
+  rawWpm      Int?     @map("raw_wpm")
+  accuracy    Int
+  errors      Int
+  duration    Int
+  consistency Int?
+  mode        String?
+  language    String?
+  createdAt   DateTime @default(now())
 
   @@index([userId])
   @@map("typing_history")
