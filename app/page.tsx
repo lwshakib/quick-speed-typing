@@ -109,7 +109,7 @@ export default function Home() {
     
     // Check for verification success redirect
     const params = new URLSearchParams(window.location.search);
-    if (params.get('verified') === 'true' || params.get('token')) {
+    if (params.get('verified') === 'true' || params.get('token') || params.get('reset-password') === 'true') {
       setShowAuthModal(true);
     }
 

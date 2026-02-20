@@ -478,6 +478,28 @@ export function AuthModal({ isOpen, onOpenChange, onSuccess }: AuthModalProps) {
             </div>
           </div>
         )}
+        {view === "password-reset" && (
+          <div className="py-6 flex flex-col items-center text-center space-y-4">
+            <div className="h-20 w-20 bg-green-500/10 rounded-full flex items-center justify-center mb-2 animate-in zoom-in duration-500">
+              <CheckCircle2 className="h-10 w-10 text-green-500" />
+            </div>
+            <DialogHeader>
+              <DialogTitle className="text-2xl font-bold">Password Reset Successfully!</DialogTitle>
+              <DialogDescription className="text-base text-secondary/70">
+                Your password has been changed successfully. You can now log in to your account with your new password.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="w-full pt-4">
+              <Button 
+                onClick={() => setView("auth")} 
+                className="w-full font-bold h-11 bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/20"
+              >
+                Go to Login
+                <ChevronRight className="ml-2 h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        )}
       </DialogContent>
     </Dialog>
   );

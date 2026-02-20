@@ -109,7 +109,7 @@ export default function ResetPasswordPage() {
           </CardHeader>
           <CardFooter>
             <Button asChild className="w-full font-bold h-11 bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/20">
-              <Link href="/?verified=true">Go to Login</Link>
+              <Link href="/?reset-password=true">Go to Login</Link>
             </Button>
           </CardFooter>
         </Card>
