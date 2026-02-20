@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Quick - The Ultimate Speed Typing Game",
-  description: "Test and improve your typing speed and accuracy with interactive charts and progress tracking.",
+  title: "Quick Type - The Ultimate Speed Typing Game",
+  description: "Test and improve your typing speed and accuracy with interactive charts and progress tracking on Quick Type.",
    icons: {
     icon: [
       {
