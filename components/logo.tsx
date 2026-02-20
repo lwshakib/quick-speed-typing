@@ -40,25 +40,26 @@ import { Badge } from "@/components/ui/badge";
 
 export const Logo = ({
   className = "",
-  iconSize = 34,
+  iconSize = 32,
   textSize = "1.5rem",
 }: LogoProps): React.ReactElement => {
   return (
     <div className={`flex items-center gap-2 ${className}`}>
-      <LogoIcon size={iconSize} className="text-foreground" />
-      <span
-        style={{
-          fontSize: textSize,
-          fontWeight: 600,
-          letterSpacing: "-0.01em",
-        }}
-        className="text-foreground"
-      >
-        Quick
-      </span>
-      <Badge variant="secondary" className="font-bold text-[10px] px-1.5 py-0 h-4 uppercase">
-        Beta
-      </Badge>
+      <LogoIcon size={iconSize} style={{ color: 'var(--main-color)' }} />
+      <div className="flex flex-col leading-none">
+        <span
+          style={{
+            fontSize: textSize,
+            fontWeight: 800,
+            letterSpacing: "-0.05em",
+            color: 'var(--text-color)'
+          }}
+          className="lowercase"
+        >
+          quicktype
+        </span>
+      </div>
     </div>
   );
 };
+
