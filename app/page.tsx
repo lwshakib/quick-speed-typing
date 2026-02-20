@@ -9,7 +9,7 @@ import { Kbd } from "@/components/ui/kbd";
 import { LanguageDialog } from "@/components/language-dialog";
 import { ThemeDialog } from "@/components/theme-dialog";
 import { NotificationDrawer } from "@/components/notification-drawer";
-import { saveTypingHistory } from "@/lib/actions";
+import { saveTypingHistory, updateUserTheme, getUserTheme } from "@/lib/actions";
 import { useSession } from "@/lib/auth-client";
 import { useTypingEngine, GameMode } from "@/hooks/use-typing-engine";
 import { THEMES, Theme } from "@/lib/themes";
@@ -92,7 +92,9 @@ export default function Home() {
     history,
     testDuration,
     consistency,
-    charStats
+    charStats,
+    pause,
+    resume
   } = useTypingEngine({
     mode,
     amount,
@@ -104,6 +106,34 @@ export default function Home() {
 
   const lastFinishRef = useRef<boolean>(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [isMouseMoving, setIsMouseMoving] = useState(false);
+  const mouseMoveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    const handleMouseMove = () => {
+      setIsMouseMoving(true);
+      if (state === 'run') {
+        pause();
+      }
+      
+      if (mouseMoveTimeoutRef.current) clearTimeout(mouseMoveTimeoutRef.current);
+      mouseMoveTimeoutRef.current = setTimeout(() => {
+        setIsMouseMoving(false);
+      }, 2000);
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('blur', pause);
+    
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('blur', pause);
+      if (mouseMoveTimeoutRef.current) clearTimeout(mouseMoveTimeoutRef.current);
+    };
+  }, [state, pause]);
+
+  const isFocusMode = state === 'run' && !isMouseMoving;
+  const showUi = !isFocusMode;
 
   useEffect(() => {
     setIsMounted(true);
@@ -134,10 +164,45 @@ export default function Home() {
     }
   }, []);
 
-  const applyTheme = (theme: Theme) => {
+  const hasSyncedTheme = useRef(false);
+
+  // Sync theme with database once on session load
+  useEffect(() => {
+    if (session && !hasSyncedTheme.current) {
+      getUserTheme().then(dbTheme => {
+        if (dbTheme) {
+          if (dbTheme === 'custom') {
+            const savedCustom = localStorage.getItem('custom-theme-colors');
+            if (savedCustom) {
+              applyTheme({
+                id: 'custom',
+                name: 'custom',
+                colors: JSON.parse(savedCustom)
+              }, false); // don't re-save to DB if already matched
+            }
+          } else if (currentTheme.id !== dbTheme) {
+            const theme = THEMES.find(t => t.id === dbTheme);
+            if (theme) {
+              applyTheme(theme, false);
+            }
+          }
+          hasSyncedTheme.current = true;
+        }
+      });
+    } else if (!session) {
+      hasSyncedTheme.current = false;
+    }
+  }, [session]);
+
+  const applyTheme = (theme: Theme, saveToDb = true) => {
     setCurrentTheme(theme);
     localStorage.setItem('typing-theme', theme.id);
     
+    // Sync with database if authenticated
+    if (session && saveToDb) {
+      updateUserTheme(theme.id).catch(err => console.error("Failed to sync theme to DB:", err));
+    }
+
     const root = document.documentElement;
     root.style.setProperty('--background', theme.colors.background);
     root.style.setProperty('--main-color', theme.colors.main);
@@ -213,16 +278,33 @@ export default function Home() {
   return (
     <div 
         className="min-h-screen bg-background text-secondary font-mono selection:bg-primary/30 selection:text-primary transition-colors duration-300 flex flex-col items-center overflow-x-hidden"
-        style={{ backgroundColor: 'var(--background)', color: 'var(--sub-color)' }}
+        style={{ 
+          backgroundColor: 'var(--background)', 
+          color: 'var(--sub-color)',
+          cursor: isFocusMode ? 'none' : 'default'
+        }}
     >
       
       {/* Header */}
       <header className="w-full max-w-[1250px] px-8 py-8 flex justify-between items-center z-50">
         <div className="flex items-center gap-6">
-          <Link href="/" className="transition-all hover:scale-105 active:scale-95 duration-200">
-            <Logo iconSize={32} textSize="1.5rem" className="text-foreground hover:opacity-80 transition-opacity" />
+          <Link href="/" className={cn("transition-all duration-500", isFocusMode ? "opacity-20 scale-95 grayscale" : "hover:scale-105 active:scale-95")}>
+            <Logo 
+              iconSize={32} 
+              textSize="1.5rem" 
+              className="text-foreground" 
+              hideText={isFocusMode}
+            />
           </Link>
-          <nav className="flex items-center gap-4 ml-4">
+          <motion.nav 
+            animate={{ 
+              opacity: showUi ? 1 : 0, 
+              x: showUi ? 0 : -10,
+              pointerEvents: showUi ? 'auto' : 'none'
+            }}
+            transition={{ duration: 0.5 }}
+            className="flex items-center gap-4 ml-4"
+          >
              <Link href="/" className="hover:text-foreground transition-colors cursor-pointer group relative" title="Typing Test">
                 <Keyboard size={18} />
                 <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-0 h-[2px] bg-primary group-hover:w-full transition-all duration-300" />
@@ -236,10 +318,18 @@ export default function Home() {
              <Link href="/settings" className="hover:text-foreground transition-colors cursor-pointer group relative" title="Settings">
                 <Settings size={16} />
              </Link>
-          </nav>
+          </motion.nav>
         </div>
 
-        <div className="flex items-center gap-6">
+        <motion.div 
+          animate={{ 
+            opacity: showUi ? 1 : 0, 
+            x: showUi ? 0 : 10,
+            pointerEvents: showUi ? 'auto' : 'none'
+          }}
+          transition={{ duration: 0.5 }}
+          className="flex items-center gap-6"
+        >
            <button 
                 onClick={() => setIsNotificationsOpen(true)}
                 className="hover:text-foreground transition-colors cursor-pointer hover:scale-110 active:scale-95 duration-200 relative group"
@@ -257,7 +347,7 @@ export default function Home() {
               <UserIcon size={16} />
             </button>
           )}
-        </div>
+        </motion.div>
       </header>
 
       <main className="flex-1 w-full max-w-[1250px] px-8 flex flex-col items-center">
@@ -268,84 +358,99 @@ export default function Home() {
               animate={{ opacity: 1, y: 0 }}
               className="w-full max-w-[1000px] flex flex-col items-center gap-8 relative"
             >
-              {/* Setting Bar */}
-              <div className="w-full flex justify-center mb-6 sm:mb-10">
-                <div 
-                    className="bg-muted p-2 rounded-xl flex flex-wrap items-center justify-center text-[10px] sm:text-xs font-bold select-none w-full sm:w-fit gap-y-3 sm:gap-y-0 transition-all duration-300"
-                    style={{ backgroundColor: 'rgba(0,0,0,0.1)' }}
-                >
-                  <div className="flex items-center sm:border-r border-background/20 pr-3 sm:pr-4 gap-3 sm:gap-4 px-2 whitespace-nowrap">
-                    <button 
-                      onClick={() => setConfig(prev => ({ ...prev, punctuation: !prev.punctuation }))}
-                      className={cn("hover:text-foreground transition-colors flex items-center gap-1.5", config.punctuation && "text-primary")}
-                    >
-                      <span className="opacity-50 font-black">@</span> punctuation
-                    </button>
-                    <button 
-                      onClick={() => setConfig(prev => ({ ...prev, numbers: !prev.numbers }))}
-                      className={cn("hover:text-foreground transition-colors flex items-center gap-1.5", config.numbers && "text-primary")}
-                    >
-                      <span className="opacity-50 font-black">#</span> numbers
-                    </button>
-                  </div>
-
-                  <div className="flex items-center sm:border-r border-background/20 px-3 sm:px-4 gap-3 sm:gap-4 whitespace-nowrap">
-                    {(['time', 'words', 'quote', 'zen'] as const).map((m) => (
+              <motion.div 
+                animate={{ 
+                  opacity: showUi ? 1 : 0,
+                  y: showUi ? 0 : -10,
+                  pointerEvents: showUi ? 'auto' : 'none',
+                  // We use visibility to ensure it doesn't take interaction but stays in layout
+                  visibility: showUi ? 'visible' : 'visible' 
+                }}
+                transition={{ duration: 0.5 }}
+                className="w-full"
+              >
+                {/* Setting Bar */}
+                <div className="w-full flex justify-center mb-6 sm:mb-10">
+                  <div 
+                      className="bg-muted p-2 rounded-xl flex flex-wrap items-center justify-center text-[10px] sm:text-xs font-bold select-none w-full sm:w-fit gap-y-3 sm:gap-y-0 transition-all duration-300"
+                      style={{ backgroundColor: 'rgba(0,0,0,0.1)' }}
+                  >
+                    <div className="flex items-center sm:border-r border-background/20 pr-3 sm:pr-4 gap-3 sm:gap-4 px-2 whitespace-nowrap">
                       <button 
-                        key={m}
-                        onClick={() => { setMode(m); restart(); }}
-                        className={cn("hover:text-foreground transition-colors flex items-center gap-1.5 capitalize", mode === m && "text-primary")}
+                        onClick={() => setConfig(prev => ({ ...prev, punctuation: !prev.punctuation }))}
+                        className={cn("hover:text-foreground transition-colors flex items-center gap-1.5", config.punctuation && "text-primary")}
                       >
-                        <span className="hidden md:inline">
-                          {m === 'time' && <Clock size={12} />}
-                          {m === 'words' && <Hash size={12} />}
-                          {m === 'quote' && <QuoteIcon size={12} />}
-                        </span>
-                        {m}
+                        <span className="opacity-50 font-black">@</span> punctuation
                       </button>
-                    ))}
-                  </div>
-
-                  <div className="flex items-center pl-3 sm:pl-4 gap-3 sm:gap-4 px-2 whitespace-nowrap">
-                    {amounts.map((t) => (
                       <button 
-                        key={t}
-                        onClick={() => { 
-                            if (mode === 'time') setDuration(t); 
-                            else setWordCount(t);
-                            restart(); 
-                        }}
-                        className={cn("hover:text-foreground transition-colors", amount === t && "text-primary")}
+                        onClick={() => setConfig(prev => ({ ...prev, numbers: !prev.numbers }))}
+                        className={cn("hover:text-foreground transition-colors flex items-center gap-1.5", config.numbers && "text-primary")}
                       >
-                        {t}
+                        <span className="opacity-50 font-black">#</span> numbers
                       </button>
-                    ))}
-                    <button className="hover:text-foreground transition-colors hover:rotate-90 duration-300 ml-1">
-                      <Settings size={12} />
-                    </button>
+                    </div>
+
+                    <div className="flex items-center sm:border-r border-background/20 px-3 sm:px-4 gap-3 sm:gap-4 whitespace-nowrap">
+                      {(['time', 'words', 'quote', 'zen'] as const).map((m) => (
+                        <button 
+                          key={m}
+                          onClick={() => { setMode(m); restart(); }}
+                          className={cn("hover:text-foreground transition-colors flex items-center gap-1.5 capitalize", mode === m && "text-primary")}
+                        >
+                          <span className="hidden md:inline">
+                            {m === 'time' && <Clock size={12} />}
+                            {m === 'words' && <Hash size={12} />}
+                            {m === 'quote' && <QuoteIcon size={12} />}
+                          </span>
+                          {m}
+                        </button>
+                      ))}
+                    </div>
+
+                    <div className="flex items-center pl-3 sm:pl-4 gap-3 sm:gap-4 px-2 whitespace-nowrap">
+                      {amounts.map((t) => (
+                        <button 
+                          key={t}
+                          onClick={() => { 
+                              if (mode === 'time') setDuration(t); 
+                              else setWordCount(t);
+                              restart(); 
+                          }}
+                          className={cn("hover:text-foreground transition-colors", amount === t && "text-primary")}
+                        >
+                          {t}
+                        </button>
+                      ))}
+                      <button className="hover:text-foreground transition-colors hover:rotate-90 duration-300 ml-1">
+                        <Settings size={12} />
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Language indicator */}
-              <div 
-                  className="flex items-center gap-2 text-xs mb-[-1.5rem] opacity-50 hover:opacity-100 transition-opacity cursor-pointer group"
-                  onClick={() => setIsLangOpen(true)}
-              >
-                <Globe size={14} className="group-hover:text-primary transition-colors" />
-                <span className="capitalize">{language}</span>
-              </div>
+                {/* Language indicator */}
+                <div className="flex justify-center w-full">
+                  <div 
+                      className="flex items-center gap-2 text-xs mb-[-1.5rem] opacity-50 hover:opacity-100 transition-opacity cursor-pointer group"
+                      onClick={() => setIsLangOpen(true)}
+                  >
+                    <Globe size={14} className="group-hover:text-primary transition-colors" />
+                    <span className="capitalize">{language}</span>
+                  </div>
+                </div>
+              </motion.div>
 
               {/* Typing Container */}
               <div className="relative text-2xl md:text-3xl leading-relaxed tracking-wide min-h-[140px] focus:outline-none perspective-1000 w-full text-center">
                   {/* Timer Display */}
-                  {(state === 'run' || state === 'start') && mode !== 'zen' && (
-                    <div className={cn(
-                      "absolute top-[-3.5rem] left-0 font-bold text-3xl tabular-nums transition-colors duration-300",
-                      state === 'run' ? "text-primary" : "text-secondary"
-                    )}>
+                  {state === 'run' && mode !== 'zen' && (
+                    <motion.div 
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      className="absolute top-[-3.5rem] left-0 font-bold text-3xl tabular-nums text-primary transition-colors duration-300"
+                    >
                       {timeLeft}
-                    </div>
+                    </motion.div>
                   )}
 
                   <div 
@@ -428,15 +533,24 @@ export default function Home() {
               </div>
 
               {/* Reset Button */}
-              <div className="flex flex-col items-center gap-4 mt-8">
-                 <button 
-                    onClick={restart} 
-                    className="p-4 text-secondary hover:text-foreground transition-all hover:scale-110 active:scale-95 duration-200 hover:rotate-[360deg] duration-700 ease-in-out"
-                    title="Restart Test"
-                  >
-                    <RefreshCw size={26} />
-                 </button>
-              </div>
+              <AnimatePresence>
+                {showUi && (
+                   <motion.div 
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.9 }}
+                    className="flex flex-col items-center gap-4 mt-8"
+                   >
+                     <button 
+                        onClick={restart} 
+                        className="p-4 text-secondary hover:text-foreground transition-all hover:scale-110 active:scale-95 duration-200 hover:rotate-[360deg] duration-700 ease-in-out"
+                        title="Restart Test"
+                      >
+                        <RefreshCw size={26} />
+                     </button>
+                   </motion.div>
+                )}
+              </AnimatePresence>
             </motion.div>
           ) : (
             <motion.div 
@@ -651,7 +765,14 @@ export default function Home() {
         </div>
 
         {/* Shortcuts */}
-        <div className="hidden sm:flex w-full flex-col items-center gap-3 opacity-60 text-[10px] sm:text-xs font-bold select-none hover:opacity-100 transition-opacity duration-500 pointer-events-none mt-12 mb-8">
+        <motion.div 
+          animate={{ 
+            opacity: showUi && state !== 'finish' ? 0.6 : 0, 
+            pointerEvents: showUi && state !== 'finish' ? 'auto' : 'none'
+          }}
+          transition={{ duration: 0.5 }}
+          className="hidden sm:flex w-full flex-col items-center gap-3 text-[10px] sm:text-xs font-bold select-none hover:opacity-100 transition-opacity duration-500 mt-12 mb-8"
+        >
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2">
                  <Kbd className="bg-muted border-none text-secondary min-w-[30px] p-1 px-2.5">tab</Kbd>
@@ -678,11 +799,18 @@ export default function Home() {
                     <span className="ml-1 uppercase">- command line</span>
                  </div>
             </div>
-        </div>
+        </motion.div>
       </main>
 
       {/* Footer */}
-      <footer className="w-full max-w-[1250px] px-8 py-10 flex flex-col md:flex-row justify-between items-center text-[10px] font-bold opacity-60 select-none hover:opacity-100 transition-opacity duration-700 gap-6">
+      <motion.footer 
+        animate={{ 
+          opacity: showUi ? 0.6 : 0, 
+          pointerEvents: showUi ? 'auto' : 'none'
+        }}
+        transition={{ duration: 0.5 }}
+        className="w-full max-w-[1250px] px-8 py-10 flex flex-col md:flex-row justify-between items-center text-[10px] font-bold select-none hover:opacity-100 transition-opacity duration-700 gap-6"
+      >
           <div className="flex flex-wrap items-center justify-center md:justify-start gap-y-2 gap-x-6">
             <LinkWithIcon href="/contact" icon={<Mail size={12} />} text="contact" />
             <LinkWithIcon href="/support" icon={<Heart size={12} />} text="support" />
@@ -703,7 +831,7 @@ export default function Home() {
              </span>
              <span className="font-light opacity-50">v{currentTheme.id === 'serika-dark' ? '26.6.0' : 'theme.' + currentTheme.id}</span>
           </div>
-      </footer>
+      </motion.footer>
 
       <AuthModal 
         isOpen={showAuthModal} 

@@ -113,3 +113,35 @@ export async function getLeaderboard(timeRange: "all" | "daily" | "weekly" | "mo
 
   return uniqueRankings;
 }
+
+export async function updateUserTheme(themeId: string) {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session) {
+    throw new Error("Unauthorized");
+  }
+
+  return await prisma.user.update({
+    where: { id: session.user.id },
+    data: { theme: themeId } as any,
+  });
+}
+
+export async function getUserTheme() {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session) {
+    return null;
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: { theme: true } as any,
+  }) as { theme: string | null } | null;
+
+  return user?.theme || "default-theme";
+}

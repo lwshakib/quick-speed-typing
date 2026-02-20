@@ -66,6 +66,15 @@ export const auth = betterAuth({
     },
   },
   // Allow multiple social accounts to be linked to the same user profile.
+  user: {
+    additionalFields: {
+      theme: {
+        type: "string",
+        required: false,
+        defaultValue: "serika-dark",
+      },
+    },
+  },
   account: {
     accountLinking: {
       enabled: true,

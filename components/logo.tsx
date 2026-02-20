@@ -34,6 +34,7 @@ export interface LogoProps {
   className?: string;
   iconSize?: number | string;
   textSize?: string;
+  hideText?: boolean;
 }
 
 import { Badge } from "@/components/ui/badge";
@@ -42,11 +43,12 @@ export const Logo = ({
   className = "",
   iconSize = 32,
   textSize = "1.5rem",
+  hideText = false,
 }: LogoProps): React.ReactElement => {
   return (
     <div className={`flex items-center gap-2 ${className}`}>
       <LogoIcon size={iconSize} style={{ color: 'var(--main-color)' }} />
-      <div className="flex flex-col leading-none">
+      <div className={`flex flex-col leading-none transition-all duration-500 ${hideText ? "opacity-30" : "opacity-100"}`}>
         <span
           style={{
             fontSize: textSize,

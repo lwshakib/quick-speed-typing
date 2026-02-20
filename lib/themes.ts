@@ -14,6 +14,32 @@ export interface Theme {
 
 export const THEMES: Theme[] = [
   {
+    id: "default-theme",
+    name: "default theme",
+    colors: {
+      background: "#ffffff",
+      main: "#343434",
+      caret: "#343434",
+      sub: "#8b8b8b",
+      text: "#252525",
+      error: "#e11d48",
+      errorExtra: "#7f1d1d",
+    },
+  },
+  {
+    id: "shadcn",
+    name: "shadcn",
+    colors: {
+      background: "#030712",
+      main: "#ffffff",
+      caret: "#ffffff",
+      sub: "#6b7280",
+      text: "#f3f4f6",
+      error: "#ef4444",
+      errorExtra: "#7f1d1d",
+    },
+  },
+  {
     id: "serika-dark",
     name: "serika dark",
     colors: {

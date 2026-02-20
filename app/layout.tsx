@@ -63,8 +63,10 @@ export default function RootLayout({
             __html: `
               (function() {
                 try {
-                  var themeId = localStorage.getItem('typing-theme') || 'serika-dark';
+                  var themeId = localStorage.getItem('typing-theme') || 'default-theme';
                   var themes = {
+                    'default-theme': { background: '#ffffff', main: '#343434', caret: '#343434', sub: '#8b8b8b', text: '#252525', error: '#e11d48', errorExtra: '#7f1d1d' },
+                    'shadcn': { background: '#030712', main: '#ffffff', caret: '#ffffff', sub: '#6b7280', text: '#f3f4f6', error: '#ef4444', errorExtra: '#7f1d1d' },
                     'serika-dark': { background: '#323437', main: '#e2b714', caret: '#e2b714', sub: '#646669', text: '#d1d0c5', error: '#ca4754', errorExtra: '#793e44' },
                     'carbon': { background: '#313131', main: '#f66e0d', caret: '#f66e0d', sub: '#616161', text: '#f5e6c8', error: '#da3333', errorExtra: '#791717' },
                     'lush': { background: '#1d2021', main: '#8ec07c', caret: '#8ec07c', sub: '#665c54', text: '#ebdbb2', error: '#fb4934', errorExtra: '#cc241d' },

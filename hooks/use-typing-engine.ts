@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect, useRef } from 'react';
 import { faker } from '@faker-js/faker';
 
 export type GameMode = 'time' | 'words' | 'quote' | 'zen';
-export type GameState = 'start' | 'run' | 'finish';
+export type GameState = 'start' | 'run' | 'pause' | 'finish';
 
 interface HistoryPoint {
   time: number;
@@ -131,6 +131,7 @@ export const useTypingEngine = (options: TypingOptions = {}) => {
     return Math.round(wordsTyped / minutes);
   };
 
+
   const finish = useCallback(() => {
     if (timerRef.current) clearInterval(timerRef.current);
     timerRef.current = null;
@@ -178,6 +179,19 @@ export const useTypingEngine = (options: TypingOptions = {}) => {
       }
     }, 1000);
   }, [mode, finish, totalTypedCount, errors]);
+
+  const pause = useCallback(() => {
+    if (state !== 'run') return;
+    if (timerRef.current) clearInterval(timerRef.current);
+    timerRef.current = null;
+    setState('pause');
+  }, [state]);
+
+  const resume = useCallback(() => {
+    if (state !== 'pause') return;
+    setState('run');
+    startTimer();
+  }, [state, startTimer]);
 
   useEffect(() => {
     updateWords();
@@ -320,6 +334,8 @@ export const useTypingEngine = (options: TypingOptions = {}) => {
     lastError,
     totalTyped: totalTypedCount,
     restart,
+    pause,
+    resume,
     wpm,
     rawWpm,
     accuracy,

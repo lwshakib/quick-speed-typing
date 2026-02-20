@@ -21,6 +21,7 @@ model User {
   image         String?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
+  theme         String?   @default("default-theme")
   sessions      Session[]
   accounts      Account[]
   typingHistory TypingHistory[]
