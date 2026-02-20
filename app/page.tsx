@@ -122,11 +122,17 @@ export default function Home() {
       }, 2000);
     };
 
+    const handleKeyDown = () => {
+      setIsMouseMoving(false);
+    };
+
     window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('keydown', handleKeyDown);
     window.addEventListener('blur', pause);
     
     return () => {
       window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('blur', pause);
       if (mouseMoveTimeoutRef.current) clearTimeout(mouseMoveTimeoutRef.current);
     };

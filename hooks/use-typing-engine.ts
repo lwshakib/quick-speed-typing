@@ -261,6 +261,10 @@ export const useTypingEngine = (options: TypingOptions = {}) => {
       startTimer();
     }
 
+    if (state === 'pause' && e.key !== 'Backspace') {
+      resume();
+    }
+
     if (e.key === 'Backspace') {
       setTyped((prev) => prev.slice(0, -1));
       setTotalTypedCount(prev => Math.max(0, prev - 1));
