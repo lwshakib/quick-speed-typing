@@ -17,6 +17,7 @@ interface TypingOptions {
   includeNumbers?: boolean;
   includePunctuation?: boolean;
   language?: string;
+  disabled?: boolean;
 }
 
 const QUOTES = [
@@ -64,7 +65,8 @@ export const useTypingEngine = (options: TypingOptions = {}) => {
     amount = 30, 
     includeNumbers = false, 
     includePunctuation = false,
-    language = 'english'
+    language = 'english',
+    disabled = false
   } = options;
   
   const [state, setState] = useState<GameState>('start');
@@ -203,7 +205,16 @@ export const useTypingEngine = (options: TypingOptions = {}) => {
   }, [typed, mode, amount, finish]);
 
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
-    if (state === 'finish') return;
+    if (state === 'finish' || disabled) return;
+    
+    // Ignore if typing in an input, textarea or contenteditable
+    if (
+      e.target instanceof HTMLInputElement ||
+      e.target instanceof HTMLTextAreaElement ||
+      (e.target as HTMLElement).isContentEditable
+    ) {
+      return;
+    }
     
     if (e.key === 'Tab') {
       e.preventDefault();
@@ -274,7 +285,7 @@ export const useTypingEngine = (options: TypingOptions = {}) => {
           finish();
       }
     }
-  }, [state, words, typed, startTimer, mode, language, includeNumbers, includePunctuation, restart, finish, amount]);
+  }, [state, words, typed, startTimer, mode, language, includeNumbers, includePunctuation, restart, finish, amount, disabled]);
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);

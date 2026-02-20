@@ -73,6 +73,12 @@ export default function Home() {
 
   const amount = mode === 'time' ? duration : wordCount;
 
+  const { data: session } = useSession();
+  const [isMounted, setIsMounted] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const [hasSaved, setHasSaved] = useState(false);
+
   const {
     state,
     words,
@@ -93,13 +99,8 @@ export default function Home() {
     includeNumbers: config.numbers,
     includePunctuation: config.punctuation,
     language,
+    disabled: showAuthModal || isLangOpen || isThemeOpen || isNotificationsOpen,
   });
-
-  const { data: session } = useSession();
-  const [isMounted, setIsMounted] = useState(false);
-  const [showAuthModal, setShowAuthModal] = useState(false);
-  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
-  const [hasSaved, setHasSaved] = useState(false);
 
   const lastFinishRef = useRef<boolean>(false);
   const scrollRef = useRef<HTMLDivElement>(null);
