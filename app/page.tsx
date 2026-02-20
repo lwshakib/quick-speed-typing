@@ -2,55 +2,160 @@
 
 import { AuthModal } from "@/components/auth-modal";
 import { UserMenu } from "@/components/user-menu";
+import { LinkWithIcon } from "@/components/link-with-icon";
 import { Logo } from "@/components/logo";
-import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Kbd } from "@/components/ui/kbd";
+import { LanguageDialog } from "@/components/language-dialog";
+import { ThemeDialog } from "@/components/theme-dialog";
+import { NotificationDrawer } from "@/components/notification-drawer";
 import { saveTypingHistory } from "@/lib/actions";
 import { useSession } from "@/lib/auth-client";
-import { useTypingEngine } from "@/hooks/use-typing-engine";
+import { useTypingEngine, GameMode } from "@/hooks/use-typing-engine";
+import { THEMES, Theme } from "@/lib/themes";
 import { motion, AnimatePresence } from "framer-motion";
-import { RefreshCw, Zap, Target, AlertTriangle, CloudUpload } from "lucide-react";
+import { 
+    RefreshCw, 
+    Keyboard, 
+    Trophy, 
+    Info, 
+    Settings, 
+    Bell, 
+    User as UserIcon, 
+    Globe, 
+    Quote as QuoteIcon, 
+    Hash, 
+    Clock,
+    ChevronRight,
+    AlertTriangle,
+    History,
+    MoreHorizontal,
+    FastForward,
+    Image as ImageIcon,
+    Palette,
+    Mail,
+    Heart,
+    Github,
+    MessageCircle,
+    Twitter,
+    FileText,
+    Shield,
+    Lock
+} from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import Link from "next/link";
+import { cn } from "@/lib/utils";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
 
 export default function Home() {
+  const [duration, setDuration] = useState(60);
+  const [wordCount, setWordCount] = useState(25);
+  const [mode, setMode] = useState<GameMode>('time');
+  const [language, setLanguage] = useState("english"); 
+  const [currentTheme, setCurrentTheme] = useState<Theme>(THEMES[0]);
+  
+  const [isLangOpen, setIsLangOpen] = useState(false);
+  const [isThemeOpen, setIsThemeOpen] = useState(false);
+  
+  const [config, setConfig] = useState({
+    punctuation: false,
+    numbers: false,
+  });
+
+  const amount = mode === 'time' ? duration : wordCount;
+
   const {
     state,
     words,
     typed,
     timeLeft,
     errors,
-    isError,
-    lastError,
     restart,
     wpm,
+    rawWpm,
     accuracy,
-  } = useTypingEngine(30);
+    history,
+    testDuration,
+    consistency,
+    charStats
+  } = useTypingEngine({
+    mode,
+    amount,
+    includeNumbers: config.numbers,
+    includePunctuation: config.punctuation,
+    language,
+  });
 
   const { data: session } = useSession();
   const [isMounted, setIsMounted] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [hasSaved, setHasSaved] = useState(false);
+
   const lastFinishRef = useRef<boolean>(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setIsMounted(true);
+    const savedThemeId = localStorage.getItem('typing-theme');
+    if (savedThemeId) {
+        if (savedThemeId === 'custom') {
+            const savedCustom = localStorage.getItem('custom-theme-colors');
+            if (savedCustom) {
+                applyTheme({
+                    id: 'custom',
+                    name: 'custom',
+                    colors: JSON.parse(savedCustom)
+                });
+            }
+        } else {
+            const theme = THEMES.find(t => t.id === savedThemeId);
+            if (theme) {
+                applyTheme(theme);
+            }
+        }
+    }
   }, []);
 
-  // Handle auto-saving when finished and logged in
+  const applyTheme = (theme: Theme) => {
+    setCurrentTheme(theme);
+    localStorage.setItem('typing-theme', theme.id);
+    
+    const root = document.documentElement;
+    root.style.setProperty('--background', theme.colors.background);
+    root.style.setProperty('--main-color', theme.colors.main);
+    root.style.setProperty('--caret-color', theme.colors.caret);
+    root.style.setProperty('--sub-color', theme.colors.sub);
+    root.style.setProperty('--text-color', theme.colors.text);
+    root.style.setProperty('--error-color', theme.colors.error);
+    root.style.setProperty('--error-extra-color', theme.colors.errorExtra);
+    
+    root.style.setProperty('--foreground', theme.colors.text);
+    root.style.setProperty('--primary', theme.colors.main);
+    root.style.setProperty('--secondary', theme.colors.sub);
+    root.style.setProperty('--muted-foreground', theme.colors.sub);
+    root.style.setProperty('--accent', theme.colors.main);
+    root.style.setProperty('--ring', theme.colors.main);
+    root.style.setProperty('--destructive', theme.colors.error);
+  };
+
   useEffect(() => {
     const isFinished = state === 'finish';
-    
     if (isFinished && !lastFinishRef.current) {
       setHasSaved(false);
       if (session) {
         handleSave();
       }
     }
-    
     lastFinishRef.current = isFinished;
   }, [state, session]);
 
@@ -59,222 +164,562 @@ export default function Home() {
     try {
       await saveTypingHistory({
         wpm,
+        rawWpm,
         accuracy,
         errors,
-        duration: 30, // Default duration used in hook
+        duration: testDuration,
+        consistency,
+        mode,
+        language,
       });
       setHasSaved(true);
-      toast.success("Progress saved to profile!");
+      toast.success("Progress saved!");
     } catch (error) {
       console.error("Failed to save:", error);
-      toast.error("Failed to save progress");
     }
   };
 
-  const handleAuthSuccess = () => {
-    // Save progress after sign in if finished
-    if (state === 'finish' && !hasSaved) {
-      handleSave();
+  const wordsArray = words.split(" ");
+  const currentWordIndex = typed.split(" ").length - 1;
+
+  useEffect(() => {
+    if (scrollRef.current) {
+        const activeWord = scrollRef.current.querySelector('.word.active');
+        if (activeWord) {
+            const containerRect = scrollRef.current.getBoundingClientRect();
+            const activeRect = activeWord.getBoundingClientRect();
+            
+            if (activeRect.top > containerRect.top + 45) {
+                activeWord.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
     }
-  };
+  }, [currentWordIndex]);
 
   if (!isMounted) return null;
 
+  const timeOptions = [15, 30, 60, 120];
+  const wordOptions = [10, 25, 50, 100];
+  const amounts = mode === 'time' ? timeOptions : wordOptions;
+
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-white dark:bg-[#0a0a0a] text-zinc-900 dark:text-[#d4d4d4] font-mono p-4 sm:p-6 transition-colors duration-300">
-      <header className="fixed top-0 left-0 right-0 p-4 sm:p-6 flex justify-between items-center z-50 bg-white/80 dark:bg-[#0a0a0a]/80 backdrop-blur-md">
-        <Logo iconSize={28} textSize="1.25rem" />
-        <div className="flex items-center gap-2 sm:gap-4">
-          <ThemeToggle />
-          {session ? (
+    <div 
+        className="min-h-screen bg-background text-secondary font-mono selection:bg-primary/30 selection:text-primary transition-colors duration-300 flex flex-col items-center overflow-x-hidden"
+        style={{ backgroundColor: 'var(--background)', color: 'var(--sub-color)' }}
+    >
+      
+      {/* Header */}
+      <header className="w-full max-w-[1250px] px-8 py-8 flex justify-between items-center z-50">
+        <div className="flex items-center gap-6">
+          <Link href="/" className="transition-all hover:scale-105 active:scale-95 duration-200">
+            <Logo iconSize={32} textSize="1.5rem" className="text-foreground hover:opacity-80 transition-opacity" />
+          </Link>
+          <nav className="flex items-center gap-4 ml-4">
+             <Link href="/" className="hover:text-foreground transition-colors cursor-pointer group relative" title="Typing Test">
+                <Keyboard size={18} />
+                <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-0 h-[2px] bg-primary group-hover:w-full transition-all duration-300" />
+             </Link>
+             <Link href="/leaderboard" className="hover:text-foreground transition-colors cursor-pointer group relative" title="Leaderboards">
+                <Trophy size={16} />
+             </Link>
+             <Link href="/about" className="hover:text-foreground transition-colors cursor-pointer group relative" title="About">
+                <Info size={16} />
+             </Link>
+             <Link href="/settings" className="hover:text-foreground transition-colors cursor-pointer group relative" title="Settings">
+                <Settings size={16} />
+             </Link>
+          </nav>
+        </div>
+
+        <div className="flex items-center gap-6">
+           <button 
+                onClick={() => setIsNotificationsOpen(true)}
+                className="hover:text-foreground transition-colors cursor-pointer hover:scale-110 active:scale-95 duration-200 relative group"
+           >
+                <Bell size={16} />
+                <span className="absolute top-0 right-0 w-2 h-2 bg-primary rounded-full border-2 border-background group-hover:animate-ping" />
+           </button>
+           {session ? (
             <UserMenu />
           ) : (
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="rounded-full"
+            <button 
+              className="hover:text-foreground transition-colors cursor-pointer hover:scale-110 active:scale-95 duration-200"
               onClick={() => setShowAuthModal(true)}
             >
-              Sign In
-            </Button>
+              <UserIcon size={16} />
+            </button>
           )}
         </div>
       </header>
 
-      <main className="w-full max-w-4xl flex flex-col items-center gap-8 sm:gap-12 mt-20 sm:mt-16">
-
-        {/* Game State Tracking */}
-        <AnimatePresence mode="wait">
-          {state !== "finish" ? (
-            <motion.div
-              key="game"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="w-full flex flex-col gap-8"
+      <main className="flex-1 w-full max-w-[1250px] px-8 flex flex-col items-center">
+        <div className="flex-1 w-full flex flex-col items-center justify-center">
+          {state !== 'finish' ? (
+            <motion.div 
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="w-full max-w-[1000px] flex flex-col items-center gap-8 relative"
             >
-              <div className="flex flex-col sm:flex-row justify-between items-center sm:items-end gap-4 px-2">
-                <div className="flex flex-col items-center sm:items-start text-center sm:text-left">
-                  <span className="text-muted-foreground text-xs sm:text-sm uppercase tracking-widest font-medium">Time Remaining</span>
-                  <span className={`text-3xl sm:text-4xl font-bold ${timeLeft < 10 ? 'text-destructive' : 'text-foreground'}`}>
-                    {timeLeft}s
-                  </span>
-                </div>
-                <div className="flex gap-8">
-                   <div className="flex flex-col items-center sm:items-end text-center sm:text-right">
-                    <span className="text-muted-foreground text-xs sm:text-sm uppercase tracking-widest font-medium">Accuracy</span>
-                    <span className="text-xl sm:text-2xl font-semibold text-foreground">{accuracy}%</span>
+              {/* Setting Bar */}
+              <div className="w-full flex justify-center mb-6 sm:mb-10">
+                <div 
+                    className="bg-muted p-2 rounded-xl flex flex-wrap items-center justify-center text-[10px] sm:text-xs font-bold select-none w-full sm:w-fit gap-y-3 sm:gap-y-0 transition-all duration-300"
+                    style={{ backgroundColor: 'rgba(0,0,0,0.1)' }}
+                >
+                  <div className="flex items-center sm:border-r border-background/20 pr-3 sm:pr-4 gap-3 sm:gap-4 px-2 whitespace-nowrap">
+                    <button 
+                      onClick={() => setConfig(prev => ({ ...prev, punctuation: !prev.punctuation }))}
+                      className={cn("hover:text-foreground transition-colors flex items-center gap-1.5", config.punctuation && "text-primary")}
+                    >
+                      <span className="opacity-50 font-black">@</span> punctuation
+                    </button>
+                    <button 
+                      onClick={() => setConfig(prev => ({ ...prev, numbers: !prev.numbers }))}
+                      className={cn("hover:text-foreground transition-colors flex items-center gap-1.5", config.numbers && "text-primary")}
+                    >
+                      <span className="opacity-50 font-black">#</span> numbers
+                    </button>
+                  </div>
+
+                  <div className="flex items-center sm:border-r border-background/20 px-3 sm:px-4 gap-3 sm:gap-4 whitespace-nowrap">
+                    {(['time', 'words', 'quote', 'zen'] as const).map((m) => (
+                      <button 
+                        key={m}
+                        onClick={() => { setMode(m); restart(); }}
+                        className={cn("hover:text-foreground transition-colors flex items-center gap-1.5 capitalize", mode === m && "text-primary")}
+                      >
+                        <span className="hidden md:inline">
+                          {m === 'time' && <Clock size={12} />}
+                          {m === 'words' && <Hash size={12} />}
+                          {m === 'quote' && <QuoteIcon size={12} />}
+                        </span>
+                        {m}
+                      </button>
+                    ))}
+                  </div>
+
+                  <div className="flex items-center pl-3 sm:pl-4 gap-3 sm:gap-4 px-2 whitespace-nowrap">
+                    {amounts.map((t) => (
+                      <button 
+                        key={t}
+                        onClick={() => { 
+                            if (mode === 'time') setDuration(t); 
+                            else setWordCount(t);
+                            restart(); 
+                        }}
+                        className={cn("hover:text-foreground transition-colors", amount === t && "text-primary")}
+                      >
+                        {t}
+                      </button>
+                    ))}
+                    <button className="hover:text-foreground transition-colors hover:rotate-90 duration-300 ml-1">
+                      <Settings size={12} />
+                    </button>
                   </div>
                 </div>
               </div>
 
-              {/* Typing Area */}
-              <motion.div 
-                animate={isError ? { x: [-10, 10, -10, 10, 0] } : { x: 0 }}
-                transition={{ duration: 0.1, repeat: 0 }}
-                className="relative text-xl sm:text-2xl md:text-3xl leading-relaxed tracking-wide min-h-[160px] p-4 sm:p-8"
+              {/* Language indicator */}
+              <div 
+                  className="flex items-center gap-2 text-xs mb-[-1.5rem] opacity-50 hover:opacity-100 transition-opacity cursor-pointer group"
+                  onClick={() => setIsLangOpen(true)}
               >
-                {/* Background Words */}
-                <div className="absolute inset-4 sm:inset-8 text-muted-foreground/30 pointer-events-none select-none break-words">
-                  {words}
-                </div>
-                
-                {/* Typed Overlay */}
-                <div className="relative z-10 break-words">
-                  {typed.split("").map((char, index) => {
-                    const isCorrect = char === words[index];
-                    return (
-                      <span
-                        key={index}
-                        className={`${
-                          isCorrect ? "text-foreground" : "text-destructive"
-                        } transition-colors duration-100`}
-                      >
-                        {char}
-                      </span>
-                    );
-                  })}
-                  
-                  {/* Caret */}
-                  <span className="relative inline-flex flex-col items-center">
-                    <motion.span
-                      animate={{ opacity: [1, 0, 1] }}
-                      transition={{ repeat: Infinity, duration: 0.8 }}
-                      className="inline-block w-[2px] h-[1.2em] bg-primary align-middle ml-[2px]"
-                    />
-                    
-                    {/* Error Display Under Cursor */}
-                    <AnimatePresence>
-                      {lastError && (
-                        <motion.div
-                          initial={{ opacity: 0, scale: 0.5, y: -5 }}
-                          animate={{ opacity: 1, scale: 1, y: 0 }}
-                          exit={{ opacity: 0, scale: 0.5, y: 5 }}
-                          className="absolute top-full mt-1 text-destructive font-bold text-sm whitespace-nowrap z-50 capitalize"
-                        >
-                          {lastError === " " ? "␣" : lastError}
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </span>
-                </div>
-              </motion.div>
+                <Globe size={14} className="group-hover:text-primary transition-colors" />
+                <span className="capitalize">{language}</span>
+              </div>
 
-              <div className="flex justify-center flex-col items-center gap-4">
-                <Button
-                  variant="secondary"
-                  onClick={restart}
-                  className="group flex items-center gap-2 px-8 py-6 rounded-xl hover:bg-secondary/80 transition-all border border-border shadow-sm"
-                >
-                  <RefreshCw className="w-4 h-4 group-hover:rotate-180 transition-transform duration-500" />
-                  <span className="font-semibold text-base">Restart Test</span>
-                </Button>
-                <div className="text-muted-foreground text-xs flex items-center gap-1.5 opacity-60">
-                   <Kbd>Tab</Kbd>
-                   <span>to restart</span>
-                </div>
+              {/* Typing Container */}
+              <div className="relative text-2xl md:text-3xl leading-relaxed tracking-wide min-h-[140px] focus:outline-none perspective-1000 w-full text-center">
+                  {/* Timer Display */}
+                  {(state === 'run' || state === 'start') && mode !== 'zen' && (
+                    <div className={cn(
+                      "absolute top-[-3.5rem] left-0 font-bold text-3xl tabular-nums transition-colors duration-300",
+                      state === 'run' ? "text-primary" : "text-secondary"
+                    )}>
+                      {timeLeft}
+                    </div>
+                  )}
+
+                  <div 
+                      ref={scrollRef}
+                      className="flex flex-wrap justify-start content-start overflow-hidden h-auto min-h-[120px] max-h-[160px] w-full select-none pointer-events-none relative transition-all duration-300"
+                  >
+                    {wordsArray.map((targetWord: string, wIdx: number) => {
+                      const typedWords = typed.split(" ");
+                      const currentTypedWord = typedWords[wIdx] || "";
+                      const isActive = wIdx === currentWordIndex;
+                      const isFinished = wIdx < currentWordIndex;
+                      
+                      const targetChars = targetWord.split("");
+                      const typedChars = currentTypedWord.split("");
+                      const charsToRender: { char: string; state: string; isExtra: boolean; isCurrent: boolean }[] = [];
+
+                      for (let i = 0; i < targetChars.length; i++) {
+                          const targetChar = targetChars[i];
+                          const typedChar = typedChars[i];
+                          charsToRender.push({
+                              char: targetChar,
+                              state: !typedChar ? 'untyped' : (typedChar === targetChar ? 'correct' : 'incorrect'),
+                              isExtra: false,
+                              isCurrent: isActive && i === typedChars.length,
+                          });
+                      }
+
+                      if (typedChars.length > targetChars.length) {
+                          for (let i = targetChars.length; i < typedChars.length; i++) {
+                              charsToRender.push({
+                                  char: typedChars[i],
+                                  state: 'incorrect',
+                                  isExtra: true,
+                                  isCurrent: isActive && (i + 1 === typedChars.length),
+                              });
+                          }
+                      }
+
+                      const hasError = isFinished && (currentTypedWord !== targetWord);
+
+                      return (
+                        <div key={wIdx} className={cn(
+                          "word mx-[0.25em] my-[0.1em] relative transition-all duration-300", 
+                          isActive ? "active opacity-100 scale-105" : "opacity-40 scale-100",
+                          hasError && "border-b-2 border-destructive"
+                        )}>
+                          {charsToRender.map((item, cIdx) => (
+                            <span 
+                              key={cIdx} 
+                              className={cn(
+                                "char relative inline-block transition-colors duration-150",
+                                item.state === 'correct' && "text-foreground",
+                                item.state === 'incorrect' && (item.isExtra ? "opacity-60 text-destructive" : "text-destructive"),
+                                item.state === 'untyped' && "text-secondary"
+                              )}
+                            >
+                              {item.isCurrent && (
+                                  <motion.div 
+                                    layoutId="caret"
+                                    className="absolute left-[-1px] top-[10%] w-[2.5px] h-[80%] bg-primary rounded-full z-10"
+                                    transition={{ type: "spring", stiffness: 450, damping: 40 }}
+                                    style={{ boxShadow: "0 0 10px var(--primary)" }}
+                                  />
+                              )}
+                              {item.char}
+                            </span>
+                          ))}
+                          {isActive && currentTypedWord.length === targetWord.length && (
+                               <motion.div 
+                                  layoutId="caret"
+                                  className="absolute right-[-2px] top-[10%] w-[2.5px] h-[80%] bg-primary rounded-full z-10"
+                                  transition={{ type: "spring", stiffness: 450, damping: 40 }}
+                                  style={{ boxShadow: "0 0 10px var(--primary)" }}
+                                />
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+              </div>
+
+              {/* Reset Button */}
+              <div className="flex flex-col items-center gap-4 mt-8">
+                 <button 
+                    onClick={restart} 
+                    className="p-4 text-secondary hover:text-foreground transition-all hover:scale-110 active:scale-95 duration-200 hover:rotate-[360deg] duration-700 ease-in-out"
+                    title="Restart Test"
+                  >
+                    <RefreshCw size={26} />
+                 </button>
               </div>
             </motion.div>
           ) : (
-            <motion.div
-              key="results"
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              className="w-full grid grid-cols-1 md:grid-cols-3 gap-6"
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="w-full max-w-[1250px] flex flex-col gap-6 select-none"
             >
-              {/* WPM Result */}
-              <Card className="flex flex-col items-center justify-center p-6 sm:p-8 rounded-3xl overflow-hidden relative border-border/50 shadow-2xl bg-card transition-all hover:scale-[1.02]">
-                <CardContent className="flex flex-col items-center p-0">
-                  <div className="absolute top-0 right-0 p-4 opacity-5">
-                    <Zap className="w-12 h-12 sm:w-20 sm:h-20" />
+               {/* Main Result Area */}
+               <div className="flex flex-col md:flex-row gap-6 md:gap-10 w-full items-center md:items-start text-center md:text-left">
+                  {/* Result Summary (Left) */}
+                  <div className="flex flex-row md:flex-col gap-8 md:gap-6 min-w-full md:min-w-[120px] justify-center md:justify-start border-b md:border-b-0 md:border-r border-secondary/5 pb-6 md:pb-0 md:pr-10">
+                     <div className="flex flex-col group">
+                        <span className="text-sm md:text-lg font-medium text-secondary/60 group-hover:text-secondary transition-colors lowercase">wpm</span>
+                        <span className="text-[3rem] md:text-[3.5rem] font-bold text-primary leading-[0.7] tracking-tighter tabular-nums drop-shadow-sm">{wpm}</span>
+                     </div>
+                     <div className="flex flex-col group mt-0 md:mt-2">
+                        <span className="text-sm md:text-lg font-medium text-secondary/60 group-hover:text-secondary transition-colors lowercase">acc</span>
+                        <span className="text-[3rem] md:text-[3.5rem] font-bold text-primary leading-[0.7] tracking-tighter tabular-nums drop-shadow-sm">{accuracy}%</span>
+                     </div>
                   </div>
-                  <span className="text-muted-foreground uppercase tracking-widest text-[10px] sm:text-xs mb-2 font-bold opacity-70">WPM</span>
-                  <span className="text-5xl sm:text-7xl font-black text-foreground tabular-nums tracking-tighter">{wpm}</span>
-                </CardContent>
-              </Card>
 
-              {/* Accuracy Result */}
-              <Card className="flex flex-col items-center justify-center p-6 sm:p-8 rounded-3xl overflow-hidden relative border-border/50 shadow-2xl bg-card transition-all hover:scale-[1.02]">
-                <CardContent className="flex flex-col items-center p-0">
-                  <div className="absolute top-0 right-0 p-4 opacity-5">
-                    <Target className="w-12 h-12 sm:w-20 sm:h-20" />
+                  {/* Main Graph (Middle/Right) */}
+                  <div className="w-full flex-1 h-[200px] md:h-[220px] relative">
+                      <ResponsiveContainer width="100%" height="100%">
+                          <LineChart data={history} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.03)" />
+                              <XAxis 
+                                  dataKey="time" 
+                                  hide={false} 
+                                  axisLine={false} 
+                                  tickLine={false} 
+                                  tick={{ fill: 'var(--sub-color)', fontSize: 10, opacity: 0.4 }} 
+                              />
+                              <YAxis 
+                                  domain={[0, 'auto']} 
+                                  axisLine={false} 
+                                  tickLine={false} 
+                                  tick={{ fill: 'var(--sub-color)', fontSize: 10, opacity: 0.4 }}
+                                  label={{ 
+                                      value: 'wpm', 
+                                      angle: -90, 
+                                      position: 'insideLeft', 
+                                      fill: 'var(--sub-color)', 
+                                      fontSize: 10, 
+                                      opacity: 0.4,
+                                      offset: 10
+                                  }}
+                              />
+                              <Tooltip 
+                                  contentStyle={{ 
+                                      backgroundColor: 'var(--background)', 
+                                      border: '1px solid var(--sub-color)', 
+                                      borderRadius: '4px', 
+                                      fontSize: '11px', 
+                                      color: 'var(--text-color)',
+                                      opacity: 0.9,
+                                      boxShadow: '0 4px 20px rgba(0,0,0,0.3)'
+                                  }}
+                                  itemStyle={{ padding: '2px 0' }}
+                                  cursor={{ stroke: 'var(--sub-color)', strokeWidth: 1 }}
+                              />
+                              {/* Raw WPM line (Dashed Yellow) */}
+                            <Line 
+                                type="monotone" 
+                                dataKey="raw" 
+                                stroke="var(--main-color)" 
+                                strokeWidth={2} 
+                                strokeDasharray="5 5"
+                                dot={false} 
+                                animationDuration={1000}
+                                opacity={0.7}
+                            />
+                            {/* Burst WPM line (Solid Gray) */}
+                            <Line 
+                                type="monotone" 
+                                dataKey="burst" 
+                                stroke="var(--sub-color)" 
+                                strokeWidth={2} 
+                                dot={{ fill: 'var(--sub-color)', r: 0 }} 
+                                activeDot={{ r: 4, fill: 'var(--sub-color)' }}
+                                animationDuration={1000}
+                                opacity={0.5}
+                            />
+                            {/* Errors dots/crosses at the top */}
+                            {history.some(h => h.errors > 0) && (
+                                <Line
+                                    type="monotone"
+                                    dataKey="errors"
+                                    stroke="transparent"
+                                    dot={(props: any) => {
+                                        const { cx, payload } = props;
+                                        if (payload.errors > 0) {
+                                            return (
+                                                <g key={`error-dot-${cx}`}>
+                                                    <text 
+                                                        x={cx} 
+                                                        y={20} 
+                                                        fill="var(--error-color)" 
+                                                        fontSize="14" 
+                                                        textAnchor="middle"
+                                                        fontWeight="bold"
+                                                        style={{ opacity: 0.7 }}
+                                                    >
+                                                        x
+                                                    </text>
+                                                </g>
+                                            );
+                                        }
+                                        return <></>;
+                                      }}
+                                  />
+                              )}
+                          </LineChart>
+                      </ResponsiveContainer>
+                    <div className="absolute bottom-[-15px] left-0 right-0 flex justify-center gap-6 md:gap-8 text-[9px] md:text-[10px] uppercase font-bold text-secondary/30 tracking-widest">
+                        <div className="hidden sm:flex items-center gap-1.5 hover:text-secondary/50 transition-colors cursor-help"><History size={11} /> scale</div>
+                        <div className="flex items-center gap-1.5"><span className="text-primary opacity-60">--</span> raw</div>
+                        <div className="flex items-center gap-1.5"><span className="text-secondary opacity-60">—</span> burst</div>
+                        <div className="flex items-center gap-1.5 text-destructive/40"><span className="font-bold">x</span> errors</div>
+                    </div>
+                </div>
+             </div>
+
+               {/* Bottom Stats Row */}
+               <div className="grid grid-cols-2 sm:grid-cols-3 md:flex md:flex-wrap items-start justify-between w-full mt-6 text-secondary/50 px-4 gap-y-6">
+                  <div className="flex flex-col gap-1 min-w-[100px] md:min-w-[120px]">
+                      <span className="text-[10px] md:text-sm font-medium lowercase opacity-70">test type</span>
+                      <div className="flex flex-col text-sm md:text-lg font-bold text-primary leading-tight mt-1">
+                          <span className="capitalize">{mode} {mode !== 'quote' ? amount : ''}</span>
+                          <span className="text-[10px] md:text-xs opacity-70 capitalize">{language}</span>
+                          {(config.punctuation || config.numbers) && (
+                              <span className="text-xs opacity-70 capitalize">
+                                  {[config.punctuation && 'punctuation', config.numbers && 'numbers'].filter(Boolean).join(' ')}
+                              </span>
+                          )}
+                      </div>
                   </div>
-                  <span className="text-muted-foreground uppercase tracking-widest text-[10px] sm:text-xs mb-2 font-bold opacity-70">Accuracy</span>
-                  <span className={`text-5xl sm:text-7xl font-black tabular-nums tracking-tighter ${accuracy > 90 ? 'text-green-500' : 'text-foreground'}`}>{accuracy}%</span>
-                </CardContent>
-              </Card>
-
-              {/* Errors Result */}
-              <Card className="flex flex-col items-center justify-center p-6 sm:p-8 rounded-3xl overflow-hidden relative border-border/50 shadow-2xl bg-card transition-all hover:scale-[1.02]">
-                <CardContent className="flex flex-col items-center p-0">
-                  <div className="absolute top-0 right-0 p-4 opacity-5">
-                    <AlertTriangle className="w-12 h-12 sm:w-20 sm:h-20" />
+                  
+                  <div className="flex flex-col gap-1 min-w-[100px]">
+                      <span className="text-[10px] md:text-sm font-medium lowercase opacity-70">other</span>
+                      <div className="flex flex-col text-sm md:text-lg font-bold text-primary leading-tight mt-1">
+                          {accuracy === 0 ? (
+                              <span className="text-primary/70 text-xs md:text-base">invalid (accuracy)</span>
+                          ) : (
+                              <>
+                                <span>failed</span>
+                                <span className="text-[10px] md:text-xs opacity-70">(slow timer)</span>
+                              </>
+                          )}
+                      </div>
                   </div>
-                  <span className="text-muted-foreground uppercase tracking-widest text-[10px] sm:text-xs mb-2 font-bold opacity-70">Errors</span>
-                  <span className="text-5xl sm:text-7xl font-black text-destructive tabular-nums tracking-tighter">{errors}</span>
-                </CardContent>
-              </Card>
 
-              <div className="md:col-span-3 flex flex-col sm:flex-row justify-center items-center gap-4 mt-4 sm:mt-8">
-                <Button
-                  size="lg"
-                  onClick={restart}
-                  className="w-full sm:w-auto px-8 sm:px-12 py-6 sm:py-7 rounded-2xl font-bold hover:scale-105 transition-all shadow-2xl shadow-primary/20 text-base sm:text-lg"
-                >
-                  <RefreshCw className="w-5 h-5 mr-2" />
-                  Try Again
-                </Button>
+                  <div className="flex flex-col gap-1 min-w-[80px]">
+                      <span className="text-[10px] md:text-sm font-medium lowercase opacity-70">raw</span>
+                      <span className="text-2xl md:text-3xl font-bold text-primary mt-1">{rawWpm}</span>
+                  </div>
 
-                {!session && (
-                  <Button
-                    variant="outline"
-                    size="lg"
-                    onClick={() => setShowAuthModal(true)}
-                    className="w-full sm:w-auto px-8 sm:px-12 py-6 sm:py-7 rounded-2xl font-bold hover:scale-105 transition-all text-base sm:text-lg border-primary/20 hover:bg-primary/5"
+                  <div className="flex flex-col gap-1 min-w-[120px] md:min-w-[150px]">
+                      <span className="text-[10px] md:text-sm font-medium lowercase opacity-70">characters</span>
+                      <div className="text-xl md:text-3xl font-bold text-primary tracking-tighter mt-1">
+                          {charStats.correct}/{charStats.incorrect}/{charStats.extra}/{charStats.missed}
+                      </div>
+                  </div>
+
+                  <div className="flex flex-col gap-1 min-w-[100px]">
+                      <span className="text-[10px] md:text-sm font-medium lowercase opacity-70">consistency</span>
+                      <span className="text-2xl md:text-3xl font-bold text-primary mt-1">{consistency}%</span>
+                  </div>
+
+                  <div className="flex flex-col gap-1 items-start md:items-end min-w-[100px] md:min-w-[120px]">
+                      <span className="text-[10px] md:text-sm font-medium lowercase opacity-70">time</span>
+                      <div className="flex flex-col items-start md:items-end mt-1">
+                          <span className="text-2xl md:text-3xl font-bold text-primary leading-none">{testDuration}s</span>
+                          <span className="text-[8px] md:text-[9px] font-bold opacity-30 uppercase mt-2 tracking-wider">65.25% afk</span>
+                          <span className="text-[8px] md:text-[9px] font-bold opacity-30 uppercase tracking-wider">00:00:02 session</span>
+                      </div>
+                  </div>
+               </div>
+               
+               {/* Result Controls */}
+               <div className="flex flex-wrap justify-center gap-2 md:gap-4 mt-8">
+                  <button 
+                      onClick={restart}
+                      className="p-3 md:p-4 text-secondary/60 hover:text-foreground transition-all hover:scale-110 active:scale-95 duration-200 flex flex-col items-center gap-2 group" 
+                      title="Next Test"
                   >
-                    <CloudUpload className="w-5 h-5 mr-2" />
-                    Sign in to save
-                  </Button>
-                )}
-              </div>
+                      <ChevronRight size={24} className="group-hover:translate-x-1 transition-transform" />
+                      <span className="text-[10px] uppercase font-bold opacity-0 group-hover:opacity-100 transition-opacity">next test</span>
+                  </button>
+                  <button 
+                      onClick={restart} 
+                      className="p-3 md:p-4 text-secondary/60 hover:text-foreground transition-all hover:scale-110 active:scale-95 duration-200 flex flex-col items-center gap-2 group"
+                      title="Restart Test"
+                  >
+                     <RefreshCw size={24} className="group-hover:rotate-180 transition-transform duration-500" />
+                     <span className="text-[10px] uppercase font-bold opacity-0 group-hover:opacity-100 transition-opacity">restart</span>
+                  </button>
+               </div>
+
+               {!session && (
+                 <div className="text-center mt-2">
+                    <button 
+                      onClick={() => setShowAuthModal(true)} 
+                      className="text-secondary/40 hover:text-secondary/80 transition-colors text-[10px] md:text-xs font-medium"
+                    >
+                      Sign in to save your result
+                    </button>
+                 </div>
+               )}
             </motion.div>
           )}
-        </AnimatePresence>
+        </div>
 
-        {/* Footer/Tips */}
-        <div className="mt-8 text-muted-foreground text-sm max-w-lg text-center leading-relaxed font-medium">
-          Focus on precision over speed. Speed naturally follows accuracy. 
-          Use the <Kbd className="text-xs">Backspace</Kbd> key to correct mistakes.
+        {/* Shortcuts */}
+        <div className="hidden sm:flex w-full flex-col items-center gap-3 opacity-60 text-[10px] sm:text-xs font-bold select-none hover:opacity-100 transition-opacity duration-500 pointer-events-none mt-12 mb-8">
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                 <Kbd className="bg-muted border-none text-secondary min-w-[30px] p-1 px-2.5">tab</Kbd>
+                 <span className="opacity-50">+</span>
+                 <Kbd className="bg-muted border-none text-secondary min-w-[50px] p-1 px-2.5">enter</Kbd>
+                 <span className="ml-1 uppercase">- restart test</span>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+                 <div className="flex items-center gap-1 group">
+                    <Kbd className="bg-muted border-none text-secondary min-w-[30px] p-0.5 px-2">alt</Kbd>
+                    <span className="opacity-50">+</span>
+                    <Kbd className="bg-muted border-none text-secondary min-w-[50px] p-0.5 px-2">enter</Kbd>
+                    <span className="ml-1 uppercase">- restart test</span>
+                 </div>
+                 <div className="flex items-center gap-1 group ml-4">
+                    <Kbd className="bg-muted border-none text-secondary min-w-[30px] p-0.5 px-2">esc</Kbd>
+                    <span className="opacity-50 mx-1">or</span>
+                    <Kbd className="bg-muted border-none text-secondary min-w-[30px] p-0.5 px-2">ctrl</Kbd>
+                    <span className="opacity-50">+</span>
+                    <Kbd className="bg-muted border-none text-secondary min-w-[40px] p-0.5 px-2">shift</Kbd>
+                    <span className="opacity-50">+</span>
+                    <Kbd className="bg-muted border-none text-secondary min-w-[30px] p-0.5 px-2">p</Kbd>
+                    <span className="ml-1 uppercase">- command line</span>
+                 </div>
+            </div>
         </div>
       </main>
-      
-      {/* Decorative Glow */}
-      <div className="fixed top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-yellow-500/5 blur-[120px] pointer-events-none -z-10" />
-      <div className="fixed bottom-0 right-0 w-[400px] h-[400px] bg-red-500/[0.02] blur-[150px] pointer-events-none -z-10" />
+
+      {/* Footer */}
+      <footer className="w-full max-w-[1250px] px-8 py-10 flex flex-col md:flex-row justify-between items-center text-[10px] font-bold opacity-60 select-none hover:opacity-100 transition-opacity duration-700 gap-6">
+          <div className="flex flex-wrap items-center justify-center md:justify-start gap-y-2 gap-x-6">
+            <LinkWithIcon href="/contact" icon={<Mail size={12} />} text="contact" />
+            <LinkWithIcon href="/support" icon={<Heart size={12} />} text="support" />
+            <LinkWithIcon href="https://github.com" icon={<Github size={12} />} text="github" isExternal />
+            <LinkWithIcon href="https://discord.com" icon={<MessageCircle size={12} />} text="discord" isExternal />
+            <LinkWithIcon href="https://twitter.com" icon={<Twitter size={12} />} text="twitter" isExternal />
+            <LinkWithIcon href="/terms" icon={<FileText size={12} />} text="terms" />
+            <LinkWithIcon href="/security" icon={<Shield size={12} />} text="security" />
+            <LinkWithIcon href="/privacy" icon={<Lock size={12} />} text="privacy" />
+          </div>
+          <div className="flex items-center gap-8">
+             <span 
+                className="hover:text-foreground transition-colors flex items-center gap-2 cursor-pointer group px-2 py-1 rounded-md hover:bg-white/5 transition-all duration-300"
+                onClick={() => setIsThemeOpen(true)}
+             >
+                <Palette size={14} className="group-hover:rotate-180 transition-transform duration-500 text-primary" />
+                {currentTheme.name}
+             </span>
+             <span className="font-light opacity-50">v{currentTheme.id === 'serika-dark' ? '26.6.0' : 'theme.' + currentTheme.id}</span>
+          </div>
+      </footer>
+
       <AuthModal 
         isOpen={showAuthModal} 
         onOpenChange={setShowAuthModal} 
-        onSuccess={handleAuthSuccess}
+        onSuccess={handleSave}
+      />
+
+      <NotificationDrawer 
+        isOpen={isNotificationsOpen}
+        onOpenChange={setIsNotificationsOpen}
+      />
+
+      <LanguageDialog 
+        isOpen={isLangOpen}
+        onOpenChange={setIsLangOpen}
+        currentLanguage={language}
+        onSelectLanguage={setLanguage}
+      />
+
+      <ThemeDialog 
+        isOpen={isThemeOpen}
+        onOpenChange={setIsThemeOpen}
+        currentTheme={currentTheme.id}
+        onSelectTheme={applyTheme}
       />
     </div>
   );
