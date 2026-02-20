@@ -360,17 +360,14 @@ export default function Home() {
         <div className="flex-1 w-full flex flex-col items-center justify-center">
           {state !== 'finish' ? (
             <motion.div 
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
               className="w-full max-w-[1000px] flex flex-col items-center gap-8 relative"
             >
               <motion.div 
                 animate={{ 
                   opacity: showUi ? 1 : 0,
-                  y: showUi ? 0 : -10,
                   pointerEvents: showUi ? 'auto' : 'none',
-                  // We use visibility to ensure it doesn't take interaction but stays in layout
-                  visibility: showUi ? 'visible' : 'visible' 
                 }}
                 transition={{ duration: 0.5 }}
                 className="w-full"
@@ -539,24 +536,22 @@ export default function Home() {
               </div>
 
               {/* Reset Button */}
-              <AnimatePresence>
-                {showUi && (
-                   <motion.div 
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.9 }}
-                    className="flex flex-col items-center gap-4 mt-8"
-                   >
-                     <button 
-                        onClick={restart} 
-                        className="p-4 text-secondary hover:text-foreground transition-all hover:scale-110 active:scale-95 duration-200 hover:rotate-[360deg] duration-700 ease-in-out"
-                        title="Restart Test"
-                      >
-                        <RefreshCw size={26} />
-                     </button>
-                   </motion.div>
-                )}
-              </AnimatePresence>
+              <motion.div 
+                animate={{ 
+                  opacity: showUi ? 1 : 0, 
+                  scale: showUi ? 1 : 0.9,
+                  pointerEvents: showUi ? 'auto' : 'none'
+                }}
+                className="flex flex-col items-center gap-4 mt-8"
+              >
+                 <button 
+                    onClick={restart} 
+                    className="p-4 text-secondary hover:text-foreground transition-all hover:scale-110 active:scale-95 duration-200 hover:rotate-[360deg] duration-700 ease-in-out"
+                    title="Restart Test"
+                  >
+                    <RefreshCw size={26} />
+                 </button>
+              </motion.div>
             </motion.div>
           ) : (
             <motion.div 
