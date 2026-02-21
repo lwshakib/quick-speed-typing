@@ -2,49 +2,77 @@
 
 import * as React from "react";
 import { Moon, Sun } from "lucide-react";
-import { useTheme } from "next-themes";
 import { motion, AnimatePresence } from "framer-motion";
-
-import { Button } from "@/components/ui/button";
+import { THEMES } from "@/lib/themes";
 
 export function ThemeToggle() {
-  const { theme, setTheme } = useTheme();
+  const [currentThemeId, setCurrentThemeId] = React.useState<string>("default-light");
   const [mounted, setMounted] = React.useState(false);
 
   React.useEffect(() => {
     setMounted(true);
+    const saved = localStorage.getItem("typing-theme") || "default-light";
+    setCurrentThemeId(saved);
+
+    // Listen for theme changes from other components (like ThemeDialog)
+    const handleThemeChange = () => {
+        setCurrentThemeId(localStorage.getItem("typing-theme") || "default-light");
+    };
+    window.addEventListener('theme-changed', handleThemeChange);
+    return () => window.removeEventListener('theme-changed', handleThemeChange);
   }, []);
 
   if (!mounted) {
     return <div className="w-9 h-9" />;
   }
 
-  const isDark = theme === "dark";
+  const currentTheme = THEMES.find(t => t.id === currentThemeId) || THEMES[0];
+  const isDark = currentTheme.type === "dark";
+
+  const toggleTheme = () => {
+    let targetTheme;
+    
+    // Find counterpart (e.g., serika-dark -> serika-light)
+    const baseName = currentTheme.id.replace("-light", "").replace("-dark", "");
+    const counterpartId = isDark ? `${baseName}-light` : `${baseName}-dark`;
+    
+    targetTheme = THEMES.find(t => t.id === counterpartId);
+    
+    // Fallback if no direct counterpart exists
+    if (!targetTheme) {
+        targetTheme = THEMES.find(t => t.type === (isDark ? 'light' : 'dark'));
+    }
+
+    if (targetTheme) {
+        localStorage.setItem("typing-theme", targetTheme.id);
+        setCurrentThemeId(targetTheme.id);
+        // Dispatch custom event so app/page.tsx can update
+        window.dispatchEvent(new CustomEvent('theme-changed', { detail: targetTheme }));
+    }
+  };
 
   return (
-    <Button
-      variant="ghost"
-      size="icon"
-      onClick={() => setTheme(isDark ? "light" : "dark")}
-      className="rounded-full flex items-center justify-center p-0 w-9 h-9"
-      aria-label="Toggle theme"
+    <button
+      onClick={toggleTheme}
+      className="rounded-full flex items-center justify-center p-0 w-9 h-9 hover:bg-[var(--muted)] transition-colors focus:outline-none"
+      aria-label="Toggle theme mode"
     >
       <AnimatePresence mode="wait" initial={false}>
         <motion.div
-          key={theme}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
+          key={isDark ? "moon" : "sun"}
+          initial={{ opacity: 0, scale: 0.5, rotate: isDark ? -90 : 90 }}
+          animate={{ opacity: 1, scale: 1, rotate: 0 }}
+          exit={{ opacity: 0, scale: 0.5, rotate: isDark ? 90 : -90 }}
           transition={{ duration: 0.2 }}
           className="flex items-center justify-center"
         >
           {isDark ? (
-            <Moon className="h-[1.2rem] w-[1.2rem]" />
+            <Moon className="h-[1.2rem] w-[1.2rem] text-primary" />
           ) : (
-            <Sun className="h-[1.2rem] w-[1.2rem]" />
+            <Sun className="h-[1.2rem] w-[1.2rem] text-primary" />
           )}
         </motion.div>
       </AnimatePresence>
-    </Button>
+    </button>
   );
 }
