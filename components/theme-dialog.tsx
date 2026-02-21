@@ -23,6 +23,7 @@ export function ThemeDialog({
   onSelectTheme,
 }: ThemeDialogProps) {
   const [search, setSearch] = useState("");
+  const [mode, setMode] = useState<'light' | 'dark'>('dark');
   const [isCustomOpen, setIsCustomOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -37,7 +38,8 @@ export function ThemeDialog({
   });
 
   const filteredThemes = THEMES.filter((theme) =>
-    theme.name.toLowerCase().includes(search.toLowerCase())
+    theme.name.toLowerCase().includes(search.toLowerCase()) &&
+    theme.type === mode
   );
 
   useEffect(() => {
@@ -46,13 +48,17 @@ export function ThemeDialog({
         inputRef.current?.focus();
       }, 100);
       setSearch("");
+
+      // Set initial mode based on current theme
+      const current = THEMES.find(t => t.id === currentTheme);
+      if (current) setMode(current.type);
       
       const savedCustom = localStorage.getItem('custom-theme-colors');
       if (savedCustom) {
           setCustomColors(JSON.parse(savedCustom));
       }
     }
-  }, [isOpen]);
+  }, [isOpen, currentTheme]);
 
   const handleCustomColorChange = (key: keyof typeof customColors, value: string) => {
     const newColors = { ...customColors, [key]: value };
@@ -60,11 +66,12 @@ export function ThemeDialog({
     localStorage.setItem('custom-theme-colors', JSON.stringify(newColors));
     
     if (currentTheme === 'custom') {
-        onSelectTheme({
-            id: 'custom',
-            name: 'custom',
-            colors: newColors
-        });
+            onSelectTheme({
+                id: 'custom',
+                name: 'custom',
+                type: 'dark', // Custom themes are treated as dark by default for variable mapping
+                colors: newColors
+            });
     }
   };
 
@@ -72,6 +79,7 @@ export function ThemeDialog({
     onSelectTheme({
         id: 'custom',
         name: 'custom',
+        type: 'dark',
         colors: customColors
     });
     onOpenChange(false);
@@ -88,21 +96,50 @@ export function ThemeDialog({
         }}
       >
         <div className="flex flex-col h-full max-h-[90vh]">
-          {/* Search Area */}
-          <div className="flex items-center gap-3 px-8 pt-6 pb-3">
-            <Search size={18} className="shrink-0" style={{ color: 'var(--sub-color)' }} />
-            <div className="relative flex-1 flex items-center">
-              <input
-                ref={inputRef}
-                placeholder="search themes..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="w-full bg-transparent border-none focus:outline-none focus:ring-0 text-sm font-mono p-0 h-8"
-                style={{ color: 'var(--text-color)' }}
-              />
-              {search === "" && (
-                <div className="absolute left-0 w-[1.5px] h-[1rem] animate-pulse ml-[1px]" style={{ backgroundColor: 'var(--main-color)' }} />
-              )}
+          {/* Modal Header & Tabs */}
+          <div className="flex flex-col gap-4 px-8 pt-6 pb-2">
+            <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                    <Palette size={18} style={{ color: 'var(--sub-color)' }} />
+                    <span className="text-sm font-bold lowercase opacity-50">themes</span>
+                </div>
+                <div className="flex bg-muted/30 p-1 rounded-lg border border-border/50">
+                    <button 
+                        onClick={() => setMode('light')}
+                        className={cn(
+                            "px-4 py-1.5 text-[10px] uppercase font-bold rounded-md transition-all",
+                            mode === 'light' ? "bg-primary text-primary-foreground shadow-sm" : "opacity-40 hover:opacity-100"
+                        )}
+                    >
+                        light
+                    </button>
+                    <button 
+                        onClick={() => setMode('dark')}
+                        className={cn(
+                            "px-4 py-1.5 text-[10px] uppercase font-bold rounded-md transition-all",
+                            mode === 'dark' ? "bg-primary text-primary-foreground shadow-sm" : "opacity-40 hover:opacity-100"
+                        )}
+                    >
+                        dark
+                    </button>
+                </div>
+            </div>
+            
+            <div className="flex items-center gap-3">
+                <Search size={18} className="shrink-0" style={{ color: 'var(--sub-color)' }} />
+                <div className="relative flex-1 flex items-center">
+                <input
+                    ref={inputRef}
+                    placeholder={`search ${mode} themes...`}
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    className="w-full bg-transparent border-none focus:outline-none focus:ring-0 text-sm font-mono p-0 h-8"
+                    style={{ color: 'var(--text-color)' }}
+                />
+                {search === "" && (
+                    <div className="absolute left-0 w-[1.5px] h-[1rem] animate-pulse ml-[1px]" style={{ backgroundColor: 'var(--main-color)' }} />
+                )}
+                </div>
             </div>
           </div>
 
