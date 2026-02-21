@@ -248,20 +248,26 @@ export default function Home() {
                     <AnimatePresence mode="popLayout">
                       {(mode === 'time' || mode === 'words') && (
                         <motion.div 
-                          initial={{ opacity: 0, x: -10 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          exit={{ opacity: 0, x: -10 }}
+                          initial={{ opacity: 0, x: -20, filter: "blur(8px)" }}
+                          animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
+                          exit={{ opacity: 0, x: -10, filter: "blur(8px)" }}
+                          transition={{ 
+                            type: "spring", 
+                            stiffness: 300, 
+                            damping: 30,
+                            opacity: { duration: 0.2 }
+                          }}
                           className="flex items-center sm:border-r border-background/20 pr-3 sm:pr-4 gap-3 sm:gap-4 px-2 whitespace-nowrap"
                         >
                           <button 
                             onClick={() => setConfig(prev => ({ ...prev, punctuation: !prev.punctuation }))}
-                            className={cn("hover:text-foreground transition-colors flex items-center gap-1.5", config.punctuation && "text-primary")}
+                            className={cn("hover:text-foreground transition-all duration-200 flex items-center gap-1.5 hover:scale-105 active:scale-95", config.punctuation && "text-primary")}
                           >
                             <span className="opacity-50 font-black">@</span> punctuation
                           </button>
                           <button 
                             onClick={() => setConfig(prev => ({ ...prev, numbers: !prev.numbers }))}
-                            className={cn("hover:text-foreground transition-colors flex items-center gap-1.5", config.numbers && "text-primary")}
+                            className={cn("hover:text-foreground transition-all duration-200 flex items-center gap-1.5 hover:scale-105 active:scale-95", config.numbers && "text-primary")}
                           >
                             <span className="opacity-50 font-black">#</span> numbers
                           </button>
@@ -270,14 +276,17 @@ export default function Home() {
                     </AnimatePresence>
 
                     <div className={cn(
-                      "flex items-center px-3 sm:px-4 gap-3 sm:gap-4 whitespace-nowrap",
+                      "flex items-center px-3 sm:px-4 gap-3 sm:gap-4 whitespace-nowrap transition-all duration-500",
                       mode !== 'zen' && "sm:border-r border-background/20"
                     )}>
                       {(['time', 'words', 'quote', 'zen'] as const).map((m) => (
                         <button 
                           key={m}
                           onClick={() => { setMode(m); restart(); }}
-                          className={cn("hover:text-foreground transition-colors flex items-center gap-1.5 capitalize", mode === m && "text-primary")}
+                          className={cn(
+                            "hover:text-foreground transition-all duration-200 flex items-center gap-1.5 capitalize hover:scale-110 active:scale-90", 
+                            mode === m && "text-primary"
+                          )}
                         >
                           <span className="hidden md:inline">
                             {m === 'time' && <Clock size={12} />}
@@ -293,9 +302,15 @@ export default function Home() {
                     <AnimatePresence mode="popLayout">
                       {mode !== 'zen' && (
                         <motion.div 
-                          initial={{ opacity: 0, x: 10 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          exit={{ opacity: 0, x: 10 }}
+                          initial={{ opacity: 0, x: 20, filter: "blur(8px)" }}
+                          animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
+                          exit={{ opacity: 0, x: 10, filter: "blur(8px)" }}
+                          transition={{ 
+                            type: "spring", 
+                            stiffness: 300, 
+                            damping: 30,
+                            opacity: { duration: 0.2 }
+                          }}
                           className="flex items-center pl-3 sm:pl-4 gap-3 sm:gap-4 px-2 whitespace-nowrap"
                         >
                           {amounts.map((t) => (
@@ -306,14 +321,17 @@ export default function Home() {
                                   else if (mode === 'words') setWordCount(t);
                                   restart(); 
                               }}
-                              className={cn("hover:text-foreground transition-colors", amount === t && "text-primary")}
+                              className={cn(
+                                "hover:text-foreground transition-all duration-200 hover:scale-110 active:scale-90", 
+                                amount === t && "text-primary"
+                              )}
                             >
                               {t}
                             </button>
                           ))}
                           <button 
                             onClick={() => setIsCustomDurationOpen(true)}
-                            className="hover:text-foreground transition-colors hover:rotate-90 duration-300 ml-1"
+                            className="hover:text-foreground transition-all duration-300 hover:rotate-90 hover:scale-110 active:scale-90 ml-1"
                           >
                             <Settings size={12} />
                           </button>
