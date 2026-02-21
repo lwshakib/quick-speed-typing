@@ -216,13 +216,13 @@ export default function Home() {
 
   return (
     <div 
-        className="w-full h-full flex flex-col items-center"
+        className="w-full flex-1 flex flex-col items-center justify-center min-h-[calc(100vh-280px)]"
         style={{ 
           cursor: isFocusMode ? 'none' : 'default'
         }}
     >
 
-      <main className="flex-1 w-full max-w-[1250px] px-8 flex flex-col items-center">
+      <main className="w-full max-w-[1250px] px-8 flex flex-col items-center gap-12">
         <div className="flex-1 w-full flex flex-col items-center justify-center">
           {state !== 'finish' ? (
             <motion.div 

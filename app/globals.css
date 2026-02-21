@@ -144,3 +144,22 @@
   scrollbar-width: thin;
   scrollbar-color: #27272a transparent;
 }
+
+/* Input & Autofill Fixes */
+input {
+  color: var(--text-color) !important;
+}
+
+input::placeholder {
+  color: var(--sub-color) !important;
+  opacity: 0.5;
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus, 
+input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 30px var(--background) inset !important;
+    -webkit-text-fill-color: var(--text-color) !important;
+    transition: background-color 5000s ease-in-out 0s;
+}

@@ -8,7 +8,6 @@ import {
     Info, 
     Settings, 
     Bell, 
-    Palette, 
     User as UserIcon
 } from "lucide-react";
 import { usePathname } from "next/navigation";
@@ -30,7 +29,6 @@ export function Header() {
         showUi, 
         isFocusMode, 
         setIsNotificationsOpen, 
-        setIsThemeOpen, 
         currentTheme,
         applyTheme
     } = useUiStore();
@@ -168,13 +166,6 @@ export function Header() {
                 >
                     <Bell size={16} />
                     <span className="absolute top-0 right-0 w-2 h-2 bg-primary rounded-full border-2 border-background group-hover:animate-ping" />
-                </button>
-                <button 
-                    onClick={() => setIsThemeOpen(true)}
-                    className="hover:text-foreground transition-colors cursor-pointer hover:scale-110 active:scale-95 duration-200"
-                    title="Change Theme"
-                >
-                    <Palette size={16} />
                 </button>
                 <ThemeToggle />
                 {session ? (

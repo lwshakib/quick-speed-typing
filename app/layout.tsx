@@ -168,7 +168,7 @@ export default function RootLayout({
           <CustomThemeManager />
           <div className="min-h-screen bg-background text-secondary font-mono selection:bg-primary/30 selection:text-primary transition-colors duration-300 flex flex-col items-center">
             <Header />
-            <div className="flex-1 w-full flex flex-col items-center pt-[100px]">
+            <div className="flex-1 w-full flex flex-col items-center pt-[100px] pb-20">
               {children}
             </div>
             <Footer />
