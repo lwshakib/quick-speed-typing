@@ -1,16 +1,8 @@
 'use client';
 
-import { AuthModal } from "@/components/auth-modal";
-import { UserMenu } from "@/components/user-menu";
-import { LinkWithIcon } from "@/components/link-with-icon";
-import { Logo } from "@/components/logo";
-import { Button } from "@/components/ui/button";
-import { Kbd } from "@/components/ui/kbd";
-import { LanguageDialog } from "@/components/language-dialog";
-import { ThemeDialog } from "@/components/theme-dialog";
-import { NotificationDrawer } from "@/components/notification-drawer";
 import { TestDurationDialog } from "@/components/test-duration-dialog";
-import { saveTypingHistory, updateUserTheme, getUserTheme } from "@/lib/actions";
+import { Kbd } from "@/components/ui/kbd";
+import { saveTypingHistory, getUserTheme } from "@/lib/actions";
 import { useSession } from "@/lib/auth-client";
 import { useTypingEngine, GameMode } from "@/hooks/use-typing-engine";
 import { THEMES, Theme } from "@/lib/themes";
@@ -33,20 +25,13 @@ import {
     MoreHorizontal,
     FastForward,
     Image as ImageIcon,
-    Palette,
-    Mail,
-    Heart,
-    Github,
-    MessageCircle,
-    Twitter,
-    FileText,
-    Shield,
-    Lock
+    Palette
 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { useUiStore } from "@/hooks/use-ui-store";
 import {
   LineChart,
   Line,
@@ -62,10 +47,20 @@ export default function Home() {
   const [wordCount, setWordCount] = useState(25);
   const [mode, setMode] = useState<GameMode>('time');
   const [language, setLanguage] = useState("english"); 
-  const [currentTheme, setCurrentTheme] = useState<Theme>(THEMES[0]);
   
-  const [isLangOpen, setIsLangOpen] = useState(false);
-  const [isThemeOpen, setIsThemeOpen] = useState(false);
+  const { 
+    isFocusMode, 
+    setIsFocusMode, 
+    showUi, 
+    setShowUi,
+    isNotificationsOpen,
+    isThemeOpen,
+    isLangOpen,
+    setIsLangOpen,
+    currentTheme,
+    applyTheme
+  } = useUiStore();
+
   const [isCustomDurationOpen, setIsCustomDurationOpen] = useState(false);
   
   const [config, setConfig] = useState({
@@ -77,8 +72,6 @@ export default function Home() {
 
   const { data: session } = useSession();
   const [isMounted, setIsMounted] = useState(false);
-  const [showAuthModal, setShowAuthModal] = useState(false);
-  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [hasSaved, setHasSaved] = useState(false);
 
   const {
@@ -103,7 +96,7 @@ export default function Home() {
     includeNumbers: config.numbers,
     includePunctuation: config.punctuation,
     language,
-    disabled: showAuthModal || isLangOpen || isThemeOpen || isNotificationsOpen || isCustomDurationOpen,
+    disabled: isLangOpen || isThemeOpen || isNotificationsOpen || isCustomDurationOpen,
   });
 
   const lastFinishRef = useRef<boolean>(false);
@@ -140,94 +133,16 @@ export default function Home() {
     };
   }, [state, pause]);
 
-  const isFocusMode = state === 'run' && !isMouseMoving;
-  const showUi = !isFocusMode;
+  // Sync focus mode and UI visibility with store
+  useEffect(() => {
+    const focus = state === 'run' && !isMouseMoving;
+    setIsFocusMode(focus);
+    setShowUi(!focus);
+  }, [state, isMouseMoving]);
 
   useEffect(() => {
     setIsMounted(true);
-    
-    // Check for verification success redirect
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('verified') === 'true' || params.get('token') || params.get('reset-password') === 'true') {
-      setShowAuthModal(true);
-    }
-
-    const savedThemeId = localStorage.getItem('typing-theme');
-    if (savedThemeId) {
-        if (savedThemeId === 'custom') {
-            const savedCustom = localStorage.getItem('custom-theme-colors');
-            if (savedCustom) {
-                applyTheme({
-                    id: 'custom',
-                    name: 'custom',
-                    colors: JSON.parse(savedCustom)
-                });
-            }
-        } else {
-            const theme = THEMES.find(t => t.id === savedThemeId);
-            if (theme) {
-                applyTheme(theme);
-            }
-        }
-    }
   }, []);
-
-  const hasSyncedTheme = useRef(false);
-
-  // Sync theme with database once on session load
-  useEffect(() => {
-    if (session && !hasSyncedTheme.current) {
-      getUserTheme().then(dbTheme => {
-        if (dbTheme) {
-          if (dbTheme === 'custom') {
-            const savedCustom = localStorage.getItem('custom-theme-colors');
-            if (savedCustom) {
-              applyTheme({
-                id: 'custom',
-                name: 'custom',
-                colors: JSON.parse(savedCustom)
-              }, false); // don't re-save to DB if already matched
-            }
-          } else if (currentTheme.id !== dbTheme) {
-            const theme = THEMES.find(t => t.id === dbTheme);
-            if (theme) {
-              applyTheme(theme, false);
-            }
-          }
-          hasSyncedTheme.current = true;
-        }
-      });
-    } else if (!session) {
-      hasSyncedTheme.current = false;
-    }
-  }, [session]);
-
-  const applyTheme = (theme: Theme, saveToDb = true) => {
-    setCurrentTheme(theme);
-    localStorage.setItem('typing-theme', theme.id);
-    
-    // Sync with database if authenticated
-    if (session && saveToDb) {
-      updateUserTheme(theme.id).catch(err => console.error("Failed to sync theme to DB:", err));
-    }
-
-    const root = document.documentElement;
-    root.style.setProperty('--background', theme.colors.background);
-    root.style.setProperty('--main-color', theme.colors.main);
-    root.style.setProperty('--caret-color', theme.colors.caret);
-    root.style.setProperty('--sub-color', theme.colors.sub);
-    root.style.setProperty('--text-color', theme.colors.text);
-    root.style.setProperty('--error-color', theme.colors.error);
-    root.style.setProperty('--error-extra-color', theme.colors.errorExtra);
-    
-    root.style.setProperty('--foreground', theme.colors.text);
-    root.style.setProperty('--primary', theme.colors.main);
-    root.style.setProperty('--secondary', theme.colors.sub);
-    root.style.setProperty('--muted-foreground', theme.colors.sub);
-    root.style.setProperty('--accent', theme.colors.main);
-    root.style.setProperty('--ring', theme.colors.main);
-    root.style.setProperty('--destructive', theme.colors.error);
-  };
 
   useEffect(() => {
     const isFinished = state === 'finish';
@@ -277,6 +192,14 @@ export default function Home() {
     }
   }, [currentWordIndex]);
 
+  useEffect(() => {
+    const handleLanguageChange = (e: any) => {
+        if (e.detail) setLanguage(e.detail);
+    };
+    window.addEventListener('language-changed', handleLanguageChange as EventListener);
+    return () => window.removeEventListener('language-changed', handleLanguageChange as EventListener);
+  }, []);
+
   if (!isMounted) return null;
 
   const timeOptions = [15, 30, 60, 120];
@@ -285,78 +208,11 @@ export default function Home() {
 
   return (
     <div 
-        className="min-h-screen bg-background text-secondary font-mono selection:bg-primary/30 selection:text-primary transition-colors duration-300 flex flex-col items-center overflow-x-hidden"
+        className="w-full h-full flex flex-col items-center"
         style={{ 
-          backgroundColor: 'var(--background)', 
-          color: 'var(--sub-color)',
           cursor: isFocusMode ? 'none' : 'default'
         }}
     >
-      
-      {/* Header */}
-      <header className="w-full max-w-[1250px] px-8 py-8 flex justify-between items-center z-50">
-        <div className="flex items-center gap-6">
-          <Link href="/" className={cn("transition-all duration-500", isFocusMode ? "opacity-20 scale-95 grayscale" : "hover:scale-105 active:scale-95")}>
-            <Logo 
-              iconSize={32} 
-              textSize="1.5rem" 
-              className="text-foreground" 
-              hideText={isFocusMode}
-            />
-          </Link>
-          <motion.nav 
-            animate={{ 
-              opacity: showUi ? 1 : 0, 
-              x: showUi ? 0 : -10,
-              pointerEvents: showUi ? 'auto' : 'none'
-            }}
-            transition={{ duration: 0.5 }}
-            className="flex items-center gap-4 ml-4"
-          >
-             <Link href="/" className="hover:text-foreground transition-colors cursor-pointer group relative" title="Typing Test">
-                <Keyboard size={18} />
-                <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-0 h-[2px] bg-primary group-hover:w-full transition-all duration-300" />
-             </Link>
-             <Link href="/leaderboard" className="hover:text-foreground transition-colors cursor-pointer group relative" title="Leaderboards">
-                <Trophy size={16} />
-             </Link>
-             <Link href="/about" className="hover:text-foreground transition-colors cursor-pointer group relative" title="About">
-                <Info size={16} />
-             </Link>
-             <Link href="/settings" className="hover:text-foreground transition-colors cursor-pointer group relative" title="Settings">
-                <Settings size={16} />
-             </Link>
-          </motion.nav>
-        </div>
-
-        <motion.div 
-          animate={{ 
-            opacity: showUi ? 1 : 0, 
-            x: showUi ? 0 : 10,
-            pointerEvents: showUi ? 'auto' : 'none'
-          }}
-          transition={{ duration: 0.5 }}
-          className="flex items-center gap-6"
-        >
-           <button 
-                onClick={() => setIsNotificationsOpen(true)}
-                className="hover:text-foreground transition-colors cursor-pointer hover:scale-110 active:scale-95 duration-200 relative group"
-           >
-                <Bell size={16} />
-                <span className="absolute top-0 right-0 w-2 h-2 bg-primary rounded-full border-2 border-background group-hover:animate-ping" />
-           </button>
-           {session ? (
-            <UserMenu />
-          ) : (
-            <button 
-              className="hover:text-foreground transition-colors cursor-pointer hover:scale-110 active:scale-95 duration-200"
-              onClick={() => setShowAuthModal(true)}
-            >
-              <UserIcon size={16} />
-            </button>
-          )}
-        </motion.div>
-      </header>
 
       <main className="flex-1 w-full max-w-[1250px] px-8 flex flex-col items-center">
         <div className="flex-1 w-full flex flex-col items-center justify-center">
@@ -758,12 +614,12 @@ export default function Home() {
 
                {!session && (
                  <div className="text-center mt-2">
-                    <button 
-                      onClick={() => setShowAuthModal(true)} 
+                    <Link 
+                      href="/sign-in" 
                       className="text-secondary/40 hover:text-secondary/80 transition-colors text-[10px] md:text-xs font-medium"
                     >
                       Sign in to save your result
-                    </button>
+                    </Link>
                  </div>
                )}
             </motion.div>
@@ -807,62 +663,6 @@ export default function Home() {
             </div>
         </motion.div>
       </main>
-
-      {/* Footer */}
-      <motion.footer 
-        animate={{ 
-          opacity: showUi ? 0.6 : 0, 
-          pointerEvents: showUi ? 'auto' : 'none'
-        }}
-        transition={{ duration: 0.5 }}
-        className="w-full max-w-[1250px] px-8 py-10 flex flex-col md:flex-row justify-between items-center text-[10px] font-bold select-none hover:opacity-100 transition-opacity duration-700 gap-6"
-      >
-          <div className="flex flex-wrap items-center justify-center md:justify-start gap-y-2 gap-x-6">
-            <LinkWithIcon href="/contact" icon={<Mail size={12} />} text="contact" />
-            <LinkWithIcon href="/support" icon={<Heart size={12} />} text="support" />
-            <LinkWithIcon href="https://github.com" icon={<Github size={12} />} text="github" isExternal />
-            <LinkWithIcon href="https://discord.com" icon={<MessageCircle size={12} />} text="discord" isExternal />
-            <LinkWithIcon href="https://twitter.com" icon={<Twitter size={12} />} text="twitter" isExternal />
-            <LinkWithIcon href="/terms" icon={<FileText size={12} />} text="terms" />
-            <LinkWithIcon href="/security" icon={<Shield size={12} />} text="security" />
-            <LinkWithIcon href="/privacy" icon={<Lock size={12} />} text="privacy" />
-          </div>
-          <div className="flex items-center gap-8">
-             <span 
-                className="hover:text-foreground transition-colors flex items-center gap-2 cursor-pointer group px-2 py-1 rounded-md hover:bg-white/5 transition-all duration-300"
-                onClick={() => setIsThemeOpen(true)}
-             >
-                <Palette size={14} className="group-hover:rotate-180 transition-transform duration-500 text-primary" />
-                {currentTheme.name}
-             </span>
-             <span className="font-light opacity-50">v{currentTheme.id === 'serika-dark' ? '26.6.0' : 'theme.' + currentTheme.id}</span>
-          </div>
-      </motion.footer>
-
-      <AuthModal 
-        isOpen={showAuthModal} 
-        onOpenChange={setShowAuthModal} 
-        onSuccess={handleSave}
-      />
-
-      <NotificationDrawer 
-        isOpen={isNotificationsOpen}
-        onOpenChange={setIsNotificationsOpen}
-      />
-
-      <LanguageDialog 
-        isOpen={isLangOpen}
-        onOpenChange={setIsLangOpen}
-        currentLanguage={language}
-        onSelectLanguage={setLanguage}
-      />
-
-      <ThemeDialog 
-        isOpen={isThemeOpen}
-        onOpenChange={setIsThemeOpen}
-        currentTheme={currentTheme.id}
-        onSelectTheme={applyTheme}
-      />
 
       <TestDurationDialog 
         isOpen={isCustomDurationOpen}
