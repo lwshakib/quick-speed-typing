@@ -1,6 +1,6 @@
-# Quick Type ⚡
+# <img src="public/logo.svg" width="32" height="32" /> Quicktype
 
-Quick Type is a high-performance, minimalist, and modern speed typing application designed to help you master the keyboard. Built with a focus on speed, precision, and aesthetics, it provides a distraction-free environment with real-time analytics and deep progress tracking.
+Quicktype is a high-performance, minimalist, and modern speed typing application designed to help you master the keyboard. Built with a focus on speed, precision, and aesthetics, it provides a distraction-free environment with real-time analytics and deep progress tracking.
 
 ---
 
@@ -9,7 +9,7 @@ Quick Type is a high-performance, minimalist, and modern speed typing applicatio
 ### 🌑 Dark Mode
 The definitive typing experience with curated themes like Carbon and Serika Dark.
 <div align="center">
-  <img src="public/app_demo/dark-demo.png" width="90%" alt="Quick Type Dark Mode" />
+  <img src="public/app_demo/dark-demo.png" width="90%" alt="quicktype Dark Mode" />
 </div>
 
 <br />
@@ -17,7 +17,7 @@ The definitive typing experience with curated themes like Carbon and Serika Dark
 ### ☀️ Light Mode
 Clean, high-contrast interface for maximum legibility and focus.
 <div align="center">
-  <img src="public/app_demo/light-demo.png" width="90%" alt="Quick Type Light Mode" />
+  <img src="public/app_demo/light-demo.png" width="90%" alt="quicktype Light Mode" />
 </div>
 
 ---
