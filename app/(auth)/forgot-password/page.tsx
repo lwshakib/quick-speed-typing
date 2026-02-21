@@ -1,32 +1,40 @@
 "use client";
 
+// Import core React hooks and authentication utilities
 import { useState } from "react";
 import { requestPasswordReset } from "@/lib/auth-client";
+// Import UI components from the system library
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+// Import iconic metaphors for the UI
 import { Mail, Loader2, ChevronRight, ArrowLeft } from "lucide-react";
+// Import feedback and navigation tools
 import { toast } from "sonner";
 import Link from "next/link";
 
 export default function ForgotPasswordPage() {
+  // State management for form submission and success feedback
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [isSuccess, setIsSuccess] = useState(false);
 
+  // Triggered when the user submits the email for password recovery
   const handleForgotPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     try {
+      // Dispatch a password reset request via the auth client
       await requestPasswordReset({
         email,
-        redirectTo: "/reset-password",
+        redirectTo: "/reset-password", // Redirect target after recovery link is clicked
       }, {
         onSuccess: () => {
           setIsSuccess(true);
           toast.success("Password reset email sent!");
         },
         onError: (ctx: any) => {
+          // Provide granular error feedback from the authentication server
           toast.error(ctx.error.message || "Failed to send reset email");
         }
       });
@@ -37,12 +45,16 @@ export default function ForgotPasswordPage() {
     }
   };
 
+  // Render the success state after the email has been dispatched
   if (isSuccess) {
     return (
       <div className="space-y-6 text-center py-4">
+        {/* Animated icon container */}
         <div className="h-20 w-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4 animate-in zoom-in duration-500">
           <Mail className="h-10 w-10" style={{ color: 'var(--main-color)' }} />
         </div>
+        
+        {/* Success message heading and description */}
         <div className="space-y-2">
           <h2 className="text-2xl font-black lowercase tracking-tighter" style={{ color: 'var(--text-color)' }}>
             email sent
@@ -51,6 +63,8 @@ export default function ForgotPasswordPage() {
             Check your inbox for a link to reset your password.
           </p>
         </div>
+
+        {/* Action buttons to help the user proceed after sending the email */}
         <div className="pt-4 flex flex-col gap-3">
           <Button 
             onClick={() => window.open('https://mail.google.com', '_blank')}
@@ -64,6 +78,7 @@ export default function ForgotPasswordPage() {
               variant="outline" 
               className="w-full h-12 border-2 font-black uppercase tracking-widest hover:bg-main/5 transition-all" 
               style={{ borderColor: 'var(--sub-color)', color: 'var(--sub-color)' }}
+              // Interactive hover styles for the outline button
               onMouseEnter={(e) => {
                 e.currentTarget.style.borderColor = 'var(--main-color)';
                 e.currentTarget.style.color = 'var(--main-color)';
@@ -81,8 +96,10 @@ export default function ForgotPasswordPage() {
     );
   }
 
+  // Render the initial request form
   return (
     <div className="space-y-6">
+      {/* Form header and context */}
       <div className="space-y-2 text-center relative">
         <h1 className="text-3xl font-black lowercase tracking-tighter" style={{ color: 'var(--text-color)' }}>
           forgot password?
@@ -92,10 +109,12 @@ export default function ForgotPasswordPage() {
         </p>
       </div>
 
+      {/* Main interaction form */}
       <form onSubmit={handleForgotPassword} className="space-y-4 pt-2">
         <div className="space-y-2">
           <Label htmlFor="email" className="text-[10px] uppercase font-black opacity-40 ml-1 tracking-widest">Email</Label>
           <div className="relative group">
+            {/* Visual indicator for email field */}
             <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
             <Input
               id="email"
@@ -108,6 +127,8 @@ export default function ForgotPasswordPage() {
             />
           </div>
         </div>
+        
+        {/* Submission button with loading state */}
         <Button 
           type="submit" 
           className="w-full h-12 font-black text-xs uppercase tracking-widest mt-4 hover:opacity-90 transition-all border-none" 
@@ -119,6 +140,7 @@ export default function ForgotPasswordPage() {
         </Button>
       </form>
 
+      {/* Navigation footer for users who remember their credentials */}
       <div className="text-center pt-4">
         <span className="text-xs lowercase opacity-60">remember your password? </span>
         <Link href="/sign-in" className="text-xs font-black lowercase text-primary hover:underline">

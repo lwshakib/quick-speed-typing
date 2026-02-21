@@ -1,11 +1,15 @@
 'use client';
 
+// Import specialized layout and section components for policy pages
 import { PolicyLayout, PolicySection } from "../terms/page";
+// Import icons for visual headers
 import { Lock } from "lucide-react";
 
 export default function PrivacyPage() {
   return (
+    // Utilize the shared PolicyLayout to maintain consistent design across all legal pages
     <PolicyLayout title="privacy policy" icon={<Lock size={32} />}>
+        {/* Each policy section addresses a specific user concern with clear, lowercase language */}
         <PolicySection title="1. data collection">
             <p>we believe in privacy. we do not collect any personal data by default. your typing statistics and history are saved only if you create an account and explicitly save them.</p>
         </PolicySection>

@@ -1,7 +1,10 @@
 "use client";
 
+// Import core React for component logic
 import * as React from "react";
+// Import powerful charting library for data visualization
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts";
+// Import UI components from the specialized chart design system
 import {
   ChartContainer,
   ChartLegend,
@@ -10,6 +13,7 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from "@/components/ui/chart";
+// Import selection UI components
 import {
   Select,
   SelectContent,
@@ -17,6 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+// Import an extensive set of icons for data categorization and visual storytelling
 import { 
     TrendingUp, 
     Zap, 
@@ -34,15 +39,20 @@ import {
     Monitor,
     Shield
 } from "lucide-react";
+// Import basic UI primitives
 import { Button } from "@/components/ui/button";
+// Import date manipulation and formatting utilities
 import { format, subDays, isAfter, parseISO } from "date-fns";
+// Import animation library for fluid entrance and data transitions
 import { motion } from "framer-motion";
 
+// Local sub-components for specialized views
 import { ContributionActivity } from "@/components/contribution-activity";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 
+// Interface defining the structure of aggregate user statistics
 interface ProfileStats {
     user: any;
     totalTests: number;
@@ -56,14 +66,14 @@ interface ProfileStats {
     avgRawWpm: number;
     avgAccuracy: number;
     avgConsistency: number;
-    avgWpm10: number;
+    avgWpm10: number; // Average of last 10 tests
     avgRawWpm10: number;
     avgAccuracy10: number;
     avgConsistency10: number;
     timeRecords: Record<string, { wpm: number; accuracy: number }>;
     wordRecords: Record<string, { wpm: number; accuracy: number }>;
-    chartData: any[];
-    history: any[];
+    chartData: any[]; // History formatted for charting
+    history: any[];   // Raw historical records
 }
 
 interface ProfileViewProps {
@@ -76,6 +86,7 @@ interface ProfileViewProps {
   profileStats: ProfileStats;
 }
 
+// Global configuration for the progress chart, defining colors and labels using theme variables
 const chartConfig = {
   wpm: {
     label: "wpm",
@@ -108,10 +119,14 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 export function ProfileView({ session, history: initialHistory, contributionData, profileStats }: ProfileViewProps) {
+  // State for chart filtering and metric selection
   const [timeRange, setTimeRange] = React.useState("90d");
   const [activeMetric, setActiveMetric] = React.useState<keyof typeof chartConfig>("wpm");
   const { user, totalTests, completedTests, totalTimeSeconds } = profileStats;
 
+  /**
+   * Filter and format data for the progress area chart based on the selected time range.
+   */
   const filteredChartData = profileStats.chartData.filter((item) => {
     const date = parseISO(item.date);
     const now = new Date();
@@ -125,6 +140,7 @@ export function ProfileView({ session, history: initialHistory, contributionData
     formattedDate: format(parseISO(item.date), "MMM d")
   }));
 
+  // Utility to convert raw seconds into a formatted HH:MM:SS string
   const formatDuration = (seconds: number) => {
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
@@ -132,6 +148,10 @@ export function ProfileView({ session, history: initialHistory, contributionData
     return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
+  /**
+   * Logic to generate and trigger a download of the user's typing history in CSV format.
+   * Useful for external data analysis or personal backups.
+   */
   const exportCSV = () => {
     const headers = ["WPM", "Raw WPM", "Accuracy", "Errors", "Duration (s)", "Consistency", "Mode", "Amount", "Date"];
     const rows = profileStats.history.map(h => [
@@ -159,6 +179,7 @@ export function ProfileView({ session, history: initialHistory, contributionData
     document.body.removeChild(link);
   };
 
+  // Metric definitions for the chart's filter bar
   const metrics: { id: keyof typeof chartConfig; label: string; icon: any }[] = [
     { id: "wpm", label: "wpm", icon: Zap },
     { id: "rawWpm", label: "raw", icon: BarChart3 },
@@ -170,15 +191,17 @@ export function ProfileView({ session, history: initialHistory, contributionData
   ];
 
   return (
+    // Main profile content with spaced vertical flow
     <motion.main 
       className="flex-1 w-full max-w-5xl mx-auto py-12 px-6 space-y-20"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.3 }}
     >
-      {/* Profile Header */}
+      {/* SECTION 1: Profile Identity and High-Level Stats */}
       <section className="flex flex-col md:flex-row items-center justify-between gap-8 pb-12 border-b border-white/5">
         <div className="flex items-center gap-6">
+          {/* Large user avatar with fallback branding */}
           <Avatar className="h-24 w-24 rounded-2xl border border-white/10">
             <AvatarImage src={user.image || ""} />
             <AvatarFallback className="text-3xl font-black bg-white/5 text-primary">
@@ -192,6 +215,7 @@ export function ProfileView({ session, history: initialHistory, contributionData
             <p className="text-[10px] uppercase tracking-widest opacity-40 font-bold">
               member since {format(new Date(user.createdAt), "MMM yyyy")}
             </p>
+            {/* Gamification: Level and XP Progress (Current placeholder implementation) */}
             <div className="pt-2 flex flex-col gap-1.5 w-full min-w-[200px]">
               <div className="flex justify-between text-[10px] font-bold opacity-30 uppercase tracking-tighter">
                 <span>level 1</span>
@@ -208,9 +232,10 @@ export function ProfileView({ session, history: initialHistory, contributionData
           </div>
         </div>
 
+        {/* Aggregate lifetime totals */}
         <div className="grid grid-cols-3 gap-12 text-center md:text-left">
           <div className="space-y-1">
-            <p className="text-[10px] font-bold uppercase opacity-30 tracking-widest">started</p>
+            <p className="text-[10px] font-bold uppercase opacity-30 tracking-widest">tests started</p>
             <p className="text-3xl font-black tabular-nums lowercase">{totalTests}</p>
           </div>
           <div className="space-y-1">
@@ -218,13 +243,13 @@ export function ProfileView({ session, history: initialHistory, contributionData
             <p className="text-3xl font-black tabular-nums lowercase">{completedTests}</p>
           </div>
           <div className="space-y-1">
-            <p className="text-[10px] font-bold uppercase opacity-30 tracking-widest">time</p>
+            <p className="text-[10px] font-bold uppercase opacity-30 tracking-widest">total time</p>
             <p className="text-3xl font-black tabular-nums font-mono lowercase">{formatDuration(totalTimeSeconds).split(':').slice(0, 2).join(':')}</p>
           </div>
         </div>
       </section>
 
-      {/* Best Scores */}
+      {/* SECTION 2: Personal Bests across different modes */}
       <section className="space-y-8">
         <div className="flex items-center gap-3 pb-2 border-b border-white/5">
           <Crown size={18} className="opacity-40" />
@@ -232,7 +257,7 @@ export function ProfileView({ session, history: initialHistory, contributionData
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {/* Time Records */}
+          {/* Best WPM for specific Time durations */}
           <div className="grid grid-cols-4 gap-4 p-6 rounded-xl border border-white/5 bg-white/[0.02]">
             {["15", "30", "60", "120"].map((t) => (
               <div key={t} className="space-y-2 text-center">
@@ -249,7 +274,7 @@ export function ProfileView({ session, history: initialHistory, contributionData
             ))}
           </div>
 
-          {/* Word Records */}
+          {/* Best WPM for specific Word counts */}
           <div className="grid grid-cols-4 gap-4 p-6 rounded-xl border border-white/5 bg-white/[0.02]">
             {["10", "25", "50", "100"].map((w) => (
               <div key={w} className="space-y-2 text-center">
@@ -268,14 +293,15 @@ export function ProfileView({ session, history: initialHistory, contributionData
         </div>
       </section>
 
-      {/* Progress Chart */}
+      {/* SECTION 3: Progress Visualizations (Area Chart) */}
       <section className="space-y-8">
         <div className="flex flex-col md:flex-row items-center justify-between gap-6 pb-2 border-b border-white/5">
           <div className="flex items-center gap-3">
             <TrendingUp size={18} className="opacity-40" />
-            <h2 className="text-xl font-bold lowercase">progress</h2>
+            <h2 className="text-xl font-bold lowercase">progress tracking</h2>
           </div>
           
+          {/* Controls for current chart view */}
           <div className="flex items-center gap-4">
             <div className="flex gap-2">
               {metrics.slice(0, 4).map((m) => (
@@ -294,6 +320,7 @@ export function ProfileView({ session, history: initialHistory, contributionData
               ))}
             </div>
             
+            {/* Time period filter */}
             <Select value={timeRange} onValueChange={setTimeRange}>
               <SelectTrigger className="h-7 w-[100px] text-[10px] font-bold lowercase bg-white/5 border-none rounded-md px-3">
                 <SelectValue placeholder="range" />
@@ -308,9 +335,11 @@ export function ProfileView({ session, history: initialHistory, contributionData
           </div>
         </div>
 
+        {/* Main interactive chart area */}
         <div className="h-[300px] w-full pt-4">
           <ChartContainer config={chartConfig} className="h-full w-full">
             <AreaChart data={filteredChartData}>
+              {/* Gradient definition for futuristic area fills */}
               <defs>
                 <linearGradient id="fillMetric" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor={chartConfig[activeMetric].color} stopOpacity={0.2} />
@@ -345,7 +374,7 @@ export function ProfileView({ session, history: initialHistory, contributionData
         </div>
       </section>
 
-      {/* Detailed Stats */}
+      {/* SECTION 4: Granular Lifetime and Recent Averages */}
       <section className="space-y-12">
         <div className="flex items-center gap-3 pb-2 border-b border-white/5">
           <Activity size={18} className="opacity-40" />
@@ -353,6 +382,7 @@ export function ProfileView({ session, history: initialHistory, contributionData
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-y-12 gap-x-8">
+            {/* Split statistics across lifetime and last-10-test windows to show momentum */}
           <div className="space-y-1">
             <p className="text-[10px] font-bold uppercase opacity-30 tracking-widest">all-time avg</p>
             <p className="text-3xl font-black lowercase">{profileStats.avgWpm.toFixed(1)} <span className="text-xs opacity-20">wpm</span></p>
@@ -389,13 +419,14 @@ export function ProfileView({ session, history: initialHistory, contributionData
         </div>
       </section>
 
-      {/* Activity Map */}
+      {/* SECTION 5: GitHub-style Activity heatmap */}
       <section className="space-y-6">
         <div className="flex items-center gap-3 pb-2 border-b border-white/5">
           <Clock size={18} className="opacity-40" />
           <h2 className="text-xl font-bold lowercase">typing activity</h2>
         </div>
         <div className="pt-2">
+          {/* External component mapping daily test counts over time */}
           <ContributionActivity 
             calendar={contributionData.calendar}
             totalContributions={contributionData.totalContributions}
@@ -403,13 +434,14 @@ export function ProfileView({ session, history: initialHistory, contributionData
         </div>
       </section>
 
-      {/* History Table */}
+      {/* SECTION 6: Complete Test Logs Table */}
       <section className="space-y-8">
         <div className="flex items-center justify-between pb-2 border-b border-white/5">
           <div className="flex items-center gap-3">
             <HistoryIcon size={18} className="opacity-40" />
             <h2 className="text-xl font-bold lowercase">history</h2>
           </div>
+          {/* Data portability: Export trigger */}
           <Button 
               onClick={exportCSV}
               variant="ghost" 
@@ -420,6 +452,7 @@ export function ProfileView({ session, history: initialHistory, contributionData
           </Button>
         </div>
         
+        {/* Responsive table mapping individual test records */}
         <div className="overflow-x-auto w-full">
           <table className="w-full text-left">
             <thead>
@@ -434,11 +467,13 @@ export function ProfileView({ session, history: initialHistory, contributionData
               </tr>
             </thead>
             <tbody className="text-sm">
+                {/* Render tests in reverse chronological order */}
                 {profileStats.history.slice().reverse().map((h) => {
                   const isBest = h.wpm === profileStats.highestWpm;
                   return (
                     <tr key={h.id} className="group hover:bg-white/[0.02] transition-all border-b border-white/[0.03] last:border-0 h-16">
                       <td className="px-4 py-3">
+                        {/* Crown icon for all-time highest Wpm */}
                         {isBest && <Crown size={14} className="text-primary fill-primary/10" />}
                       </td>
                       <td className="px-4 py-3 font-bold text-lg tabular-nums" style={{ color: 'var(--text-color)' }}>

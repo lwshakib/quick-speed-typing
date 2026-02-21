@@ -1,11 +1,15 @@
 "use client";
 
+// Import core React hooks for state and lifecycle management
 import { useState, useEffect } from "react";
+// Import authentication client hooks for sessions and user data
 import { authClient, useSession } from "@/lib/auth-client";
+// Import UI components from the project's design system
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+// Import a set of icons to enrich the visual categories
 import { 
     User, 
     Shield, 
@@ -21,19 +25,25 @@ import {
     Activity,
     Users
 } from "lucide-react";
+// Import feedback and utility functions
 import { toast } from "sonner";
 import { format } from "date-fns";
+// Import animation library for entrance transitions
 import { motion } from "framer-motion";
 
 export function AccountView() {
   const { data: session } = useSession();
+  
+  // Local state for profile and account management
   const [name, setName] = useState("");
   const [isUpdating, setIsUpdating] = useState(false);
   const [activeSessions, setActiveSessions] = useState<any[]>([]);
   const [linkedAccounts, setLinkedAccounts] = useState<any[]>([]);
+  // Tracking loading states for different segments of the account view
   const [isLoadingSessions, setIsLoadingSessions] = useState(true);
   const [isLoadingAccounts, setIsLoadingAccounts] = useState(true);
 
+  // Synchronize state with current session data when it becomes available
   useEffect(() => {
     if (session?.user) {
       setName(session.user.name || "");
@@ -42,6 +52,7 @@ export function AccountView() {
     }
   }, [session]);
 
+  // Fetch all active browser/app sessions for the current user
   const fetchSessions = async () => {
     try {
       const { data } = await authClient.listSessions();
@@ -53,6 +64,7 @@ export function AccountView() {
     }
   };
 
+  // Fetch linked social accounts and providers
   const fetchAccounts = async () => {
     try {
        if ('listAccounts' in authClient) {
@@ -66,6 +78,7 @@ export function AccountView() {
     }
   };
 
+  // Logic to update the user's public display name
   const handleUpdateName = async () => {
     if (!name.trim()) return toast.error("name cannot be empty");
     setIsUpdating(true);
@@ -81,28 +94,31 @@ export function AccountView() {
     }
   };
 
+  // Logic to delete the entire user profile and linked data
   const handleDeleteAccount = async () => {
     if (confirm("are you sure? this will delete all your typing data permanently.")) {
       try {
         await authClient.deleteUser();
         toast.success("account deleted");
-        window.location.href = "/";
+        window.location.href = "/"; // Force redirect to homepage
       } catch (error) {
         toast.error("failed to delete account");
       }
     }
   };
 
+  // Logic to kick a specific session out
   const handleRevokeSession = async (token: string) => {
     try {
       await authClient.revokeSession({ token });
       toast.success("session revoked");
-      fetchSessions();
+      fetchSessions(); // Refresh list after modification
     } catch (error) {
       toast.error("failed to revoke session");
     }
   };
 
+  // Redirect to social provider for account linking
   const handleLinkAccount = async (provider: 'google') => {
     try {
       await authClient.signIn.social({
@@ -114,7 +130,9 @@ export function AccountView() {
     }
   };
 
+  // Remove a linked social provider
   const handleUnlinkAccount = async (accountId: string) => {
+    // Safety check to prevent users from losing all login methods
     if (linkedAccounts.length <= 1 && !session?.user?.email) {
         return toast.error("you must have at least one login method");
     }
@@ -130,6 +148,7 @@ export function AccountView() {
     }
   };
 
+  // Helper function to parse user agents into human-readable device/browser names
   const getDeviceName = (userAgent: string) => {
     if (!userAgent) return "unknown device";
     const browsers = ["chrome", "firefox", "safari", "edge", "opera"];
@@ -143,13 +162,14 @@ export function AccountView() {
   if (!session) return null;
 
   return (
+    // Centered wrapper for all account-related settings
     <motion.main 
       className="flex-1 w-full max-w-4xl mx-auto py-12 px-6 space-y-16"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.3 }}
     >
-      {/* Header */}
+      {/* Header section with page identifier */}
       <div className="space-y-1">
         <div className="flex items-center gap-2 text-xs uppercase tracking-widest opacity-40 font-bold">
           <Settings size={12} />
@@ -161,7 +181,7 @@ export function AccountView() {
       </div>
 
       <div className="grid gap-16">
-        {/* Profile Section */}
+        {/* Profile Section: Basic identity management */}
         <section className="space-y-6">
           <div className="flex items-center gap-3 pb-2 border-b border-white/5">
             <User size={18} className="opacity-40" />
@@ -169,9 +189,11 @@ export function AccountView() {
           </div>
           
           <div className="grid md:grid-cols-2 gap-8 items-start">
+            {/* Avatar and Name update block */}
             <div className="space-y-4">
               <div className="flex items-center gap-4 mb-2">
                 <div className="w-16 h-16 rounded-xl bg-white/5 flex items-center justify-center border border-white/10 overflow-hidden">
+                  {/* Priority to social avatar image if present */}
                   {session.user.image ? (
                     <img src={session.user.image} alt={session.user.name} className="w-full h-full object-cover" />
                   ) : (
@@ -184,6 +206,7 @@ export function AccountView() {
                 </div>
               </div>
 
+              {/* Display name input with lowercase restriction matching the brand's aesthetic */}
               <div className="space-y-2">
                 <Label htmlFor="name" className="lowercase text-xs opacity-40 ml-1">display name</Label>
                 <div className="flex gap-2">
@@ -207,6 +230,7 @@ export function AccountView() {
               </div>
             </div>
 
+            {/* Email section (Read-only as it's the primary identifier) */}
             <div className="space-y-6">
               <div className="space-y-2">
                 <Label className="lowercase text-xs opacity-40 ml-1">email address</Label>
@@ -220,7 +244,7 @@ export function AccountView() {
           </div>
         </section>
 
-        {/* Connected Accounts */}
+        {/* Connections Section: Third-party auth providers */}
         <section className="space-y-6">
           <div className="flex items-center gap-3 pb-2 border-b border-white/5">
             <Users size={18} className="opacity-40" />
@@ -228,6 +252,7 @@ export function AccountView() {
           </div>
 
           <div className="max-w-md space-y-3">
+            {/* Individal provider account status visualization */}
             <div className="flex items-center justify-between p-4 rounded-lg border border-white/10 bg-white/5">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-lg bg-white flex items-center justify-center">
@@ -235,6 +260,7 @@ export function AccountView() {
                 </div>
                 <div>
                   <p className="text-sm font-bold lowercase">google</p>
+                  {/* Status indicator for the connection */}
                   {linkedAccounts.find(a => a.provider === 'google') ? (
                     <p className="text-[10px] uppercase font-bold text-emerald-500/60">connected</p>
                   ) : (
@@ -243,6 +269,7 @@ export function AccountView() {
                 </div>
               </div>
               
+              {/* Dynamic Action Button based on connection state */}
               {linkedAccounts.find(a => a.provider === 'google') ? (
                 <Button 
                   variant="ghost" 
@@ -267,13 +294,14 @@ export function AccountView() {
           </div>
         </section>
 
-        {/* Active Sessions */}
+        {/* Sessions Section: Audit trail of active user logins */}
         <section className="space-y-6">
           <div className="flex items-center justify-between pb-2 border-b border-white/5">
             <div className="flex items-center gap-3">
               <Activity size={18} className="opacity-40" />
               <h2 className="text-xl font-bold lowercase">sessions</h2>
             </div>
+            {/* Utility to refresh the session audit trail */}
             <Button 
               variant="ghost" 
               size="sm" 
@@ -284,6 +312,7 @@ export function AccountView() {
             </Button>
           </div>
 
+          {/* Table displaying granular session details */}
           <div className="rounded-lg border border-white/10 overflow-hidden">
             <Table>
               <TableHeader className="bg-white/[0.02]">
@@ -295,6 +324,7 @@ export function AccountView() {
                 </TableRow>
               </TableHeader>
               <TableBody>
+                {/* Fallback states for different loading or empty conditions */}
                 {isLoadingSessions ? (
                   <TableRow className="hover:bg-transparent border-white/5">
                     <TableCell colSpan={4} className="text-center py-12 text-xs opacity-20 lowercase">loading sessions...</TableCell>
@@ -307,6 +337,7 @@ export function AccountView() {
                   <TableRow key={s.id} className="hover:bg-white/5 border-white/5">
                     <TableCell className="px-4 py-3">
                       <div className="flex items-center gap-3">
+                        {/* Visual device icon mapping */}
                         {s.userAgent?.toLowerCase().includes("mobile") ? <Smartphone size={14} className="opacity-40" /> : <Monitor size={14} className="opacity-40" />}
                         <span className="text-xs font-medium lowercase opacity-80">{getDeviceName(s.userAgent)}</span>
                       </div>
@@ -318,6 +349,7 @@ export function AccountView() {
                       {format(new Date(s.createdAt), "MMM d, HH:mm")}
                     </TableCell>
                     <TableCell className="px-4 py-3 text-right">
+                      {/* Interactive session termination */}
                       <Button 
                         variant="ghost" 
                         size="sm" 
@@ -335,7 +367,7 @@ export function AccountView() {
           </div>
         </section>
 
-        {/* Danger Zone */}
+        {/* Danger Zone: Irreversible account actions highlighted in red */}
         <section className="space-y-6 pt-8 border-t border-destructive/10">
           <div className="flex items-center gap-3">
             <Trash2 size={18} className="text-destructive opacity-60" />
@@ -349,6 +381,7 @@ export function AccountView() {
                 permanently remove your account and all associated data including typing history and achievements.
               </p>
             </div>
+            {/* High-visibility destructive button */}
             <Button 
               variant="destructive" 
               size="sm"

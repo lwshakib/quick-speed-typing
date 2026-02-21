@@ -1,51 +1,63 @@
+// Import necessary types and components from Next.js and local files
 import type { Metadata } from "next";
+// Import various fonts from Google Fonts via Next.js Font Optimization
 import { Geist, Geist_Mono, Noto_Sans_Bengali, Hind_Siliguri, Hind, Amiri, Noto_Sans_JP } from "next/font/google";
+// Import global CSS styles
 import "./globals.css";
 
+// Configure Geist Sans font with a CSS variable and latin subset
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
 });
 
+// Configure Geist Mono font for code-like typography
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
 });
 
+// Configure Noto Sans Bengali for Bengali script support
 const notoBengali = Noto_Sans_Bengali({
   variable: "--font-noto-bengali",
   subsets: ["bengali"],
   weight: ["400", "700"],
 });
 
+// Configure Hind Siliguri as another option for Bengali typography
 const hindSiliguri = Hind_Siliguri({
   variable: "--font-hind-siliguri",
   subsets: ["bengali"],
   weight: ["400", "500", "600", "700"],
 });
 
+// Configure Hind font for Hindi/Devanagari script support
 const hindHindi = Hind({
   variable: "--font-hind",
   subsets: ["devanagari"],
   weight: ["400", "500", "600", "700"],
 });
 
+// Configure Amiri font for elegant Arabic script support
 const amiriArabic = Amiri({
   variable: "--font-amiri",
   subsets: ["arabic"],
   weight: ["400", "700"],
 });
 
+// Configure Noto Sans JP for Japanese/CJK script support
 const notoCJK = Noto_Sans_JP({
   variable: "--font-noto-cjk",
   subsets: ["latin"],
   weight: ["400", "700"],
 });
 
+// Metadata object for SEO and browser tab configuration
 export const metadata: Metadata = {
-  title: "Quick Type - The Ultimate Speed Typing Game",
-  description: "Test and improve your typing speed and accuracy with interactive charts and progress tracking on Quick Type.",
+  title: "Quicktype - The Ultimate Speed Typing Game", // Page title shown in the browser tab
+  description: "Test and improve your typing speed and accuracy with interactive charts and progress tracking on Quick Type.", // Meta description for SEO
    icons: {
+    // Favicon configurations for various devices and sizes
     icon: [
       {
         url: "/favicon_io/favicon-16x16.png",
@@ -69,11 +81,12 @@ export const metadata: Metadata = {
         type: "image/png",
       },
     ],
-    apple: "/favicon_io/apple-touch-icon.png",
+    apple: "/favicon_io/apple-touch-icon.png", // Apple Touch Icon for iOS devices
   },
-  manifest: "/favicon_io/site.webmanifest",
+  manifest: "/favicon_io/site.webmanifest", // Web App Manifest for PWA support
 };
 
+// Import UI components and providers
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { CustomThemeManager } from "@/components/custom-theme-manager";
@@ -81,22 +94,32 @@ import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { GlobalModals } from "@/components/global-modals";
 
+// Root Layout component that wraps the entire application
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
+    // Root HTML element with basic styling and hydration warning suppression
     <html lang="en" suppressHydrationWarning className="overflow-x-hidden">
       <body
+        // Apply font CSS variables to the body so they can be used throughout the app
         className={`${geistSans.variable} ${geistMono.variable} ${notoBengali.variable} ${hindSiliguri.variable} ${hindHindi.variable} ${amiriArabic.variable} ${notoCJK.variable} antialiased`}
       >
+        {/*
+          Inline script to prevent theme "flash" on page load.
+          It reads the theme from localStorage and applies CSS variables immediately.
+        */}
         <script
           dangerouslySetInnerHTML={{
             __html: `
               (function() {
                 try {
+                  // Retrieve the saved theme ID from localStorage
                   var themeId = localStorage.getItem('typing-theme') || 'default-dark';
+                  
+                  // Comprehensive map of predefined themes and their color palettes
                   var themes = {
                     'default-light': { background: '#ffffff', main: '#343434', caret: '#343434', sub: '#8b8b8b', text: '#252525', error: '#e11d48', errorExtra: '#7f1d1d' },
                     'default-dark': { background: '#121212', main: '#eeeeee', caret: '#eeeeee', sub: '#555555', text: '#eeeeee', error: '#e11d48', errorExtra: '#7f1d1d' },
@@ -141,12 +164,14 @@ export default function RootLayout({
                   };
                   
                   var themeData = null;
+                  // Support for user-defined custom themes
                   if (themeId === 'custom') {
                     themeData = JSON.parse(localStorage.getItem('custom-theme-colors'));
                   } else {
                     themeData = themes[themeId];
                   }
                   
+                  // If theme data exists, apply colors to CSS variables on the root element
                   if (themeData) {
                     var root = document.documentElement;
                     root.style.setProperty('--background', themeData.background);
@@ -157,6 +182,7 @@ export default function RootLayout({
                     root.style.setProperty('--error-color', themeData.error);
                     root.style.setProperty('--error-extra-color', themeData.errorExtra);
                     
+                    // Also update standard Shadcn UI variables for compatibility with UI components
                     root.style.setProperty('--foreground', themeData.text);
                     root.style.setProperty('--primary', themeData.main);
                     root.style.setProperty('--secondary', themeData.sub);
@@ -165,16 +191,19 @@ export default function RootLayout({
                     root.style.setProperty('--ring', themeData.main);
                     root.style.setProperty('--destructive', themeData.error);
  
+                    // Utility function to determine if a color is light or dark based on its hex value
                     var isLight = function(color) {
                       var hex = color.replace('#', '');
                       var r = parseInt(hex.substring(0, 2), 16);
                       var g = parseInt(hex.substring(2, 4), 16);
                       var b = parseInt(hex.substring(4, 6), 16);
+                      // Calculate brightness using standard formula
                       var brightness = (r * 299 + g * 587 + b * 114) / 1000;
                       return brightness > 155;
                     };
  
                     var lightTheme = isLight(themeData.background);
+                    // Dynamically set secondary variables based on background brightness
                     root.style.setProperty('--muted', lightTheme ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.05)');
                     root.style.setProperty('--border', lightTheme ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.1)');
                     root.style.setProperty('--input', lightTheme ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.1)');
@@ -184,26 +213,41 @@ export default function RootLayout({
                     root.style.setProperty('--card-foreground', themeData.text);
                     root.style.setProperty('--primary-foreground', lightTheme ? '#000000' : '#ffffff');
                   }
-                } catch (e) {}
+                } catch (e) {
+                  // Ignore errors to ensure the page still loads even if theme logic fails
+                }
               })();
             `,
           }}
         />
+        {/* Next.js ThemeProvider for managing data-theme attributes */}
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"
           enableSystem
           disableTransitionOnChange
         >
+          {/* Custom component to sync React state with the applied theme */}
           <CustomThemeManager />
+          
+          {/* Main application container with shared styles */}
           <div className="min-h-screen bg-background text-secondary font-mono selection:bg-primary/30 selection:text-primary transition-colors duration-300 flex flex-col items-center">
+            {/* Global site header */}
             <Header />
+            
+            {/* Main content area where page components are rendered */}
             <div className="flex-1 w-full flex flex-col items-center pt-[100px] pb-20">
               {children}
             </div>
+            
+            {/* Global site footer */}
             <Footer />
           </div>
+          
+          {/* Global modals like Login, Settings, etc. */}
           <GlobalModals />
+          
+          {/* Toast notifications provider */}
           <Toaster />
         </ThemeProvider>
       </body>

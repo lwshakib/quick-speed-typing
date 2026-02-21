@@ -1,11 +1,15 @@
 'use client';
 
+// Import specialized layout and section components for consistent legal/policy formatting
 import { PolicyLayout, PolicySection } from "../terms/page";
+// Import security icon for visual header
 import { Shield } from "lucide-react";
 
 export default function SecurityPage() {
   return (
+    // Utilize the shared PolicyLayout for global stylistic consistency
     <PolicyLayout title="security" icon={<Shield size={32} />}>
+        {/* Detail specific security measures and procedures */}
         <PolicySection title="1. data protection">
             <p>all user data is encrypted at rest and in transit. we utilize industry-standard security practices to ensure your information remains safe.</p>
         </PolicySection>

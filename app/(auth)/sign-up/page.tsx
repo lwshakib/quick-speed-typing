@@ -1,16 +1,21 @@
 "use client";
 
+// Import core React functionality and authentication actions
 import { useState } from "react";
 import { signUp, signIn } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
+// Import UI design system components
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+// Import descriptive icons
 import { Mail, Lock, User, Loader2, ChevronRight, CheckCircle2 } from "lucide-react";
+// Import feedback and navigation utilities
 import { toast } from "sonner";
 import Link from "next/link";
 
 export default function SignUpPage() {
+  // State management for form processing, user inputs, and submission success
   const [loading, setLoading] = useState<"signUp" | null>(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -18,21 +23,24 @@ export default function SignUpPage() {
   const [isSuccess, setIsSuccess] = useState(false);
   const router = useRouter();
 
+  // Handler for creating a new account via Email and Password
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading("signUp");
     try {
+      // Dispatch registration request to the authentication provider
       await signUp.email({
         email,
         password,
         name,
-        callbackURL: "/",
+        callbackURL: "/", // Target redirect after verification
       }, {
         onSuccess: () => {
           setIsSuccess(true);
           toast.success("Account created! Please verify your email.");
         },
         onError: (ctx: any) => {
+          // Provide granular feedback on registration failures
           toast.error(ctx.error.message || "Failed to create account");
         }
       });
@@ -43,8 +51,9 @@ export default function SignUpPage() {
     }
   };
 
+  // Handler for quick registration/sign-in via Google social auth
   const handleGoogleSignIn = async () => {
-    setLoading("signUp" as any); // Use a temporary state or add google to the type
+    setLoading("signUp" as any); // Track loading state during redirect
     try {
       await signIn.social({
         provider: "google",
@@ -56,9 +65,11 @@ export default function SignUpPage() {
     }
   };
 
+  // State: Render a success message and verification instructions
   if (isSuccess) {
     return (
       <div className="space-y-6 text-center py-4">
+        {/* Animated verification icon */}
         <div className="h-20 w-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4 animate-in zoom-in duration-500">
           <Mail className="h-10 w-10" style={{ color: 'var(--main-color)' }} />
         </div>
@@ -70,6 +81,8 @@ export default function SignUpPage() {
             We've sent a link to <span className="font-bold text-foreground">{email}</span> to verify your account.
           </p>
         </div>
+        
+        {/* Post-registration action buttons */}
         <div className="pt-4 flex flex-col gap-3">
           <Button 
               onClick={() => window.open('https://mail.google.com', '_blank')}
@@ -83,6 +96,7 @@ export default function SignUpPage() {
                 variant="outline" 
                 className="w-full h-12 border-2 font-black uppercase tracking-widest hover:bg-main/5 transition-all" 
                 style={{ borderColor: 'var(--sub-color)', color: 'var(--sub-color)' }}
+                // Hover micro-interactions
                 onMouseEnter={(e) => {
                     e.currentTarget.style.borderColor = 'var(--main-color)';
                     e.currentTarget.style.color = 'var(--main-color)';
@@ -100,8 +114,10 @@ export default function SignUpPage() {
     );
   }
 
+  // Primary State: Render the registration form
   return (
     <div className="space-y-6">
+      {/* Header section explaining the benefit of joining */}
       <div className="space-y-2 text-center">
         <h1 className="text-3xl font-black lowercase tracking-tighter" style={{ color: 'var(--text-color)' }}>
           create account
@@ -111,7 +127,9 @@ export default function SignUpPage() {
         </p>
       </div>
 
+      {/* Main registration form */}
       <form onSubmit={handleSignUp} className="space-y-4">
+        {/* Full Name input field */}
         <div className="space-y-2">
           <Label htmlFor="name" className="text-[10px] uppercase font-black opacity-40 ml-1 tracking-widest">Full Name</Label>
           <div className="relative group">
@@ -127,6 +145,8 @@ export default function SignUpPage() {
             />
           </div>
         </div>
+        
+        {/* Email Address input field */}
         <div className="space-y-2">
           <Label htmlFor="email" className="text-[10px] uppercase font-black opacity-40 ml-1 tracking-widest">Email</Label>
           <div className="relative group">
@@ -142,6 +162,8 @@ export default function SignUpPage() {
             />
           </div>
         </div>
+        
+        {/* Secure Password input field */}
         <div className="space-y-2">
           <Label htmlFor="password" className="text-[10px] uppercase font-black opacity-40 ml-1 tracking-widest">Password</Label>
           <div className="relative group">
@@ -156,6 +178,8 @@ export default function SignUpPage() {
             />
           </div>
         </div>
+        
+        {/* Submit button with loading feedback */}
         <Button 
           type="submit" 
           className="w-full h-12 font-black text-xs uppercase tracking-widest mt-4 hover:opacity-90 transition-all border-none" 
@@ -167,6 +191,7 @@ export default function SignUpPage() {
         </Button>
       </form>
 
+      {/* Social login option separator */}
       <div className="relative my-6">
         <div className="absolute inset-0 flex items-center">
           <span className="w-full border-t" style={{ borderColor: 'var(--sub-color)', opacity: 0.1 }} />
@@ -176,6 +201,7 @@ export default function SignUpPage() {
         </div>
       </div>
 
+      {/* Google OAuth alternative */}
       <Button
         type="button"
         variant="outline"
@@ -200,6 +226,7 @@ export default function SignUpPage() {
         google
       </Button>
 
+      {/* Navigation link for existing users */}
       <div className="text-center pt-4">
         <span className="text-xs lowercase opacity-60">already have an account? </span>
         <Link href="/sign-in" className="text-xs font-black lowercase text-primary hover:underline" style={{ color: 'var(--main-color)' }}>

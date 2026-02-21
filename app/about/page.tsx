@@ -1,7 +1,9 @@
 'use client';
 
+// Import visual identifiers and UI helpers
 import { Logo } from "@/components/logo";
 import { LinkWithIcon } from "@/components/link-with-icon";
+// Import a set of iconic symbols to represent features and navigate
 import { 
   ArrowLeft, 
   Info, 
@@ -15,14 +17,17 @@ import {
   History 
 } from "lucide-react";
 import Link from "next/link";
+// Import animation library for smooth transitions
 import { motion } from "framer-motion";
 
 export default function AboutPage() {
   return (
+    // Main container for the about page content, centered and restricted in width for readability
     <main className="flex-1 w-full max-w-[800px] px-8 py-12 flex flex-col gap-12">
+      {/* Intro section: Headlines and mission statement */}
       <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
+        initial={{ opacity: 0, y: 20 }} // Start invisible and lower
+        animate={{ opacity: 1, y: 0 }}   // Fade in and slide up
         className="flex flex-col gap-6"
       >
         <div className="flex items-center gap-4 text-primary">
@@ -30,6 +35,7 @@ export default function AboutPage() {
           <h1 className="text-4xl font-bold lowercase tracking-tighter">about</h1>
         </div>
         
+        {/* Descriptive text block with emphasis on the brand name */}
         <div className="flex flex-col gap-4 text-lg leading-relaxed text-secondary opacity-80">
           <p>
             <span className="text-primary font-bold">quick type</span> is a minimalist, customizable typing website. It's designed to provide a distraction-free typing experience while providing detailed analytics and progress tracking.
@@ -40,14 +46,16 @@ export default function AboutPage() {
         </div>
       </motion.div>
 
+      {/* Features section: Grid displaying the core value propositions */}
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
+        transition={{ delay: 0.1 }} // Staggered intro animation
         className="flex flex-col gap-6"
       >
         <h2 className="text-2xl font-bold text-foreground lowercase tracking-tight">Features</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Detailed list of application features using cards */}
           <FeatureCard 
             icon={<Lock size={20} />}
             title="private"
@@ -75,11 +83,15 @@ export default function AboutPage() {
   );
 }
 
+// Reusable FeatureCard component to display an icon, title, and description consistently
 function FeatureCard({ icon, title, description }: { icon: React.ReactNode, title: string, description: string }) {
   return (
     <div className="bg-secondary/5 p-6 rounded-lg border border-secondary/10 hover:border-primary/30 transition-colors flex flex-col gap-3">
+      {/* Visual icon for the feature */}
       <div className="text-primary">{icon}</div>
+      {/* Feature title */}
       <h3 className="font-bold text-foreground lowercase">{title}</h3>
+      {/* Descriptive text explaining the benefit */}
       <p className="text-sm text-secondary opacity-60">{description}</p>
     </div>
   );

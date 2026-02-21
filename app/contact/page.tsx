@@ -1,14 +1,19 @@
 'use client';
 
+// Import visual identifiers and UI primitives
 import { Logo } from "@/components/logo";
+// Import icons representing communication channels and actions
 import { ArrowLeft, Mail, MessageCircle, Github, Twitter, Heart, Send } from "lucide-react";
 import Link from "next/link";
+// Import animation library for dynamic entrances
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 
 export default function ContactPage() {
   return (
+    // Main container for the contact page, centered and responsive
     <main className="flex-1 w-full max-w-[1000px] px-8 py-12 flex flex-col gap-12">
+      {/* Header section with page title and introductory text */}
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -23,8 +28,9 @@ export default function ContactPage() {
         </p>
       </motion.div>
 
+      {/* Two-column layout for Form and Social links */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-4">
-          {/* Contact Form Placeholder */}
+          {/* Left Column: Interactive Contact Form */}
           <motion.div 
              initial={{ opacity: 0, x: -20 }}
              animate={{ opacity: 1, x: 0 }}
@@ -36,37 +42,44 @@ export default function ContactPage() {
                   <p className="text-xs opacity-60">we'll get back to you as soon as possible.</p>
               </div>
               
+              {/* Form fields with custom styling mirroring the overall theme */}
               <div className="flex flex-col gap-4">
+                  {/* Name field */}
                   <div className="flex flex-col gap-1.5">
                       <label className="text-[10px] uppercase font-black opacity-40 ml-1">name</label>
                       <input type="text" className="bg-background border border-secondary/20 rounded-lg h-12 px-4 focus:outline-none focus:border-primary transition-colors text-foreground" placeholder="John Doe" />
                   </div>
+                  {/* Email field */}
                   <div className="flex flex-col gap-1.5">
                       <label className="text-[10px] uppercase font-black opacity-40 ml-1">email</label>
                       <input type="email" className="bg-background border border-secondary/20 rounded-lg h-12 px-4 focus:outline-none focus:border-primary transition-colors text-foreground" placeholder="john@example.com" />
                   </div>
+                  {/* Message textarea */}
                   <div className="flex flex-col gap-1.5">
                       <label className="text-[10px] uppercase font-black opacity-40 ml-1">message</label>
                       <textarea className="bg-background border border-secondary/20 rounded-lg min-h-[120px] p-4 focus:outline-none focus:border-primary transition-colors text-foreground resize-none" placeholder="Your message here..." />
                   </div>
               </div>
 
+              {/* Submit button with micro-animation on hover */}
               <Button className="w-full h-12 bg-primary text-background hover:bg-primary/90 rounded-lg font-bold flex items-center gap-2 group">
                   <Send size={18} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
                   <span>Send Message</span>
               </Button>
           </motion.div>
 
-          {/* Social Links & Info */}
+          {/* Right Column: Social Media Links & direct contact info */}
           <motion.div 
              initial={{ opacity: 0, x: 20 }}
              animate={{ opacity: 1, x: 0 }}
              transition={{ delay: 0.2 }}
              className="flex flex-col gap-8 py-4"
           >
+              {/* Grouped social interaction cards */}
               <div className="flex flex-col gap-6">
                   <h2 className="text-xl font-bold text-foreground lowercase">our channels</h2>
                   <div className="flex flex-col gap-4">
+                      {/* Individual social links */}
                       <SocialCard icon={<MessageCircle size={20} />} title="discord" value="join our community" href="https://discord.com" />
                       <SocialCard icon={<Twitter size={20} />} title="twitter" value="@quick_typing" href="https://twitter.com" />
                       <SocialCard icon={<Github size={20} />} title="github" value="lwshakib/quick-speed-typing" href="https://github.com" />
@@ -74,6 +87,7 @@ export default function ContactPage() {
                   </div>
               </div>
 
+              {/* Static direct email contact card */}
               <div className="bg-primary/5 p-6 rounded-xl border border-primary/20 flex items-start gap-4">
                   <div className="text-primary mt-1"><Mail size={24} /></div>
                   <div className="flex flex-col gap-1">
@@ -87,6 +101,7 @@ export default function ContactPage() {
   );
 }
 
+// Reusable SocialCard component for consistent presentation of external links
 function SocialCard({ icon, title, value, href }: { icon: React.ReactNode, title: string, value: string, href: string }) {
     return (
         <a 
@@ -95,12 +110,15 @@ function SocialCard({ icon, title, value, href }: { icon: React.ReactNode, title
             className="flex items-center justify-between p-4 bg-secondary/5 rounded-lg border border-secondary/10 hover:border-primary/40 transition-all group"
         >
             <div className="flex items-center gap-4">
+                {/* Visual icon for the channel */}
                 <div className="text-secondary opacity-60 group-hover:text-primary group-hover:opacity-100 transition-all">{icon}</div>
+                {/* Channel details */}
                 <div className="flex flex-col gap-0.5">
                     <span className="text-[10px] uppercase font-black opacity-30">{title}</span>
                     <span className="font-bold text-foreground group-hover:text-primary transition-colors">{value}</span>
                 </div>
             </div>
+            {/* Hover indicator arrow */}
             <ArrowLeft size={16} className="rotate-180 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
         </a>
     );
