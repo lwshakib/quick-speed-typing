@@ -13,39 +13,17 @@ import {
     Smartphone, 
     Monitor, 
     Globe, 
-    Link as LinkIcon, 
     Plus, 
     LogOut,
-    ExternalLink,
     Mail,
-    Lock
+    Lock,
+    Settings,
+    Activity,
+    Users
 } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
-import { motion, AnimatePresence } from "framer-motion";
-
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.1
-    }
-  }
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      type: "spring" as const,
-      stiffness: 100,
-      damping: 15
-    }
-  }
-};
+import { motion } from "framer-motion";
 
 export function AccountView() {
   const { data: session } = useSession();
@@ -77,7 +55,6 @@ export function AccountView() {
 
   const fetchAccounts = async () => {
     try {
-       // listAccounts may not be available in all better-auth versions
        if ('listAccounts' in authClient) {
          const { data } = await (authClient as any).listAccounts();
          setLinkedAccounts(data || []);
@@ -90,28 +67,28 @@ export function AccountView() {
   };
 
   const handleUpdateName = async () => {
-    if (!name.trim()) return toast.error("Name cannot be empty");
+    if (!name.trim()) return toast.error("name cannot be empty");
     setIsUpdating(true);
     try {
       await authClient.updateUser({
         name: name,
       });
-      toast.success("Profile updated successfully");
+      toast.success("profile updated");
     } catch (error) {
-      toast.error("Failed to update profile");
+      toast.error("failed to update profile");
     } finally {
       setIsUpdating(false);
     }
   };
 
   const handleDeleteAccount = async () => {
-    if (confirm("Are you sure you want to delete your account? This action is irreversible.")) {
+    if (confirm("are you sure? this will delete all your typing data permanently.")) {
       try {
         await authClient.deleteUser();
-        toast.success("Account deleted");
+        toast.success("account deleted");
         window.location.href = "/";
       } catch (error) {
-        toast.error("Failed to delete account");
+        toast.error("failed to delete account");
       }
     }
   };
@@ -119,42 +96,37 @@ export function AccountView() {
   const handleRevokeSession = async (token: string) => {
     try {
       await authClient.revokeSession({ token });
-      toast.success("Session revoked");
+      toast.success("session revoked");
       fetchSessions();
     } catch (error) {
-      toast.error("Failed to revoke session");
+      toast.error("failed to revoke session");
     }
   };
 
   const handleLinkAccount = async (provider: 'google') => {
     try {
-      // Use social sign-in to link account when user is already authenticated
       await authClient.signIn.social({
         provider: provider,
         callbackURL: window.location.href
       });
     } catch (error) {
-      toast.error(`Failed to link ${provider} account`);
+      toast.error(`failed to link ${provider} account`);
     }
   };
 
   const handleUnlinkAccount = async (accountId: string) => {
     if (linkedAccounts.length <= 1 && !session?.user?.email) {
-        return toast.error("You must have at least one login method.");
+        return toast.error("you must have at least one login method");
     }
     
     try {
         if ('unlinkAccount' in authClient) {
-            await (authClient as any).unlinkAccount({
-                accountId: accountId
-            });
-            toast.success("Account unlinked");
+            await (authClient as any).unlinkAccount({ accountId });
+            toast.success("account unlinked");
             fetchAccounts();
-        } else {
-            toast.error("Unlinking is not supported in this version");
         }
     } catch (error) {
-        toast.error("Failed to unlink account");
+        toast.error("failed to unlink account");
     }
   };
 
@@ -162,280 +134,232 @@ export function AccountView() {
     if (!userAgent) return "unknown device";
     const browsers = ["chrome", "firefox", "safari", "edge", "opera"];
     const os = ["windows", "macintosh", "linux", "android", "iphone"];
-    
     const lowerUA = userAgent.toLowerCase();
     const browser = browsers.find(b => lowerUA.includes(b)) || "browser";
     const platform = os.find(p => lowerUA.includes(p)) || "device";
-    
-    return `${browser} on ${platform}`;
+    return `${browser} / ${platform}`;
   };
 
   if (!session) return null;
 
   return (
     <motion.main 
-      className="flex-1 w-full max-w-[1250px] mx-auto py-12 sm:py-20 space-y-20 px-4 sm:px-12"
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-      >
-        <motion.div className="space-y-3" variants={itemVariants}>
-          <h1 className="text-4xl sm:text-5xl font-black tracking-tighter lowercase" style={{ color: 'var(--text-color)' }}>account settings</h1>
-          <p className="text-sm lowercase opacity-40">Manage your identity, connected apps, and security.</p>
-        </motion.div>
+      className="flex-1 w-full max-w-4xl mx-auto py-12 px-6 space-y-16"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.3 }}
+    >
+      {/* Header */}
+      <div className="space-y-1">
+        <div className="flex items-center gap-2 text-xs uppercase tracking-widest opacity-40 font-bold">
+          <Settings size={12} />
+          <span>account</span>
+        </div>
+        <h1 className="text-3xl font-black lowercase tracking-tighter" style={{ color: 'var(--text-color)' }}>
+          settings
+        </h1>
+      </div>
 
-        <div className="grid gap-20">
-          {/* Profile Section */}
-          <motion.div 
-            className="rounded-3xl border-2 overflow-hidden bg-transparent" 
-            style={{ borderColor: 'var(--border)' }}
-            variants={itemVariants}
-          >
-            <div className="border-b-2 p-8 flex items-center justify-between" style={{ borderColor: 'var(--border)' }}>
-              <div className="flex items-center gap-6">
-                <div className="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center border-2 border-white/5 overflow-hidden">
-                    {session.user.image ? (
-                        <img src={session.user.image} alt={session.user.name} className="w-full h-full object-cover" />
-                    ) : (
-                        <User className="w-7 h-7 opacity-20" />
-                    )}
+      <div className="grid gap-16">
+        {/* Profile Section */}
+        <section className="space-y-6">
+          <div className="flex items-center gap-3 pb-2 border-b border-white/5">
+            <User size={18} className="opacity-40" />
+            <h2 className="text-xl font-bold lowercase">profile</h2>
+          </div>
+          
+          <div className="grid md:grid-cols-2 gap-8 items-start">
+            <div className="space-y-4">
+              <div className="flex items-center gap-4 mb-2">
+                <div className="w-16 h-16 rounded-xl bg-white/5 flex items-center justify-center border border-white/10 overflow-hidden">
+                  {session.user.image ? (
+                    <img src={session.user.image} alt={session.user.name} className="w-full h-full object-cover" />
+                  ) : (
+                    <User className="w-8 h-8 opacity-20" />
+                  )}
                 </div>
                 <div>
-                  <h2 className="text-2xl font-black lowercase" style={{ color: 'var(--text-color)' }}>profile info</h2>
-                  <p className="text-[10px] uppercase font-black opacity-30 tracking-widest">Identification settings</p>
+                  <p className="text-sm font-bold lowercase opacity-40">profile picture</p>
+                  <p className="text-xs lowercase opacity-20">linked from your provider</p>
                 </div>
               </div>
-            </div>
-            
-            <div className="p-10 space-y-10">
-              <div className="grid sm:grid-cols-2 gap-10">
-                <div className="space-y-4">
-                  <Label htmlFor="name" className="lowercase font-black text-xs opacity-60 ml-1 tracking-widest">display name</Label>
+
+              <div className="space-y-2">
+                <Label htmlFor="name" className="lowercase text-xs opacity-40 ml-1">display name</Label>
+                <div className="flex gap-2">
                   <Input
                     id="name"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="your name"
-                    className="h-14 border-2 rounded-2xl focus-visible:ring-primary/20 transition-all font-black text-lg bg-transparent"
-                    style={{ borderColor: 'var(--border)', color: 'var(--text-color)' }}
+                    className="h-10 border border-white/10 rounded-lg bg-white/5 focus-visible:ring-primary/20 transition-all font-medium lowercase"
+                    style={{ color: 'var(--text-color)' }}
                   />
-                  <p className="text-[10px] lowercase opacity-40 ml-1">this is how you will appear on the leaderboard.</p>
-                </div>
-                <div className="space-y-4">
-                  <Label htmlFor="email" className="lowercase font-black text-xs opacity-60 ml-1 tracking-widest">email address</Label>
-                  <div className="relative">
-                    <Input 
-                        id="email" 
-                        value={session.user.email} 
-                        disabled 
-                        className="h-14 border-2 rounded-2xl opacity-40 cursor-not-allowed font-black text-lg bg-white/5" 
-                        style={{ borderColor: 'var(--border)' }} 
-                    />
-                    <Mail className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 opacity-20" />
-                  </div>
-                  <p className="text-[10px] lowercase opacity-40 ml-1 flex items-center gap-1">
-                    <Lock size={10} />
-                    primary account identifier
-                  </p>
-                </div>
-              </div>
-
-              <div className="pt-4">
-                <Button 
+                  <Button 
                     onClick={handleUpdateName} 
                     disabled={isUpdating}
-                    className="h-14 px-10 rounded-2xl font-black lowercase tracking-tight transition-all active:scale-95 bg-primary text-black hover:bg-primary/90"
-                >
-                  {isUpdating ? "saving..." : "save profile"}
-                </Button>
+                    size="sm"
+                    className="h-10 px-6 rounded-lg font-bold lowercase bg-primary text-black hover:bg-primary/90"
+                  >
+                    {isUpdating ? "..." : "save"}
+                  </Button>
+                </div>
               </div>
             </div>
-          </motion.div>
 
-          {/* Connected Accounts Section */}
-          <motion.div 
-            className="rounded-3xl border-2 overflow-hidden bg-transparent" 
-            style={{ borderColor: 'var(--border)' }}
-            variants={itemVariants}
-          >
-            <div className="border-b-2 p-8 flex items-center gap-6" style={{ borderColor: 'var(--border)' }}>
-                <div className="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center border-2 border-white/5">
-                    <LinkIcon className="w-7 h-7 opacity-20" />
+            <div className="space-y-6">
+              <div className="space-y-2">
+                <Label className="lowercase text-xs opacity-40 ml-1">email address</Label>
+                <div className="flex items-center gap-3 p-3 rounded-lg border border-white/5 bg-white/[0.02]">
+                  <Mail size={14} className="opacity-20" />
+                  <span className="text-sm font-medium opacity-60">{session.user.email}</span>
+                  <Lock size={12} className="ml-auto opacity-20" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Connected Accounts */}
+        <section className="space-y-6">
+          <div className="flex items-center gap-3 pb-2 border-b border-white/5">
+            <Users size={18} className="opacity-40" />
+            <h2 className="text-xl font-bold lowercase">connections</h2>
+          </div>
+
+          <div className="max-w-md space-y-3">
+            <div className="flex items-center justify-between p-4 rounded-lg border border-white/10 bg-white/5">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-white flex items-center justify-center">
+                  <img src="https://www.google.com/favicon.ico" alt="Google" className="w-4 h-4" />
                 </div>
                 <div>
-                  <h2 className="text-2xl font-black lowercase" style={{ color: 'var(--text-color)' }}>connected accounts</h2>
-                  <p className="text-[10px] uppercase font-black opacity-30 tracking-widest">OAuth identity providers</p>
-                </div>
-            </div>
-
-            <div className="p-10 space-y-8">
-                <div className="grid gap-4">
-                    {/* Google Provider */}
-                    <div className="flex items-center justify-between p-6 rounded-2xl border-2 border-white/5 bg-white/5 transition-all hover:bg-white/[0.08]">
-                        <div className="flex items-center gap-4">
-                            <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center shadow-lg">
-                                <img src="https://www.google.com/favicon.ico" alt="Google" className="w-5 h-5" />
-                            </div>
-                            <div>
-                                <p className="font-black text-lg lowercase">Google</p>
-                                {linkedAccounts.find(a => a.provider === 'google') ? (
-                                    <p className="text-[11px] font-black uppercase text-emerald-500 tracking-tighter">linked established</p>
-                                ) : (
-                                    <p className="text-[11px] font-black uppercase text-white/30 tracking-tighter">not connected</p>
-                                )}
-                            </div>
-                        </div>
-                        {linkedAccounts.find(a => a.provider === 'google') ? (
-                            <Button 
-                                variant="ghost" 
-                                size="sm" 
-                                className="h-10 px-6 rounded-xl font-black lowercase text-destructive hover:bg-destructive hover:text-white"
-                                onClick={() => handleUnlinkAccount(linkedAccounts.find(a => a.provider === 'google').id)}
-                            >
-                                unlink
-                            </Button>
-                        ) : (
-                            <Button 
-                                variant="outline" 
-                                size="sm" 
-                                className="h-10 px-6 rounded-xl font-black lowercase border-2 border-white/10 hover:bg-white/10"
-                                onClick={() => handleLinkAccount('google')}
-                            >
-                                <Plus size={14} className="mr-2" />
-                                link account
-                            </Button>
-                        )}
-                    </div>
-                </div>
-                <p className="text-[11px] lowercase opacity-40 text-center">Linking multiple accounts allows you to sign in with any verified method.</p>
-            </div>
-          </motion.div>
-
-          {/* Active Sessions */}
-          <motion.div 
-            className="rounded-3xl border-2 overflow-hidden bg-transparent" 
-            style={{ borderColor: 'var(--border)' }}
-            variants={itemVariants}
-          >
-            <div className="border-b-2 p-8 flex items-center justify-between" style={{ borderColor: 'var(--border)' }}>
-              <div className="flex items-center gap-6">
-                <div className="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center border-2 border-white/5">
-                  <Shield className="w-7 h-7 opacity-20" />
-                </div>
-                <div>
-                  <h2 className="text-2xl font-black lowercase" style={{ color: 'var(--text-color)' }}>active sessions</h2>
-                  <p className="text-[10px] uppercase font-black opacity-30 tracking-widest">Real-time security logs</p>
+                  <p className="text-sm font-bold lowercase">google</p>
+                  {linkedAccounts.find(a => a.provider === 'google') ? (
+                    <p className="text-[10px] uppercase font-bold text-emerald-500/60">connected</p>
+                  ) : (
+                    <p className="text-[10px] uppercase font-bold opacity-20">not active</p>
+                  )}
                 </div>
               </div>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="lowercase font-black text-xs opacity-60 hover:opacity-100 bg-white/5 px-6 rounded-xl h-10"
-                onClick={fetchSessions}
-              >
-                refresh status
-              </Button>
-            </div>
-
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow className="hover:bg-transparent border-b-2" style={{ borderColor: 'var(--border)' }}>
-                    <TableHead className="px-10 py-6 lowercase font-black text-[10px] opacity-40">device / browser</TableHead>
-                    <TableHead className="px-10 py-6 lowercase font-black text-[10px] opacity-40">ip address</TableHead>
-                    <TableHead className="px-10 py-6 lowercase font-black text-[10px] opacity-40">last active</TableHead>
-                    <TableHead className="px-10 py-6 text-right lowercase font-black text-[10px] opacity-40 px-10">command</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {isLoadingSessions ? (
-                    <TableRow className="hover:bg-transparent">
-                       <TableCell colSpan={4} className="text-center py-20 opacity-30 lowercase font-black">polling session data...</TableCell>
-                    </TableRow>
-                  ) : activeSessions.length === 0 ? (
-                    <TableRow className="hover:bg-transparent">
-                       <TableCell colSpan={4} className="text-center py-20 opacity-30 lowercase font-black">no remote sessions detected.</TableCell>
-                    </TableRow>
-                  ) : activeSessions.map((s) => (
-                    <TableRow key={s.id} className="hover:bg-white/[0.02] transition-all h-24 border-b last:border-0 border-white/[0.03]">
-                      <TableCell className="px-10 py-6">
-                        <div className="flex items-center gap-5">
-                          <div className="p-3 rounded-2xl bg-white/5 border border-white/10">
-                            {s.userAgent?.toLowerCase().includes("mobile") ? <Smartphone className="w-5 h-5 opacity-40" /> : <Monitor className="w-5 h-5 opacity-40" />}
-                          </div>
-                          <div className="flex flex-col">
-                            <span className="text-lg font-black lowercase" style={{ color: 'var(--text-color)' }}>
-                              {getDeviceName(s.userAgent)}
-                            </span>
-                            <span className="text-[10px] uppercase opacity-20 font-black tracking-tighter">
-                              {s.userAgent?.length > 50 ? s.userAgent?.substring(0, 50) + "..." : s.userAgent}
-                            </span>
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell className="px-10 py-6 font-mono text-xs opacity-40 tracking-wider">
-                        <div className="flex items-center gap-2">
-                           <Globe size={14} className="opacity-40" />
-                           {s.ipAddress || "0.0.0.0"}
-                        </div>
-                      </TableCell>
-                      <TableCell className="px-10 py-6 text-xs lowercase opacity-40 font-black">
-                        {format(new Date(s.createdAt), "dd MMM yyyy")}<br/>
-                        <span className="opacity-50">{format(new Date(s.createdAt), "HH:mm")}</span>
-                      </TableCell>
-                      <TableCell className="px-10 py-6 text-right">
-                         <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            className="h-10 px-6 rounded-xl font-black lowercase text-destructive hover:bg-destructive hover:text-white transition-all active:scale-95"
-                            onClick={() => handleRevokeSession(s.token)}
-                          >
-                            <LogOut size={14} className="mr-2" />
-                            revoke access
-                         </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          </motion.div>
-
-          {/* Danger Zone */}
-          <motion.div 
-            className="rounded-3xl border-2 border-destructive/20 overflow-hidden bg-destructive/[0.02]"
-            variants={itemVariants}
-          >
-            <div className="p-12 space-y-10">
-              <div className="flex items-center gap-6">
-                <div className="w-14 h-14 rounded-2xl bg-destructive/10 flex items-center justify-center">
-                    <Trash2 className="w-7 h-7 text-destructive" />
-                </div>
-                <div>
-                  <h2 className="text-2xl font-black lowercase text-destructive">danger zone</h2>
-                  <p className="text-xs opacity-40 font-black">Permanent account destruction.</p>
-                </div>
-              </div>
-
-              <div className="p-8 rounded-2xl border-2 border-destructive/10 bg-destructive/5 space-y-4">
-                <p className="text-xs font-black text-destructive uppercase tracking-widest">irreversible action</p>
-                <p className="text-sm font-black opacity-60 lowercase leading-relaxed max-w-2xl">
-                  Deleting your account will permanently wipe your entire typing legacy. This includes your all-time high scores, consistency graph, and performance insights across all game modes.
-                </p>
-              </div>
-
-              <div className="pt-2">
+              
+              {linkedAccounts.find(a => a.provider === 'google') ? (
                 <Button 
-                    variant="destructive" 
-                    onClick={handleDeleteAccount}
-                    className="h-14 px-10 rounded-2xl font-black lowercase tracking-tight transition-all active:scale-95 bg-destructive text-white hover:bg-destructive/90"
+                  variant="ghost" 
+                  size="sm" 
+                  className="h-8 px-4 rounded-md text-xs font-bold lowercase text-destructive hover:bg-destructive/10"
+                  onClick={() => handleUnlinkAccount(linkedAccounts.find(a => a.provider === 'google').id)}
                 >
-                    delete my profile
+                  unlink
                 </Button>
-              </div>
+              ) : (
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="h-8 px-4 rounded-md text-xs font-bold lowercase border-white/10 hover:bg-white/10"
+                  onClick={() => handleLinkAccount('google')}
+                >
+                  <Plus size={12} className="mr-1.5" />
+                  connect
+                </Button>
+              )}
             </div>
-          </motion.div>
-        </div>
-      </motion.main>
+          </div>
+        </section>
+
+        {/* Active Sessions */}
+        <section className="space-y-6">
+          <div className="flex items-center justify-between pb-2 border-b border-white/5">
+            <div className="flex items-center gap-3">
+              <Activity size={18} className="opacity-40" />
+              <h2 className="text-xl font-bold lowercase">sessions</h2>
+            </div>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="text-[10px] uppercase tracking-widest opacity-40 hover:opacity-100 h-6 px-2"
+              onClick={fetchSessions}
+            >
+              refresh
+            </Button>
+          </div>
+
+          <div className="rounded-lg border border-white/10 overflow-hidden">
+            <Table>
+              <TableHeader className="bg-white/[0.02]">
+                <TableRow className="hover:bg-transparent border-white/10">
+                  <TableHead className="h-10 px-4 text-[10px] uppercase font-bold opacity-40">device</TableHead>
+                  <TableHead className="h-10 px-4 text-[10px] uppercase font-bold opacity-40">ip</TableHead>
+                  <TableHead className="h-10 px-4 text-[10px] uppercase font-bold opacity-40">last seen</TableHead>
+                  <TableHead className="h-10 px-4 text-right text-[10px] uppercase font-bold opacity-40">action</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {isLoadingSessions ? (
+                  <TableRow className="hover:bg-transparent border-white/5">
+                    <TableCell colSpan={4} className="text-center py-12 text-xs opacity-20 lowercase">loading sessions...</TableCell>
+                  </TableRow>
+                ) : activeSessions.length === 0 ? (
+                  <TableRow className="hover:bg-transparent border-white/5">
+                    <TableCell colSpan={4} className="text-center py-12 text-xs opacity-20 lowercase">no active sessions</TableCell>
+                  </TableRow>
+                ) : activeSessions.map((s) => (
+                  <TableRow key={s.id} className="hover:bg-white/5 border-white/5">
+                    <TableCell className="px-4 py-3">
+                      <div className="flex items-center gap-3">
+                        {s.userAgent?.toLowerCase().includes("mobile") ? <Smartphone size={14} className="opacity-40" /> : <Monitor size={14} className="opacity-40" />}
+                        <span className="text-xs font-medium lowercase opacity-80">{getDeviceName(s.userAgent)}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="px-4 py-3 text-[10px] font-mono opacity-40">
+                      {s.ipAddress || "unknown"}
+                    </TableCell>
+                    <TableCell className="px-4 py-3 text-[10px] lowercase opacity-40">
+                      {format(new Date(s.createdAt), "MMM d, HH:mm")}
+                    </TableCell>
+                    <TableCell className="px-4 py-3 text-right">
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="h-7 px-3 rounded-md text-[10px] font-bold lowercase text-destructive hover:bg-destructive/10"
+                        onClick={() => handleRevokeSession(s.token)}
+                      >
+                        <LogOut size={10} className="mr-1.5" />
+                        revoke
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </section>
+
+        {/* Danger Zone */}
+        <section className="space-y-6 pt-8 border-t border-destructive/10">
+          <div className="flex items-center gap-3">
+            <Trash2 size={18} className="text-destructive opacity-60" />
+            <h2 className="text-xl font-bold lowercase text-destructive opacity-80">danger zone</h2>
+          </div>
+
+          <div className="p-6 rounded-lg border border-destructive/20 bg-destructive/[0.02] flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div className="space-y-1">
+              <p className="text-sm font-bold lowercase">delete account</p>
+              <p className="text-xs lowercase opacity-40 max-w-md">
+                permanently remove your account and all associated data including typing history and achievements.
+              </p>
+            </div>
+            <Button 
+              variant="destructive" 
+              size="sm"
+              onClick={handleDeleteAccount}
+              className="px-6 rounded-lg font-bold lowercase h-10"
+            >
+              delete profile
+            </Button>
+          </div>
+        </section>
+      </div>
+    </motion.main>
   );
 }
