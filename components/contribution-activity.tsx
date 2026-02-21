@@ -94,7 +94,7 @@ export function ContributionActivity({
           </div>
        </div>
 
-      <div className="p-6 rounded-2xl border-2 overflow-hidden" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--muted)' }}>
+      <div className="p-0 overflow-hidden" style={{ backgroundColor: 'transparent', border: 'none' }}>
         <div className="flex flex-col items-center w-full overflow-hidden">
           <div className="inline-flex flex-col gap-2 max-w-full overflow-x-auto pb-2">
             {/* Month labels */}
@@ -206,7 +206,7 @@ export function ContributionActivitySkeleton() {
           </div>
        </div>
 
-      <div className="p-6 rounded-2xl border-2" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--muted)' }}>
+      <div className="p-0" style={{ backgroundColor: 'transparent', border: 'none' }}>
         <div className="flex flex-col items-center w-full overflow-hidden">
           <div className="inline-flex flex-col gap-2">
             <div className="flex gap-10 ml-8 h-4 mb-1">

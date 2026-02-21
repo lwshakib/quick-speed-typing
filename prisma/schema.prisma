@@ -89,7 +89,13 @@ model TypingHistory {
   duration    Int
   consistency Int?
   mode        String?
+  amount      Int?
   language    String?
+  correctChars Int?    @map("correct_chars")
+  errorChars   Int?    @map("error_chars")
+  extraChars   Int?    @map("extra_chars")
+  missedChars  Int?    @map("missed_chars")
+  isCompleted  Boolean @default(true) @map("is_completed")
   createdAt   DateTime @default(now())
 
   @@index([userId])

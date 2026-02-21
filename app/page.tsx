@@ -175,7 +175,13 @@ export default function Home() {
         duration: testDuration,
         consistency,
         mode,
+        amount,
         language,
+        correctChars: charStats.correct,
+        errorChars: charStats.incorrect,
+        extraChars: charStats.extra,
+        missedChars: charStats.missed,
+        isCompleted: true,
       });
       setHasSaved(true);
       toast.success("Progress saved!");
