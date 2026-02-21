@@ -20,6 +20,10 @@ interface UiState {
   currentTheme: Theme;
   setCurrentTheme: (theme: Theme) => void;
   applyTheme: (theme: Theme, session: any) => void;
+
+  // Restart trigger
+  restartCount: number;
+  triggerRestart: () => void;
 }
 
 export const useUiStore = create<UiState>((set, get) => ({
@@ -45,5 +49,8 @@ export const useUiStore = create<UiState>((set, get) => ({
     if (session) {
       updateUserTheme(theme.id).catch(err => console.error("Failed to sync theme to DB:", err));
     }
-  }
+  },
+
+  restartCount: 0,
+  triggerRestart: () => set((state) => ({ restartCount: state.restartCount + 1 })),
 }));

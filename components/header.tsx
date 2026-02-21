@@ -1,7 +1,7 @@
 'use client';
 
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { 
     Keyboard, 
     Trophy, 
@@ -9,7 +9,7 @@ import {
     Settings, 
     Bell, 
     Palette, 
-    User as UserIcon 
+    User as UserIcon
 } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -104,16 +104,17 @@ export function Header() {
                     href="/" 
                     className={cn(
                         "transition-all duration-500", 
-                        isFocusMode ? "opacity-20 scale-95 grayscale" : "hover:scale-105 active:scale-95"
+                        isFocusMode ? "opacity-100" : "hover:scale-105 active:scale-95"
                     )}
                 >
                     <Logo 
                         iconSize={32} 
                         textSize="1.5rem" 
                         className="text-foreground" 
-                        hideText={isFocusMode}
+                        hideText={false}
                     />
                 </Link>
+
                 <motion.nav 
                     animate={{ 
                         opacity: showUi ? 1 : 0, 

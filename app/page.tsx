@@ -58,7 +58,8 @@ export default function Home() {
     isLangOpen,
     setIsLangOpen,
     currentTheme,
-    applyTheme
+    applyTheme,
+    restartCount
   } = useUiStore();
 
   const [isCustomDurationOpen, setIsCustomDurationOpen] = useState(false);
@@ -143,6 +144,13 @@ export default function Home() {
   useEffect(() => {
     setIsMounted(true);
   }, []);
+
+  // Listen for restart trigger from header or elsewhere
+  useEffect(() => {
+    if (restartCount > 0) {
+      restart();
+    }
+  }, [restartCount]);
 
   useEffect(() => {
     const isFinished = state === 'finish';
@@ -399,9 +407,9 @@ export default function Home() {
               {/* Reset Button */}
               <motion.div 
                 animate={{ 
-                  opacity: showUi ? 1 : 0, 
+                  opacity: showUi ? 1 : 0.4, 
                   scale: showUi ? 1 : 0.9,
-                  pointerEvents: showUi ? 'auto' : 'none'
+                  pointerEvents: 'auto'
                 }}
                 className="flex flex-col items-center gap-4 mt-8"
               >
