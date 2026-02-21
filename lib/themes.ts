@@ -43,34 +43,6 @@ export const THEMES: Theme[] = [
     }
   },
   {
-    id: "shadcn-dark",
-    name: "shadcn",
-    type: 'dark',
-    colors: {
-      background: "#030712",
-      main: "#ffffff",
-      caret: "#ffffff",
-      sub: "#6b7280",
-      text: "#f3f4f6",
-      error: "#ef4444",
-      errorExtra: "#7f1d1d",
-    },
-  },
-  {
-    id: "shadcn-light",
-    name: "shadcn",
-    type: 'light',
-    colors: {
-      background: "#ffffff",
-      main: "#030712",
-      caret: "#030712",
-      sub: "#64748b",
-      text: "#0f172a",
-      error: "#ef4444",
-      errorExtra: "#7f1d1d",
-    },
-  },
-  {
     id: "carbon-dark",
     name: "carbon",
     type: 'dark',

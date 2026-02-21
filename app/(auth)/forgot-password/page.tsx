@@ -51,7 +51,14 @@ export default function ForgotPasswordPage() {
             Check your inbox for a link to reset your password.
           </p>
         </div>
-        <div className="pt-4">
+        <div className="pt-4 flex flex-col gap-3">
+          <Button 
+            onClick={() => window.open('https://mail.google.com', '_blank')}
+            className="w-full h-12 font-black text-xs uppercase tracking-widest hover:opacity-90 transition-all border-none" 
+            style={{ backgroundColor: 'var(--main-color)', color: 'var(--bg-color)' }}
+          >
+            go to gmail <ChevronRight className="ml-2 h-4 w-4" />
+          </Button>
           <Link href="/sign-in" className="w-full">
             <Button 
               variant="outline" 

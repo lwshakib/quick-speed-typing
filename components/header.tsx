@@ -157,7 +157,7 @@ export function Header() {
                     pointerEvents: showUi ? 'auto' : 'none'
                 }}
                 transition={{ duration: 0.5 }}
-                className="flex items-center gap-6"
+                className="flex items-center gap-4"
             >
                 <button 
                     onClick={() => setIsNotificationsOpen(true)}

@@ -32,13 +32,8 @@ export function UserMenu() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button className="relative h-10 w-10 rounded-full outline-none group transition-transform active:scale-95 duration-200">
-          <Avatar className="h-10 w-10 border-2 border-transparent group-hover:border-primary transition-all duration-300">
-            <AvatarImage src={user.image || ""} alt={user.name || "User"} />
-            <AvatarFallback className="bg-primary/10 text-primary font-bold">
-              {initials}
-            </AvatarFallback>
-          </Avatar>
+        <button className="hover:text-foreground transition-colors cursor-pointer hover:scale-110 active:scale-95 duration-200 outline-none">
+          <User size={16} />
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent 
@@ -52,11 +47,19 @@ export function UserMenu() {
         }}
       >
         <DropdownMenuLabel className="font-normal px-3 py-3">
-          <div className="flex flex-col space-y-1">
-            <p className="text-sm font-bold leading-none text-foreground" style={{ color: 'var(--text-color)' }}>{user.name}</p>
-            <p className="text-[10px] font-medium leading-none opacity-50">
-              {user.email}
-            </p>
+          <div className="flex items-center gap-3">
+            <Avatar className="h-8 w-8 border border-secondary/10 shrink-0">
+              <AvatarImage src={user.image || ""} alt={user.name || "User"} />
+              <AvatarFallback className="bg-primary/10 text-primary font-bold text-xs">
+                {initials}
+              </AvatarFallback>
+            </Avatar>
+            <div className="flex flex-col space-y-1 overflow-hidden">
+              <p className="text-sm font-bold leading-none text-foreground truncate" style={{ color: 'var(--text-color)' }}>{user.name}</p>
+              <p className="text-[10px] font-medium leading-none opacity-50 truncate">
+                {user.email}
+              </p>
+            </div>
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator className="opacity-10 bg-current" />

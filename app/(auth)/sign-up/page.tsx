@@ -70,8 +70,15 @@ export default function SignUpPage() {
             We've sent a link to <span className="font-bold text-foreground">{email}</span> to verify your account.
           </p>
         </div>
-        <div className="pt-4">
-          <Link href="/sign-in">
+        <div className="pt-4 flex flex-col gap-3">
+          <Button 
+              onClick={() => window.open('https://mail.google.com', '_blank')}
+              className="w-full h-12 font-black text-xs uppercase tracking-widest hover:opacity-90 transition-all border-none" 
+              style={{ backgroundColor: 'var(--main-color)', color: 'var(--bg-color)' }}
+          >
+            go to gmail <ChevronRight className="ml-2 h-4 w-4" />
+          </Button>
+          <Link href="/sign-in" className="w-full">
             <Button 
                 variant="outline" 
                 className="w-full h-12 border-2 font-black uppercase tracking-widest hover:bg-main/5 transition-all" 
