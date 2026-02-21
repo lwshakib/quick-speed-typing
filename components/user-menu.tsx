@@ -63,14 +63,20 @@ export function UserMenu() {
         <div className="p-1 flex flex-col gap-1">
             <DropdownMenuItem asChild className="rounded-lg cursor-pointer hover:bg-primary/10 focus:bg-primary/10 group transition-all duration-200">
               <Link href="/profile" className="flex items-center w-full px-2 py-2">
-                <LayoutDashboard size={16} className="mr-3 text-primary" />
-                <span className="text-xs font-bold lowercase group-hover:text-foreground transition-colors">Dashboard</span>
+                <User size={16} className="mr-3 text-primary" />
+                <span className="text-xs font-bold lowercase group-hover:text-foreground transition-colors">profile</span>
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild className="rounded-lg cursor-pointer hover:bg-primary/10 focus:bg-primary/10 group transition-all duration-200">
               <Link href="/settings" className="flex items-center w-full px-2 py-2">
                 <Settings size={16} className="mr-3 text-primary" />
-                <span className="text-xs font-bold lowercase group-hover:text-foreground transition-colors">Settings</span>
+                <span className="text-xs font-bold lowercase group-hover:text-foreground transition-colors">settings</span>
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild className="rounded-lg cursor-pointer hover:bg-primary/10 focus:bg-primary/10 group transition-all duration-200">
+              <Link href="/account" className="flex items-center w-full px-2 py-2">
+                <LayoutDashboard size={16} className="mr-3 text-primary" />
+                <span className="text-xs font-bold lowercase group-hover:text-foreground transition-colors">account</span>
               </Link>
             </DropdownMenuItem>
         </div>
