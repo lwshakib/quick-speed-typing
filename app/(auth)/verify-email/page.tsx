@@ -8,7 +8,9 @@ import { CheckCircle2, XCircle, Loader2, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
 
-export default function VerifyEmailPage() {
+import { Suspense } from "react";
+
+function VerifyEmailContent() {
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
   const [status, setStatus] = useState<"verifying" | "success" | "error">("verifying");
@@ -124,5 +126,18 @@ export default function VerifyEmailPage() {
         </Link>
       </div>
     </div>
+  );
+}
+
+export default function VerifyEmailPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex flex-col items-center justify-center p-8 gap-4">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <p className="text-xs font-bold opacity-40 lowercase">verifying your email...</p>
+      </div>
+    }>
+      <VerifyEmailContent />
+    </Suspense>
   );
 }
