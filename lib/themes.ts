@@ -1,6 +1,7 @@
 export interface Theme {
   id: string;
   name: string;
+  type: 'light' | 'dark';
   colors: {
     background: string;
     main: string;
@@ -14,8 +15,9 @@ export interface Theme {
 
 export const THEMES: Theme[] = [
   {
-    id: "default-theme",
-    name: "default theme",
+    id: "default-light",
+    name: "default",
+    type: 'light',
     colors: {
       background: "#ffffff",
       main: "#343434",
@@ -27,8 +29,23 @@ export const THEMES: Theme[] = [
     },
   },
   {
-    id: "shadcn",
+    id: "default-dark",
+    name: "default",
+    type: 'dark',
+    colors: {
+        background: "#121212",
+        main: "#eeeeee",
+        caret: "#eeeeee",
+        sub: "#555555",
+        text: "#eeeeee",
+        error: "#e11d48",
+        errorExtra: "#7f1d1d",
+    }
+  },
+  {
+    id: "shadcn-dark",
     name: "shadcn",
+    type: 'dark',
     colors: {
       background: "#030712",
       main: "#ffffff",
@@ -40,21 +57,23 @@ export const THEMES: Theme[] = [
     },
   },
   {
-    id: "serika-dark",
-    name: "serika dark",
+    id: "shadcn-light",
+    name: "shadcn",
+    type: 'light',
     colors: {
-      background: "#323437",
-      main: "#e2b714",
-      caret: "#e2b714",
-      sub: "#646669",
-      text: "#d1d0c5",
-      error: "#ca4754",
-      errorExtra: "#793e44",
+      background: "#ffffff",
+      main: "#030712",
+      caret: "#030712",
+      sub: "#64748b",
+      text: "#0f172a",
+      error: "#ef4444",
+      errorExtra: "#7f1d1d",
     },
   },
   {
-    id: "carbon",
+    id: "carbon-dark",
     name: "carbon",
+    type: 'dark',
     colors: {
       background: "#313131",
       main: "#f66e0d",
@@ -66,8 +85,23 @@ export const THEMES: Theme[] = [
     },
   },
   {
-    id: "lush",
+    id: "carbon-light",
+    name: "carbon",
+    type: 'light',
+    colors: {
+      background: "#f5e6c8",
+      main: "#f66e0d",
+      caret: "#f66e0d",
+      sub: "#918161",
+      text: "#313131",
+      error: "#da3333",
+      errorExtra: "#791717",
+    },
+  },
+  {
+    id: "lush-dark",
     name: "lush",
+    type: 'dark',
     colors: {
       background: "#1d2021",
       main: "#8ec07c",
@@ -79,8 +113,23 @@ export const THEMES: Theme[] = [
     },
   },
   {
-    id: "nord",
+    id: "lush-light",
+    name: "lush",
+    type: 'light',
+    colors: {
+      background: "#ebdbb2",
+      main: "#8ec07c",
+      caret: "#8ec07c",
+      sub: "#928374",
+      text: "#282828",
+      error: "#9d0006",
+      errorExtra: "#cc241d",
+    },
+  },
+  {
+    id: "nord-dark",
     name: "nord",
+    type: 'dark',
     colors: {
       background: "#2e3440",
       main: "#88c0d0",
@@ -92,8 +141,23 @@ export const THEMES: Theme[] = [
     },
   },
   {
-    id: "matrix",
+    id: "nord-light",
+    name: "nord",
+    type: 'light',
+    colors: {
+      background: "#d8dee9",
+      main: "#81a1c1",
+      caret: "#81a1c1",
+      sub: "#4c566a",
+      text: "#2e3440",
+      error: "#bf616a",
+      errorExtra: "#a35058",
+    },
+  },
+  {
+    id: "matrix-dark",
     name: "matrix",
+    type: 'dark',
     colors: {
       background: "#000000",
       main: "#15ff00",
@@ -105,8 +169,23 @@ export const THEMES: Theme[] = [
     },
   },
   {
-    id: "9009",
+    id: "matrix-light",
+    name: "matrix",
+    type: 'light',
+    colors: {
+      background: "#e0ffe0",
+      main: "#008000",
+      caret: "#008000",
+      sub: "#66b266",
+      text: "#003300",
+      error: "#ff0000",
+      errorExtra: "#790000",
+    },
+  },
+  {
+    id: "9009-light",
     name: "9009",
+    type: 'light',
     colors: {
       background: "#eeebe2",
       main: "#080909",
@@ -118,8 +197,23 @@ export const THEMES: Theme[] = [
     },
   },
   {
-    id: "dracula",
+    id: "9009-dark",
+    name: "9009",
+    type: 'dark',
+    colors: {
+      background: "#2d2d2d",
+      main: "#eeebe2",
+      caret: "#eeebe2",
+      sub: "#777777",
+      text: "#eeebe2",
+      error: "#ca4754",
+      errorExtra: "#793e44",
+    },
+  },
+  {
+    id: "dracula-dark",
     name: "dracula",
+    type: 'dark',
     colors: {
       background: "#282a36",
       main: "#bd93f9",
@@ -131,8 +225,23 @@ export const THEMES: Theme[] = [
     },
   },
   {
-      id: "botanical",
+    id: "dracula-light",
+    name: "dracula",
+    type: 'light',
+    colors: {
+      background: "#f8f8f2",
+      main: "#bd93f9",
+      caret: "#bd93f9",
+      sub: "#6272a4",
+      text: "#282a36",
+      error: "#ff5555",
+      errorExtra: "#962323",
+    },
+  },
+  {
+      id: "botanical-dark",
       name: "botanical",
+      type: 'dark',
       colors: {
           background: "#7b9c98",
           main: "#eaf1f3",
@@ -144,8 +253,23 @@ export const THEMES: Theme[] = [
       }
   },
   {
-    id: "bento",
+    id: "botanical-light",
+    name: "botanical",
+    type: 'light',
+    colors: {
+      background: "#eaf1f3",
+      main: "#7b9c98",
+      caret: "#7b9c98",
+      sub: "#99b4b0",
+      text: "#495e5b",
+      error: "#bca0dc",
+      errorExtra: "#a186bf",
+    },
+  },
+  {
+    id: "bento-dark",
     name: "bento",
+    type: 'dark',
     colors: {
       background: "#2d394d",
       main: "#ff7a90",
@@ -157,8 +281,23 @@ export const THEMES: Theme[] = [
     },
   },
   {
-    id: "pulse",
+    id: "bento-light",
+    name: "bento",
+    type: 'light',
+    colors: {
+      background: "#fffaf4",
+      main: "#ff7a90",
+      caret: "#ff7a90",
+      sub: "#d9d0c7",
+      text: "#2d394d",
+      error: "#ee2e3d",
+      errorExtra: "#a31a26",
+    },
+  },
+  {
+    id: "pulse-dark",
     name: "pulse",
+    type: 'dark',
     colors: {
       background: "#181818",
       main: "#173f3f",
@@ -170,8 +309,23 @@ export const THEMES: Theme[] = [
     },
   },
   {
-    id: "luna",
+    id: "pulse-light",
+    name: "pulse",
+    type: 'light',
+    colors: {
+      background: "#e1e1e1",
+      main: "#173f3f",
+      caret: "#173f3f",
+      sub: "#bbbbbb",
+      text: "#181818",
+      error: "#ca4754",
+      errorExtra: "#793e44",
+    },
+  },
+  {
+    id: "luna-dark",
     name: "luna",
+    type: 'dark',
     colors: {
       background: "#221c35",
       main: "#f67599",
@@ -183,8 +337,23 @@ export const THEMES: Theme[] = [
     },
   },
   {
-    id: "catppuccin",
+    id: "luna-light",
+    name: "luna",
+    type: 'light',
+    colors: {
+      background: "#ffe3eb",
+      main: "#f67599",
+      caret: "#f67599",
+      sub: "#d9b8c1",
+      text: "#221c35",
+      error: "#ff4d4d",
+      errorExtra: "#912626",
+    },
+  },
+  {
+    id: "catppuccin-dark",
     name: "catppuccin",
+    type: 'dark',
     colors: {
       background: "#1e1e2e",
       main: "#cba6f7",
@@ -196,8 +365,23 @@ export const THEMES: Theme[] = [
     },
   },
   {
-    id: "cyberpunk",
+    id: "catppuccin-light",
+    name: "catppuccin",
+    type: 'light',
+    colors: {
+      background: "#eff1f5",
+      main: "#8839ef",
+      caret: "#8839ef",
+      sub: "#9ca0b0",
+      text: "#4c4f69",
+      error: "#d20f39",
+      errorExtra: "#e64553",
+    },
+  },
+  {
+    id: "cyberpunk-dark",
     name: "cyberpunk",
+    type: 'dark',
     colors: {
       background: "#000b1e",
       main: "#ff00ff",
@@ -209,8 +393,23 @@ export const THEMES: Theme[] = [
     },
   },
   {
-    id: "iceberg",
+    id: "cyberpunk-light",
+    name: "cyberpunk",
+    type: 'light',
+    colors: {
+        background: "#e0f7ff",
+        main: "#ff00ff",
+        caret: "#ff00ff",
+        sub: "#a0d1e0",
+        text: "#000b1e",
+        error: "#ff0000",
+        errorExtra: "#790000",
+    }
+  },
+  {
+    id: "iceberg-dark",
     name: "iceberg",
+    type: 'dark',
     colors: {
       background: "#161821",
       main: "#84a0c6",
@@ -222,8 +421,23 @@ export const THEMES: Theme[] = [
     },
   },
   {
-    id: "retro",
+    id: "iceberg-light",
+    name: "iceberg",
+    type: 'light',
+    colors: {
+      background: "#e8eff5",
+      main: "#84a0c6",
+      caret: "#84a0c6",
+      sub: "#b0becd",
+      text: "#161821",
+      error: "#e27878",
+      errorExtra: "#d15a5a",
+    },
+  },
+  {
+    id: "retro-light",
     name: "retro",
+    type: 'light',
     colors: {
       background: "#dad3b1",
       main: "#1d1d1d",
@@ -235,8 +449,23 @@ export const THEMES: Theme[] = [
     },
   },
   {
-    id: "paper",
+    id: "retro-dark",
+    name: "retro",
+    type: 'dark',
+    colors: {
+      background: "#1d1d1d",
+      main: "#dad3b1",
+      caret: "#dad3b1",
+      sub: "#4a4a4a",
+      text: "#dad3b1",
+      error: "#ca4754",
+      errorExtra: "#793e44",
+    },
+  },
+  {
+    id: "paper-light",
     name: "paper",
+    type: 'light',
     colors: {
       background: "#eeeeee",
       main: "#444444",
@@ -248,8 +477,23 @@ export const THEMES: Theme[] = [
     },
   },
   {
-    id: "ocean",
+    id: "paper-dark",
+    name: "paper",
+    type: 'dark',
+    colors: {
+      background: "#111111",
+      main: "#eeeeee",
+      caret: "#eeeeee",
+      sub: "#444444",
+      text: "#eeeeee",
+      error: "#d70000",
+      errorExtra: "#af0000",
+    },
+  },
+  {
+    id: "ocean-dark",
     name: "ocean",
+    type: 'dark',
     colors: {
       background: "#0f111a",
       main: "#3a62d1",
@@ -261,8 +505,23 @@ export const THEMES: Theme[] = [
     },
   },
   {
-    id: "miami",
+    id: "ocean-light",
+    name: "ocean",
+    type: 'light',
+    colors: {
+      background: "#e6e9f0",
+      main: "#3a62d1",
+      caret: "#3a62d1",
+      sub: "#9ea4b8",
+      text: "#0f111a",
+      error: "#ff2424",
+      errorExtra: "#ac0000",
+    },
+  },
+  {
+    id: "miami-dark",
     name: "miami",
+    type: 'dark',
     colors: {
       background: "#24282f",
       main: "#f397d6",
@@ -274,14 +533,43 @@ export const THEMES: Theme[] = [
     },
   },
   {
-    id: "slate",
+    id: "miami-light",
+    name: "miami",
+    type: 'light',
+    colors: {
+      background: "#e9edf2",
+      main: "#f397d6",
+      caret: "#f397d6",
+      sub: "#758195",
+      text: "#24282f",
+      error: "#ff3a3a",
+      errorExtra: "#ac0000",
+    },
+  },
+  {
+    id: "slate-dark",
     name: "slate",
+    type: 'dark',
     colors: {
       background: "#1a1b26",
       main: "#bb9af7",
       caret: "#bb9af7",
       sub: "#565f89",
       text: "#a9b1d6",
+      error: "#f7768e",
+      errorExtra: "#ff9e64",
+    },
+  },
+  {
+    id: "slate-light",
+    name: "slate",
+    type: 'light',
+    colors: {
+      background: "#a9b1d6",
+      main: "#2ac3de",
+      caret: "#2ac3de",
+      sub: "#565f89",
+      text: "#1a1b26",
       error: "#f7768e",
       errorExtra: "#ff9e64",
     },
