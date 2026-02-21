@@ -89,7 +89,9 @@ export const useTypingEngine = (options: TypingOptions = {}) => {
 
   const updateWords = useCallback(() => {
     let newWords = "";
-    if (mode === 'time' || mode === 'words' || mode === 'zen') {
+    if (mode === 'zen') {
+        newWords = ""; // Start empty for Zen mode
+    } else if (mode === 'time' || mode === 'words') {
         const count = mode === 'time' ? 50 : amount;
         newWords = generateWords(count, includeNumbers, includePunctuation, language);
     } else if (mode === 'quote') {
@@ -254,7 +256,7 @@ export const useTypingEngine = (options: TypingOptions = {}) => {
         );
       };
 
-    if (!isKeyboardCodeAllowed(e.code)) return;
+    if (!isKeyboardCodeAllowed(e.code) && e.key !== 'Enter') return;
 
     if (state === 'start' && e.key !== 'Backspace') {
       setState('run');
@@ -265,12 +267,22 @@ export const useTypingEngine = (options: TypingOptions = {}) => {
       resume();
     }
 
+    // Zen Mode: Shift + Enter to finish
+    if (mode === 'zen' && e.key === 'Enter' && e.shiftKey) {
+        e.preventDefault();
+        finish();
+        return;
+    }
+
     if (e.key === 'Backspace') {
       setTyped((prev) => prev.slice(0, -1));
       setTotalTypedCount(prev => Math.max(0, prev - 1));
-    } else if (e.key.length === 1) {
-      const nextChar = e.key;
-      const expectedChar = words[typed.length];
+      if (mode === 'zen') {
+          setWords(prev => prev.slice(0, -1));
+      }
+    } else if (e.key.length === 1 || (mode === 'zen' && e.key === 'Enter')) {
+      const nextChar = e.key === 'Enter' ? '\n' : e.key;
+      const expectedChar = mode === 'zen' ? nextChar : words[typed.length];
       
       charsInLastSecondRef.current += 1;
       if (nextChar !== expectedChar) {
@@ -297,6 +309,11 @@ export const useTypingEngine = (options: TypingOptions = {}) => {
         }
         return newVal;
       });
+
+      if (mode === 'zen') {
+          setWords(prev => prev + nextChar);
+      }
+
       setTotalTypedCount(prev => prev + 1);
 
       if (mode === 'quote' && typed.length + 1 >= words.length) {

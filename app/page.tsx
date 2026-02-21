@@ -360,15 +360,19 @@ export default function Home() {
               </motion.div>
 
               {/* Typing Container */}
-              <div className="relative text-2xl md:text-3xl leading-relaxed tracking-wide min-h-[140px] focus:outline-none perspective-1000 w-full text-center">
+              <div className="relative text-2xl md:text-3xl leading-relaxed tracking-wide min-h-[140px] focus:outline-none perspective-1000 w-full text-left">
                   {/* Timer Display */}
-                  {state === 'run' && mode !== 'zen' && (
+                  {state === 'run' && (
                     <motion.div 
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       className="absolute top-[-3.5rem] left-0 font-bold text-3xl tabular-nums text-primary transition-colors duration-300"
                     >
-                      {timeLeft}
+                      {mode === 'zen' ? (
+                        <span>
+                          {Math.floor(testDuration / 60)}:{(testDuration % 60).toString().padStart(2, '0')}
+                        </span>
+                      ) : timeLeft}
                     </motion.div>
                   )}
 
@@ -416,6 +420,9 @@ export default function Home() {
                           isActive ? "active opacity-100 scale-105" : "opacity-40 scale-100",
                           hasError && "border-b-2 border-destructive"
                         )}>
+                          {/* Zero-width space to ensure height when word is empty */}
+                          <span className="opacity-0 absolute">{"\u200B"}</span>
+                          
                           {charsToRender.map((item, cIdx) => (
                             <span 
                               key={cIdx} 
@@ -460,14 +467,30 @@ export default function Home() {
                 }}
                 className="flex flex-col items-center gap-4 mt-8"
               >
-                 <button 
+                  <button 
                     onClick={restart} 
                     className="p-4 text-secondary hover:text-foreground transition-all hover:scale-110 active:scale-95 duration-200 hover:rotate-[360deg] duration-700 ease-in-out"
                     title="Restart Test"
                   >
                     <RefreshCw size={26} />
-                 </button>
-              </motion.div>
+                  </button>
+
+                  <AnimatePresence>
+                    {mode === 'zen' && state === 'run' && (
+                      <motion.div 
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 0.5, y: 0 }}
+                        exit={{ opacity: 0, y: 10 }}
+                        className="text-[10px] uppercase font-bold tracking-widest text-secondary flex items-center gap-2"
+                      >
+                        <Kbd className="bg-muted border-none text-[10px] py-0.5 px-1.5 min-w-fit font-black">shift</Kbd>
+                        <span className="opacity-50">+</span>
+                        <Kbd className="bg-muted border-none text-[10px] py-0.5 px-1.5 min-w-fit font-black">enter</Kbd>
+                        <span className="opacity-50">to finish</span>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </motion.div>
             </motion.div>
           ) : (
             <motion.div 
