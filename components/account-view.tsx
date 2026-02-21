@@ -8,12 +8,36 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { ArrowLeft, User, Shield, HardDrive, Trash2, Smartphone, Monitor } from "lucide-react";
+import { ArrowLeft, User, Shield, HardDrive, Trash2, Smartphone, Monitor, Globe } from "lucide-react";
 import Link from "next/link";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { UserMenu } from "@/components/user-menu";
 import { toast } from "sonner";
 import { format } from "date-fns";
+import { motion } from "framer-motion";
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1
+    }
+  }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      type: "spring" as const,
+      stiffness: 100,
+      damping: 15
+    }
+  }
+};
 
 export function AccountView() {
   const { data: session } = useSession();
@@ -76,140 +100,216 @@ export function AccountView() {
     }
   };
 
+  const getDeviceName = (userAgent: string) => {
+    if (!userAgent) return "unknown device";
+    const browsers = ["chrome", "firefox", "safari", "edge", "opera"];
+    const os = ["windows", "macintosh", "linux", "android", "iphone"];
+    
+    const lowerUA = userAgent.toLowerCase();
+    const browser = browsers.find(b => lowerUA.includes(b)) || "browser";
+    const platform = os.find(p => lowerUA.includes(p)) || "device";
+    
+    return `${browser} on ${platform}`;
+  };
+
   if (!session) return null;
 
   return (
-    <div className="flex min-h-screen flex-col bg-white dark:bg-[#0a0a0a] text-zinc-900 dark:text-[#d4d4d4] font-mono p-4 sm:p-6 transition-colors duration-300">
-      <header className="p-4 sm:p-6 flex justify-between items-center z-50">
-        <Link href="/">
-          <Button variant="ghost" size="sm" className="gap-2 -ml-2 hover:bg-zinc-100 dark:hover:bg-zinc-900">
-            <ArrowLeft className="w-4 h-4" />
-            <span>Back to Type</span>
-          </Button>
-        </Link>
-        <div className="flex items-center gap-2 sm:gap-4">
-          <ThemeToggle />
-          <UserMenu />
-        </div>
-      </header>
+    <motion.main 
+      className="flex-1 w-full max-w-[1250px] mx-auto py-8 sm:py-12 space-y-12 px-4 sm:px-8"
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+      >
+        <motion.div className="space-y-2" variants={itemVariants}>
+          <h1 className="text-3xl sm:text-4xl font-black tracking-tighter lowercase" style={{ color: 'var(--text-color)' }}>account settings</h1>
+          <p className="text-sm lowercase opacity-60">Manage your profile, security, and account preferences.</p>
+        </motion.div>
 
-      <main className="flex-1 w-full max-w-4xl mx-auto py-8 sm:py-12 space-y-8">
-        <div className="space-y-2 text-center sm:text-left">
-          <h1 className="text-3xl sm:text-4xl font-black tracking-tighter">Account Settings</h1>
-          <p className="text-muted-foreground">Manage your profile, security, and account preferences.</p>
-        </div>
-
-        <div className="grid gap-8">
+        <div className="grid gap-10">
           {/* Profile Section */}
-          <Card className="bg-card/50 backdrop-blur-sm border-border/50">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <User className="w-5 h-5 text-primary" />
-                Profile Information
-              </CardTitle>
-              <CardDescription>Update your personal details.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="name">Full Name</Label>
-                <Input
-                  id="name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="Your Name"
-                />
+          <motion.div 
+            className="rounded-2xl border-2 overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-black/5" 
+            style={{ borderColor: 'var(--border)', backgroundColor: 'var(--muted)' }}
+            variants={itemVariants}
+          >
+            <div className="border-b-2 p-6 flex items-center justify-between" style={{ borderColor: 'var(--border)' }}>
+              <div className="flex items-center gap-4">
+                <div className="relative group">
+                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center border-2 border-primary/20 overflow-hidden transition-all group-hover:scale-105">
+                    {session.user.image ? (
+                        <img src={session.user.image} alt={session.user.name} className="w-full h-full object-cover" />
+                    ) : (
+                        <User className="w-6 h-6 text-primary" />
+                    )}
+                  </div>
+                </div>
+                <div>
+                  <h2 className="text-xl font-bold lowercase" style={{ color: 'var(--text-color)' }}>profile info</h2>
+                  <p className="text-[10px] uppercase font-bold opacity-40 tracking-widest">Update your identification</p>
+                </div>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="email">Email Address</Label>
-                <Input id="email" value={session.user.email} disabled className="bg-muted/50" />
-                <p className="text-[10px] text-muted-foreground">Email cannot be changed.</p>
+            </div>
+            
+            <div className="p-8 space-y-8">
+              <div className="grid sm:grid-cols-2 gap-8">
+                <div className="space-y-3">
+                  <Label htmlFor="name" className="lowercase font-bold opacity-60 ml-1">full name</Label>
+                  <Input
+                    id="name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="your name"
+                    className="h-12 border-2 rounded-xl bg-black/5 focus-visible:ring-primary/20 transition-all font-bold"
+                    style={{ borderColor: 'var(--border)', color: 'var(--text-color)' }}
+                  />
+                </div>
+                <div className="space-y-3">
+                  <Label htmlFor="email" className="lowercase font-bold opacity-60 ml-1">email address</Label>
+                  <Input 
+                    id="email" 
+                    value={session.user.email} 
+                    disabled 
+                    className="h-12 border-2 rounded-xl opacity-40 cursor-not-allowed bg-black/10 font-bold" 
+                    style={{ borderColor: 'var(--border)' }} 
+                  />
+                  <p className="text-[10px] lowercase opacity-40 ml-1">email cannot be changed at this time.</p>
+                </div>
               </div>
-            </CardContent>
-            <CardFooter className="border-t border-border/20 pt-6">
-              <Button onClick={handleUpdateName} disabled={isUpdating}>
-                {isUpdating ? "Saving..." : "Save Changes"}
-              </Button>
-            </CardFooter>
-          </Card>
+
+              <div className="pt-4">
+                <Button 
+                    onClick={handleUpdateName} 
+                    disabled={isUpdating}
+                    className="h-12 px-8 rounded-xl font-black lowercase tracking-tight transition-all active:scale-95 shadow-lg shadow-primary/10"
+                >
+                  {isUpdating ? "saving..." : "save changes"}
+                </Button>
+              </div>
+            </div>
+          </motion.div>
 
           {/* Active Sessions */}
-          <Card className="bg-card/50 backdrop-blur-sm border-border/50">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Shield className="w-5 h-5 text-green-500" />
-                Active Sessions
-              </CardTitle>
-              <CardDescription>Devices currently logged into your account.</CardDescription>
-            </CardHeader>
-            <CardContent>
+          <motion.div 
+            className="rounded-2xl border-2 overflow-hidden transition-all duration-300" 
+            style={{ borderColor: 'var(--border)', backgroundColor: 'var(--muted)' }}
+            variants={itemVariants}
+          >
+            <div className="border-b-2 p-6 flex items-center justify-between" style={{ borderColor: 'var(--border)' }}>
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg" style={{ backgroundColor: 'var(--background)' }}>
+                  <Shield className="w-5 h-5 text-primary" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-bold lowercase" style={{ color: 'var(--text-color)' }}>active sessions</h2>
+                  <p className="text-[10px] uppercase font-bold opacity-40 tracking-widest">Security Monitoring</p>
+                </div>
+              </div>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="lowercase font-bold opacity-40 hover:opacity-100"
+                onClick={fetchSessions}
+              >
+                refresh
+              </Button>
+            </div>
+
+            <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
-                  <TableRow>
-                    <TableHead>Device</TableHead>
-                    <TableHead>IP Address</TableHead>
-                    <TableHead>Last Active</TableHead>
-                    <TableHead className="text-right">Action</TableHead>
+                  <TableRow className="hover:bg-transparent border-b-2" style={{ borderColor: 'var(--border)' }}>
+                    <TableHead className="px-8 py-5 lowercase font-bold opacity-40">device / browser</TableHead>
+                    <TableHead className="px-8 py-5 lowercase font-bold opacity-40">ip address</TableHead>
+                    <TableHead className="px-8 py-5 lowercase font-bold opacity-40">last active</TableHead>
+                    <TableHead className="px-8 py-5 text-right lowercase font-bold opacity-40">action</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {isLoadingSessions ? (
-                    <TableRow>
-                       <TableCell colSpan={4} className="text-center py-8">Loading sessions...</TableCell>
+                    <TableRow className="hover:bg-transparent">
+                       <TableCell colSpan={4} className="text-center py-20 opacity-30 lowercase">loading active sessions...</TableCell>
                     </TableRow>
                   ) : activeSessions.length === 0 ? (
-                    <TableRow>
-                       <TableCell colSpan={4} className="text-center py-8">No active sessions.</TableCell>
+                    <TableRow className="hover:bg-transparent">
+                       <TableCell colSpan={4} className="text-center py-20 opacity-30 lowercase">no other active sessions detected.</TableCell>
                     </TableRow>
                   ) : activeSessions.map((s) => (
-                    <TableRow key={s.id}>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          {s.userAgent?.toLowerCase().includes("mobile") ? <Smartphone className="w-4 h-4" /> : <Monitor className="w-4 h-4" />}
-                          <span className="truncate max-w-[150px]">{s.userAgent || "Unknown"}</span>
+                    <TableRow key={s.id} className="hover:bg-white/5 transition-all group border-b last:border-0" style={{ borderColor: 'var(--border)' }}>
+                      <TableCell className="px-8 py-6">
+                        <div className="flex items-center gap-4">
+                          <div className="p-2.5 rounded-xl transition-all group-hover:scale-110" style={{ backgroundColor: 'var(--background)', border: '1px solid var(--border)' }}>
+                            {s.userAgent?.toLowerCase().includes("mobile") ? <Smartphone className="w-4 h-4 opacity-50" /> : <Monitor className="w-4 h-4 opacity-50" />}
+                          </div>
+                          <div className="flex flex-col">
+                            <span className="text-sm font-bold lowercase" style={{ color: 'var(--text-color)' }}>
+                              {getDeviceName(s.userAgent)}
+                            </span>
+                            <span className="text-[10px] uppercase opacity-30 font-black tracking-tighter">
+                              {s.userAgent?.length > 40 ? s.userAgent?.substring(0, 40) + "..." : s.userAgent}
+                            </span>
+                          </div>
                         </div>
                       </TableCell>
-                      <TableCell>{s.ipAddress || "Unknown"}</TableCell>
-                      <TableCell>{format(new Date(s.createdAt), "MMM d, HH:mm")}</TableCell>
-                      <TableCell className="text-right">
+                      <TableCell className="px-8 py-6 font-mono text-xs opacity-60">
+                        <div className="flex items-center gap-2">
+                          <Globe size={12} className="opacity-30" />
+                          {s.ipAddress || "0.0.0.0"}
+                        </div>
+                      </TableCell>
+                      <TableCell className="px-8 py-6 text-xs lowercase opacity-60">{format(new Date(s.createdAt), "MMM d, HH:mm")}</TableCell>
+                      <TableCell className="px-8 py-6 text-right">
                          <Button 
                             variant="ghost" 
                             size="sm" 
-                            className="text-destructive hover:text-white hover:bg-destructive"
+                            className="text-xs font-black lowercase text-destructive hover:bg-destructive hover:text-white rounded-lg px-4 transition-all"
                             onClick={() => handleRevokeSession(s.token)}
                           >
-                            Revoke
+                            revoke
                          </Button>
                       </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
               </Table>
-            </CardContent>
-          </Card>
+            </div>
+          </motion.div>
 
           {/* Danger Zone */}
-          <Card className="border-destructive/20 bg-destructive/5">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-destructive">
-                <Trash2 className="w-5 h-5" />
-                Danger Zone
-              </CardTitle>
-              <CardDescription>Permanently delete your account and all associated data.</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Alert variant="destructive" className="bg-destructive/10 border-destructive/20">
-                <AlertTitle>Warning</AlertTitle>
-                <AlertDescription>
-                  Deleting your account will remove your entire typing history and progress. This cannot be undone.
-                </AlertDescription>
-              </Alert>
-            </CardContent>
-            <CardFooter className="border-t border-destructive/10 pt-6">
-              <Button variant="destructive" onClick={handleDeleteAccount}>Delete Account</Button>
-            </CardFooter>
-          </Card>
+          <motion.div 
+            className="rounded-2xl border-2 border-destructive/20 overflow-hidden bg-destructive/5"
+            variants={itemVariants}
+          >
+            <div className="p-8 space-y-6">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-destructive/10">
+                    <Trash2 className="w-6 h-6 text-destructive" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-bold lowercase text-destructive">danger zone</h2>
+                  <p className="text-xs opacity-60">Permanent actions that cannot be undone.</p>
+                </div>
+              </div>
+
+              <div className="p-5 rounded-xl border-2 border-destructive/10 bg-destructive/5 space-y-2">
+                <p className="text-sm font-bold text-destructive lowercase">warning: read carefully</p>
+                <p className="text-xs opacity-60 lowercase leading-relaxed">
+                  Deleting your account will permanently wipe your typing history, performance metrics, and all personal data. Your username will be released.
+                </p>
+              </div>
+
+              <div className="pt-2">
+                <Button 
+                    variant="destructive" 
+                    onClick={handleDeleteAccount}
+                    className="h-12 px-8 rounded-xl font-black lowercase tracking-tight transition-all hover:scale-[1.02] active:scale-95 shadow-xl shadow-destructive/10"
+                >
+                    delete my account
+                </Button>
+              </div>
+            </div>
+          </motion.div>
         </div>
-      </main>
-    </div>
-  );
+      </motion.main>
+    );
 }
