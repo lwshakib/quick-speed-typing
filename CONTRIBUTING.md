@@ -1,55 +1,66 @@
-# Contributing to Quick ⚡
+# Contributing to Quick Type ⚡
 
-First off, thank you for considering contributing to Quick! It's people like you that make Quick such a great tool for everyone.
+First off, thank you for considering contributing to Quick Type! We're excited to have the community help build the best minimalist typing experience.
 
-Below are the guidelines and steps to help you get started with contributing.
+---
 
-## Code of Conduct
+## 🧭 Roadmap & Core Philosophy
+Quick Type aims to be:
+1. **Minimalist**: Distraction-free interface.
+2. **Performant**: High-frequency updates and smooth animations.
+3. **Analytics-driven**: Providing deep insights into typing habits.
 
-By participating in this project, you agree to abide by our [Code of Conduct](CODE_OF_CONDUCT.md).
+## 🛠️ Development Environment
 
-## How Can I Contribute?
+### Prerequisites
+- [Bun](https://bun.sh/) (Recommended) or Node.js 20+
+- [PostgreSQL](https://www.postgresql.org/) (Local or via Neon.tech)
 
-### Reporting Bugs
-- **Check the existing issues** to see if the bug has already been reported.
-- If it hasn't, **open a new issue**. Provide as much detail as possible, including steps to reproduce the bug and your environment details (OS, Browser, etc.).
+### Project Structure
+- `app/`: Next.js App Router (pages and server actions)
+- `components/`: UI components (Shadcn UI + Custom)
+- `hooks/`: Custom React hooks (including the typing engine)
+- `lib/`: Utilities, Auth configs, and Prisma client
+- `prisma/`: Database schema and migrations
 
-### Suggesting Enhancements
-- Open a new issue with a clear title and description of the proposed feature.
-- Explain why this enhancement would be useful to most Quick users.
+### Commands
+- `bun install`: Install dependencies
+- `bun dev`: Start development server
+- `bun x prisma db push`: Sync database schema
+- `bun x prisma studio`: View database records
 
-### Your First Code Contribution
-1. **Fork the repository** on GitHub.
-2. **Clone your fork** to your local machine:
-   ```bash
-   git clone https://github.com/your-username/quick-speed-typing.git
-   ```
-3. **Create a new branch** for your work:
-   ```bash
-   git checkout -b feature/amazing-feature
-   ```
-4. **Make your changes**. Ensure you follow the project's coding style and include tests if applicable.
-5. **Commit your changes**:
-   ```bash
-   git commit -m 'Add some amazing feature'
-   ```
-6. **Push to the branch**:
-   ```bash
-   git push origin feature/amazing-feature
-   ```
-7. **Create a Pull Request** against the `main` branch of the original repository.
+## 🤝 How to Contribute
 
-## Development Setup
+### 1. Reporting Bugs
+- Search existing issues for a duplicate.
+- If new, use the **Bug Report** template.
+- Include OS, browser, and steps to reproduce.
 
-See the [README](README.md) for detailed instructions on setting up the project locally.
+### 2. Feature Requests
+- Check the [Roadmap](https://github.com/lwshakib/quick-speed-typing/issues) or existing issues.
+- Propose new features by opening an issue with the **Feature Request** label.
 
-## Pull Request Guidelines
-- Use descriptive PR titles.
-- Link any related issues in the PR description.
-- Ensure the build passes and there are no linting errors.
-- Be open to feedback! We might suggest some changes to help your PR align with the project goals.
+### 3. Pull Requests
+1. Fork the repo and create your branch from `main`.
+2. Follow the project's **Tailwind CSS** guidelines for styling.
+3. Ensure no linting errors: `bun run lint`.
+4. Provide a clear description of what changed and why.
 
-## Questions?
-If you have any questions, feel free to open an issue or reach out to [lwshakib](https://github.com/lwshakib).
+## 🎨 Coding Standards
+- **TypeScript**: Use strict types where possible.
+- **Styling**: Stick to the curated theme variables in `globals.css`.
+- **Naming**: Use kebab-case for files and PascalCase for components.
+- **Micro-interactions**: Use Framer Motion for any new UI transitions.
 
-Thank you for contributing!
+## 👮 Code of Conduct
+Please review and follow our [Code of Conduct](CODE_OF_CONDUCT.md).
+
+---
+
+Thank you for being part of the Quick Type community!
+
+<p align="center">
+  <a href="https://github.com/lwshakib/quick-speed-typing">
+    <img src="public/logo.svg" width="50" alt="Quick Type Logo" />
+  </a>
+</p>
