@@ -1,6 +1,6 @@
 ---
 name: "🚀 Feature Request"
-about: Suggest an idea for a new tool or improvement
+about: Suggest an idea for a new component or improvement for quick type
 title: "[FEATURE] "
 labels: enhancement
 assignees: ""
