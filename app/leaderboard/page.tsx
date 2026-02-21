@@ -33,14 +33,7 @@ export default function LeaderboardPage() {
     };
 
     return (
-        <div className="min-h-screen bg-background text-secondary font-mono selection:bg-primary/30 selection:text-primary transition-colors duration-300 flex flex-col items-center overflow-x-hidden">
-            <header className="w-full max-w-[1250px] px-8 py-8 flex justify-between items-center z-50">
-                <Link href="/">
-                    <Logo iconSize={32} textSize="1.5rem" className="text-foreground hover:opacity-80 transition-opacity" />
-                </Link>
-            </header>
-
-            <main className="flex-1 w-full max-w-[1000px] px-8 py-12 flex flex-col gap-10">
+        <main className="flex-1 w-full max-w-[1000px] px-8 py-12 flex flex-col gap-10">
                 <motion.div 
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -129,10 +122,9 @@ export default function LeaderboardPage() {
                                 </motion.div>
                             )}
                         </AnimatePresence>
-                    </div>
                 </div>
-            </main>
-        </div>
+            </div>
+        </main>
     );
 }
 
