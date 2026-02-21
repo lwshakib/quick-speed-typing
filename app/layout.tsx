@@ -1,98 +1,107 @@
 // Import necessary types and components from Next.js and local files
-import type { Metadata } from "next";
+import type { Metadata } from 'next';
 // Import various fonts from Google Fonts via Next.js Font Optimization
-import { Geist, Geist_Mono, Noto_Sans_Bengali, Hind_Siliguri, Hind, Amiri, Noto_Sans_JP } from "next/font/google";
+import {
+  Geist,
+  Geist_Mono,
+  Noto_Sans_Bengali,
+  Hind_Siliguri,
+  Hind,
+  Amiri,
+  Noto_Sans_JP,
+} from 'next/font/google';
 // Import global CSS styles
-import "./globals.css";
+import './globals.css';
 
 // Configure Geist Sans font with a CSS variable and latin subset
 const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
+  variable: '--font-geist-sans',
+  subsets: ['latin'],
 });
 
 // Configure Geist Mono font for code-like typography
 const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+  variable: '--font-geist-mono',
+  subsets: ['latin'],
 });
 
 // Configure Noto Sans Bengali for Bengali script support
 const notoBengali = Noto_Sans_Bengali({
-  variable: "--font-noto-bengali",
-  subsets: ["bengali"],
-  weight: ["400", "700"],
+  variable: '--font-noto-bengali',
+  subsets: ['bengali'],
+  weight: ['400', '700'],
 });
 
 // Configure Hind Siliguri as another option for Bengali typography
 const hindSiliguri = Hind_Siliguri({
-  variable: "--font-hind-siliguri",
-  subsets: ["bengali"],
-  weight: ["400", "500", "600", "700"],
+  variable: '--font-hind-siliguri',
+  subsets: ['bengali'],
+  weight: ['400', '500', '600', '700'],
 });
 
 // Configure Hind font for Hindi/Devanagari script support
 const hindHindi = Hind({
-  variable: "--font-hind",
-  subsets: ["devanagari"],
-  weight: ["400", "500", "600", "700"],
+  variable: '--font-hind',
+  subsets: ['devanagari'],
+  weight: ['400', '500', '600', '700'],
 });
 
 // Configure Amiri font for elegant Arabic script support
 const amiriArabic = Amiri({
-  variable: "--font-amiri",
-  subsets: ["arabic"],
-  weight: ["400", "700"],
+  variable: '--font-amiri',
+  subsets: ['arabic'],
+  weight: ['400', '700'],
 });
 
 // Configure Noto Sans JP for Japanese/CJK script support
 const notoCJK = Noto_Sans_JP({
-  variable: "--font-noto-cjk",
-  subsets: ["latin"],
-  weight: ["400", "700"],
+  variable: '--font-noto-cjk',
+  subsets: ['latin'],
+  weight: ['400', '700'],
 });
 
 // Metadata object for SEO and browser tab configuration
 export const metadata: Metadata = {
-  title: "Quicktype - The Ultimate Speed Typing Game", // Page title shown in the browser tab
-  description: "Test and improve your typing speed and accuracy with interactive charts and progress tracking on Quick Type.", // Meta description for SEO
-   icons: {
+  title: 'Quicktype - The Ultimate Speed Typing Game', // Page title shown in the browser tab
+  description:
+    'Test and improve your typing speed and accuracy with interactive charts and progress tracking on Quick Type.', // Meta description for SEO
+  icons: {
     // Favicon configurations for various devices and sizes
     icon: [
       {
-        url: "/favicon_io/favicon-16x16.png",
-        sizes: "16x16",
-        type: "image/png",
+        url: '/favicon_io/favicon-16x16.png',
+        sizes: '16x16',
+        type: 'image/png',
       },
       {
-        url: "/favicon_io/favicon-32x32.png",
-        sizes: "32x32",
-        type: "image/png",
+        url: '/favicon_io/favicon-32x32.png',
+        sizes: '32x32',
+        type: 'image/png',
       },
-      { url: "/favicon_io/favicon.ico", sizes: "any", type: "image/x-icon" },
+      { url: '/favicon_io/favicon.ico', sizes: 'any', type: 'image/x-icon' },
       {
-        url: "/favicon_io/android-chrome-192x192.png",
-        sizes: "192x192",
-        type: "image/png",
+        url: '/favicon_io/android-chrome-192x192.png',
+        sizes: '192x192',
+        type: 'image/png',
       },
       {
-        url: "/favicon_io/android-chrome-512x512.png",
-        sizes: "512x512",
-        type: "image/png",
+        url: '/favicon_io/android-chrome-512x512.png',
+        sizes: '512x512',
+        type: 'image/png',
       },
     ],
-    apple: "/favicon_io/apple-touch-icon.png", // Apple Touch Icon for iOS devices
+    apple: '/favicon_io/apple-touch-icon.png', // Apple Touch Icon for iOS devices
   },
-  manifest: "/favicon_io/site.webmanifest", // Web App Manifest for PWA support
+  manifest: '/favicon_io/site.webmanifest', // Web App Manifest for PWA support
 };
 
 // Import UI components and providers
-import { ThemeProvider } from "@/components/theme-provider";
-import { Toaster } from "@/components/ui/sonner";
-import { CustomThemeManager } from "@/components/custom-theme-manager";
-import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
-import { GlobalModals } from "@/components/global-modals";
+import { ThemeProvider } from '@/components/theme-provider';
+import { Toaster } from '@/components/ui/sonner';
+import { CustomThemeManager } from '@/components/custom-theme-manager';
+import { Header } from '@/components/header';
+import { Footer } from '@/components/footer';
+import { GlobalModals } from '@/components/global-modals';
 
 // Root Layout component that wraps the entire application
 export default function RootLayout({
@@ -221,32 +230,27 @@ export default function RootLayout({
           }}
         />
         {/* Next.js ThemeProvider for managing data-theme attributes */}
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="dark"
-          enableSystem
-          disableTransitionOnChange
-        >
+        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
           {/* Custom component to sync React state with the applied theme */}
           <CustomThemeManager />
-          
+
           {/* Main application container with shared styles */}
-          <div className="min-h-screen bg-background text-secondary font-mono selection:bg-primary/30 selection:text-primary transition-colors duration-300 flex flex-col items-center">
+          <div className="bg-background text-secondary selection:bg-primary/30 selection:text-primary flex min-h-screen flex-col items-center font-mono transition-colors duration-300">
             {/* Global site header */}
             <Header />
-            
+
             {/* Main content area where page components are rendered */}
-            <div className="flex-1 w-full flex flex-col items-center pt-[100px] pb-20">
+            <div className="flex w-full flex-1 flex-col items-center pt-[100px] pb-20">
               {children}
             </div>
-            
+
             {/* Global site footer */}
             <Footer />
           </div>
-          
+
           {/* Global modals like Login, Settings, etc. */}
           <GlobalModals />
-          
+
           {/* Toast notifications provider */}
           <Toaster />
         </ThemeProvider>

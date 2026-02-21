@@ -1,22 +1,22 @@
-import { createAuthClient } from "better-auth/react";
+import { createAuthClient } from 'better-auth/react';
 
 export const authClient = createAuthClient({
-  baseURL: process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000",
+  baseURL: process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000',
   user: {
     additionalFields: {
       theme: {
-        type: "string",
+        type: 'string',
       },
     },
   },
 });
 
-export const { 
-  signIn, 
-  signUp, 
-  useSession, 
-  signOut, 
-  requestPasswordReset, 
-  resetPassword, 
-  sendVerificationEmail 
+export const {
+  signIn,
+  signUp,
+  useSession,
+  signOut,
+  requestPasswordReset,
+  resetPassword,
+  sendVerificationEmail,
 } = authClient;

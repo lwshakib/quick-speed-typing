@@ -1,58 +1,61 @@
-"use client";
+'use client';
 
 // Import core React hooks and Next.js navigation utilities
-import { useEffect, useState } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useEffect, useState } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
 // Import the authentication client for email verification processing
-import { authClient } from "@/lib/auth-client";
+import { authClient } from '@/lib/auth-client';
 // Import UI design system components
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button';
 // Import visual state icons
-import { CheckCircle2, XCircle, Loader2, ChevronRight } from "lucide-react";
+import { CheckCircle2, XCircle, Loader2, ChevronRight } from 'lucide-react';
 // Import routing and feedback tools
-import Link from "next/link";
-import { toast } from "sonner";
-import { Suspense } from "react";
+import Link from 'next/link';
+import { toast } from 'sonner';
+import { Suspense } from 'react';
 
 // Inner component to handle email verification logic (wrapped in Suspense for useSearchParams)
 function VerifyEmailContent() {
   const searchParams = useSearchParams();
-  const token = searchParams.get("token"); // Extract verification token from URL
-  
+  const token = searchParams.get('token'); // Extract verification token from URL
+
   // Local state to track the verification lifecycle and error feedback
-  const [status, setStatus] = useState<"verifying" | "success" | "error">("verifying");
+  const [status, setStatus] = useState<'verifying' | 'success' | 'error'>('verifying');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   // Trigger verification as soon as the component mounts and the token is available
   useEffect(() => {
     // If no token is provided in the URL, immediately flag an error
     if (!token) {
-      setStatus("error");
-      setErrorMessage("Missing verification token.");
+      setStatus('error');
+      setErrorMessage('Missing verification token.');
       return;
     }
 
     const verify = async () => {
       try {
         // Dispatch verification request to the auth provider
-        await authClient.verifyEmail({
-          query: { token }
-        }, {
-          onSuccess: () => {
-            // Update UI state and provide success feedback
-            setStatus("success");
-            toast.success("Email verified successfully!");
+        await authClient.verifyEmail(
+          {
+            query: { token },
           },
-          onError: (ctx) => {
-            // Log the error and update UI state for the user
-            setStatus("error");
-            setErrorMessage(ctx.error.message || "Failed to verify email.");
-            toast.error(ctx.error.message || "Verification failed");
-          }
-        });
+          {
+            onSuccess: () => {
+              // Update UI state and provide success feedback
+              setStatus('success');
+              toast.success('Email verified successfully!');
+            },
+            onError: (ctx) => {
+              // Log the error and update UI state for the user
+              setStatus('error');
+              setErrorMessage(ctx.error.message || 'Failed to verify email.');
+              toast.error(ctx.error.message || 'Verification failed');
+            },
+          },
+        );
       } catch (err) {
-        setStatus("error");
-        setErrorMessage("An unexpected error occurred.");
+        setStatus('error');
+        setErrorMessage('An unexpected error occurred.');
       }
     };
 
@@ -60,35 +63,43 @@ function VerifyEmailContent() {
   }, [token]);
 
   // State: Handle the active verification process
-  if (status === "verifying") {
-    return (status === "verifying" && (
-      <div className="space-y-6 text-center py-4">
-        {/* Loading spinner container */}
-        <div className="h-20 w-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-          <Loader2 className="h-10 w-10 text-primary animate-spin" />
+  if (status === 'verifying') {
+    return (
+      status === 'verifying' && (
+        <div className="space-y-6 py-4 text-center">
+          {/* Loading spinner container */}
+          <div className="bg-primary/10 mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full">
+            <Loader2 className="text-primary h-10 w-10 animate-spin" />
+          </div>
+          <div className="space-y-2">
+            <h2
+              className="text-2xl font-black tracking-tighter lowercase"
+              style={{ color: 'var(--text-color)' }}
+            >
+              verifying email
+            </h2>
+            <p className="text-sm lowercase opacity-60">
+              Please wait while we confirm your account.
+            </p>
+          </div>
         </div>
-        <div className="space-y-2">
-          <h2 className="text-2xl font-black lowercase tracking-tighter" style={{ color: 'var(--text-color)' }}>
-            verifying email
-          </h2>
-          <p className="text-sm lowercase opacity-60">
-            Please wait while we confirm your account.
-          </p>
-        </div>
-      </div>
-    ));
+      )
+    );
   }
 
   // State: Handle successful verification
-  if (status === "success") {
+  if (status === 'success') {
     return (
-      <div className="space-y-6 text-center py-4">
+      <div className="space-y-6 py-4 text-center">
         {/* Animated success icon */}
-        <div className="h-20 w-20 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-4 animate-in zoom-in duration-500">
+        <div className="animate-in zoom-in mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-green-500/10 duration-500">
           <CheckCircle2 className="h-10 w-10 text-green-500" />
         </div>
         <div className="space-y-2">
-          <h2 className="text-2xl font-black lowercase tracking-tighter" style={{ color: 'var(--text-color)' }}>
+          <h2
+            className="text-2xl font-black tracking-tighter lowercase"
+            style={{ color: 'var(--text-color)' }}
+          >
             email verified!
           </h2>
           <p className="text-sm lowercase opacity-60">
@@ -98,9 +109,9 @@ function VerifyEmailContent() {
         {/* CTA to proceed to login */}
         <div className="pt-4">
           <Link href="/sign-in" className="w-full">
-            <Button 
-                className="w-full h-12 font-black text-xs uppercase tracking-widest mt-2 hover:opacity-90 transition-all border-none" 
-                style={{ backgroundColor: 'var(--main-color)', color: 'var(--bg-color)' }}
+            <Button
+              className="mt-2 h-12 w-full border-none text-xs font-black tracking-widest uppercase transition-all hover:opacity-90"
+              style={{ backgroundColor: 'var(--main-color)', color: 'var(--bg-color)' }}
             >
               go to sign in <ChevronRight className="ml-2 h-4 w-4" />
             </Button>
@@ -112,34 +123,37 @@ function VerifyEmailContent() {
 
   // State: Handle verification failure
   return (
-    <div className="space-y-6 text-center py-4">
+    <div className="space-y-6 py-4 text-center">
       {/* Error icon with animation */}
-      <div className="h-20 w-20 bg-destructive/10 rounded-full flex items-center justify-center mx-auto mb-4 animate-in zoom-in duration-500">
-        <XCircle className="h-10 w-10 text-destructive" />
+      <div className="bg-destructive/10 animate-in zoom-in mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full duration-500">
+        <XCircle className="text-destructive h-10 w-10" />
       </div>
       <div className="space-y-2">
-        <h2 className="text-2xl font-black lowercase tracking-tighter" style={{ color: 'var(--text-color)' }}>
+        <h2
+          className="text-2xl font-black tracking-tighter lowercase"
+          style={{ color: 'var(--text-color)' }}
+        >
           verification failed
         </h2>
         <p className="text-sm lowercase opacity-60">
-          {errorMessage || "The link may be invalid or expired."}
+          {errorMessage || 'The link may be invalid or expired.'}
         </p>
       </div>
       {/* Navigation to retry registration */}
       <div className="pt-4">
         <Link href="/sign-up" className="w-full">
-          <Button 
-            variant="outline" 
-            className="w-full h-12 border-2 font-black uppercase tracking-widest hover:bg-main/5 transition-all" 
+          <Button
+            variant="outline"
+            className="hover:bg-main/5 h-12 w-full border-2 font-black tracking-widest uppercase transition-all"
             style={{ borderColor: 'var(--sub-color)', color: 'var(--sub-color)' }}
             // Interactive outline behavior
             onMouseEnter={(e) => {
-                e.currentTarget.style.borderColor = 'var(--main-color)';
-                e.currentTarget.style.color = 'var(--main-color)';
+              e.currentTarget.style.borderColor = 'var(--main-color)';
+              e.currentTarget.style.color = 'var(--main-color)';
             }}
             onMouseLeave={(e) => {
-                e.currentTarget.style.borderColor = 'var(--sub-color)';
-                e.currentTarget.style.color = 'var(--sub-color)';
+              e.currentTarget.style.borderColor = 'var(--sub-color)';
+              e.currentTarget.style.color = 'var(--sub-color)';
             }}
           >
             try signing up again
@@ -153,13 +167,15 @@ function VerifyEmailContent() {
 // Parent Page component that handles Suspense for URL search parameters
 export default function VerifyEmailPage() {
   return (
-    <Suspense fallback={
-      // Loading UI while search parameters are parsed
-      <div className="flex flex-col items-center justify-center p-8 gap-4">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        <p className="text-xs font-bold opacity-40 lowercase">verifying your email...</p>
-      </div>
-    }>
+    <Suspense
+      fallback={
+        // Loading UI while search parameters are parsed
+        <div className="flex flex-col items-center justify-center gap-4 p-8">
+          <Loader2 className="text-primary h-8 w-8 animate-spin" />
+          <p className="text-xs font-bold lowercase opacity-40">verifying your email...</p>
+        </div>
+      }
+    >
       <VerifyEmailContent />
     </Suspense>
   );

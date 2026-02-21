@@ -1,4 +1,4 @@
-import React, { SVGProps } from "react";
+import React, { SVGProps } from 'react';
 
 // Interface for the SVG icon part of the logo
 export interface LogoIconProps extends SVGProps<SVGSVGElement> {
@@ -13,7 +13,7 @@ export interface LogoIconProps extends SVGProps<SVGSVGElement> {
  */
 export const LogoIcon = ({
   className,
-  fill = "currentColor",
+  fill = 'currentColor',
   size = 24,
   ...rest
 }: LogoIconProps): React.ReactElement => {
@@ -29,7 +29,7 @@ export const LogoIcon = ({
     >
       {/* Decorative grouping with a subtle offset for the icon's paths */}
       <g fill={fill} transform="translate(4.5,0)">
-          {/* Main circular path representing the core of the logo */}
+        {/* Main circular path representing the core of the logo */}
         <path d="m9 23c0-5.5228 4.4772-10 10-10 5.5229 0 10 4.4772 10 10h9c0-10.4934-8.5066-19-19-19-10.49341 0-18.99999908 8.5066-19 19s8.50659 19 19 19v-9c-5.5228 0-10-4.4771-10-10z" />
         {/* Semi-transparent accent path for visual depth */}
         <path d="m29 23c0 5.5228 4.4772 10 10 10v9c-10.4934 0-19-8.5066-19-19z" opacity=".5" />
@@ -46,31 +46,33 @@ export interface LogoProps {
   hideText?: boolean;
 }
 
-import { Badge } from "@/components/ui/badge";
+import { Badge } from '@/components/ui/badge';
 
 /**
  * Logo: The primary branding component used in the Header, Footer, and other areas.
  * It combines the LogoIcon with stylized text using the application's global theme variables.
  */
 export const Logo = ({
-  className = "",
+  className = '',
   iconSize = 32,
-  textSize = "1.5rem",
+  textSize = '1.5rem',
   hideText = false,
 }: LogoProps): React.ReactElement => {
   return (
     <div className={`flex items-center gap-2 ${className}`}>
       {/* The brand icon, colored via the CSS variable --main-color */}
       <LogoIcon size={iconSize} style={{ color: 'var(--main-color)' }} />
-      
+
       {/* Container for the text portion, allowing for programmatic hiding during focus mode */}
-      <div className={`flex flex-col leading-none transition-all duration-500 ${hideText ? "opacity-30" : "opacity-100"}`}>
+      <div
+        className={`flex flex-col leading-none transition-all duration-500 ${hideText ? 'opacity-30' : 'opacity-100'}`}
+      >
         <span
           style={{
             fontSize: textSize,
             fontWeight: 800,
-            letterSpacing: "-0.05em",
-            color: 'var(--text-color)'
+            letterSpacing: '-0.05em',
+            color: 'var(--text-color)',
           }}
           className="lowercase"
         >
@@ -80,4 +82,3 @@ export const Logo = ({
     </div>
   );
 };
-

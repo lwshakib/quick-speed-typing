@@ -1,51 +1,54 @@
-"use client";
+'use client';
 
 // Import core React functionality and authentication actions
-import { useState } from "react";
-import { signUp, signIn } from "@/lib/auth-client";
-import { useRouter } from "next/navigation";
+import { useState } from 'react';
+import { signUp, signIn } from '@/lib/auth-client';
+import { useRouter } from 'next/navigation';
 // Import UI design system components
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 // Import descriptive icons
-import { Mail, Lock, User, Loader2, ChevronRight, CheckCircle2 } from "lucide-react";
+import { Mail, Lock, User, Loader2, ChevronRight, CheckCircle2 } from 'lucide-react';
 // Import feedback and navigation utilities
-import { toast } from "sonner";
-import Link from "next/link";
+import { toast } from 'sonner';
+import Link from 'next/link';
 
 export default function SignUpPage() {
   // State management for form processing, user inputs, and submission success
-  const [loading, setLoading] = useState<"signUp" | null>(null);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [name, setName] = useState("");
+  const [loading, setLoading] = useState<'signUp' | null>(null);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
   const router = useRouter();
 
   // Handler for creating a new account via Email and Password
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading("signUp");
+    setLoading('signUp');
     try {
       // Dispatch registration request to the authentication provider
-      await signUp.email({
-        email,
-        password,
-        name,
-        callbackURL: "/", // Target redirect after verification
-      }, {
-        onSuccess: () => {
-          setIsSuccess(true);
-          toast.success("Account created! Please verify your email.");
+      await signUp.email(
+        {
+          email,
+          password,
+          name,
+          callbackURL: '/', // Target redirect after verification
         },
-        onError: (ctx: any) => {
-          // Provide granular feedback on registration failures
-          toast.error(ctx.error.message || "Failed to create account");
-        }
-      });
+        {
+          onSuccess: () => {
+            setIsSuccess(true);
+            toast.success('Account created! Please verify your email.');
+          },
+          onError: (ctx: any) => {
+            // Provide granular feedback on registration failures
+            toast.error(ctx.error.message || 'Failed to create account');
+          },
+        },
+      );
     } catch (error) {
-      toast.error("Something went wrong");
+      toast.error('Something went wrong');
     } finally {
       setLoading(null);
     }
@@ -53,14 +56,14 @@ export default function SignUpPage() {
 
   // Handler for quick registration/sign-in via Google social auth
   const handleGoogleSignIn = async () => {
-    setLoading("signUp" as any); // Track loading state during redirect
+    setLoading('signUp' as any); // Track loading state during redirect
     try {
       await signIn.social({
-        provider: "google",
-        callbackURL: "/",
+        provider: 'google',
+        callbackURL: '/',
       });
     } catch (error) {
-      toast.error("Failed to sign in with Google");
+      toast.error('Failed to sign in with Google');
       setLoading(null);
     }
   };
@@ -68,43 +71,47 @@ export default function SignUpPage() {
   // State: Render a success message and verification instructions
   if (isSuccess) {
     return (
-      <div className="space-y-6 text-center py-4">
+      <div className="space-y-6 py-4 text-center">
         {/* Animated verification icon */}
-        <div className="h-20 w-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4 animate-in zoom-in duration-500">
+        <div className="bg-primary/10 animate-in zoom-in mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full duration-500">
           <Mail className="h-10 w-10" style={{ color: 'var(--main-color)' }} />
         </div>
         <div className="space-y-2">
-          <h2 className="text-2xl font-black lowercase tracking-tighter" style={{ color: 'var(--text-color)' }}>
+          <h2
+            className="text-2xl font-black tracking-tighter lowercase"
+            style={{ color: 'var(--text-color)' }}
+          >
             check your email
           </h2>
           <p className="text-sm lowercase opacity-60">
-            We've sent a link to <span className="font-bold text-foreground">{email}</span> to verify your account.
+            We've sent a link to <span className="text-foreground font-bold">{email}</span> to
+            verify your account.
           </p>
         </div>
-        
+
         {/* Post-registration action buttons */}
-        <div className="pt-4 flex flex-col gap-3">
-          <Button 
-              onClick={() => window.open('https://mail.google.com', '_blank')}
-              className="w-full h-12 font-black text-xs uppercase tracking-widest hover:opacity-90 transition-all border-none" 
-              style={{ backgroundColor: 'var(--main-color)', color: 'var(--bg-color)' }}
+        <div className="flex flex-col gap-3 pt-4">
+          <Button
+            onClick={() => window.open('https://mail.google.com', '_blank')}
+            className="h-12 w-full border-none text-xs font-black tracking-widest uppercase transition-all hover:opacity-90"
+            style={{ backgroundColor: 'var(--main-color)', color: 'var(--bg-color)' }}
           >
             go to gmail <ChevronRight className="ml-2 h-4 w-4" />
           </Button>
           <Link href="/sign-in" className="w-full">
-            <Button 
-                variant="outline" 
-                className="w-full h-12 border-2 font-black uppercase tracking-widest hover:bg-main/5 transition-all" 
-                style={{ borderColor: 'var(--sub-color)', color: 'var(--sub-color)' }}
-                // Hover micro-interactions
-                onMouseEnter={(e) => {
-                    e.currentTarget.style.borderColor = 'var(--main-color)';
-                    e.currentTarget.style.color = 'var(--main-color)';
-                }}
-                onMouseLeave={(e) => {
-                    e.currentTarget.style.borderColor = 'var(--sub-color)';
-                    e.currentTarget.style.color = 'var(--sub-color)';
-                }}
+            <Button
+              variant="outline"
+              className="hover:bg-main/5 h-12 w-full border-2 font-black tracking-widest uppercase transition-all"
+              style={{ borderColor: 'var(--sub-color)', color: 'var(--sub-color)' }}
+              // Hover micro-interactions
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = 'var(--main-color)';
+                e.currentTarget.style.color = 'var(--main-color)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = 'var(--sub-color)';
+                e.currentTarget.style.color = 'var(--sub-color)';
+              }}
             >
               back to sign in
             </Button>
@@ -119,74 +126,90 @@ export default function SignUpPage() {
     <div className="space-y-6">
       {/* Header section explaining the benefit of joining */}
       <div className="space-y-2 text-center">
-        <h1 className="text-3xl font-black lowercase tracking-tighter" style={{ color: 'var(--text-color)' }}>
+        <h1
+          className="text-3xl font-black tracking-tighter lowercase"
+          style={{ color: 'var(--text-color)' }}
+        >
           create account
         </h1>
-        <p className="text-sm lowercase opacity-60">
-          Join us to track your typing evolution.
-        </p>
+        <p className="text-sm lowercase opacity-60">Join us to track your typing evolution.</p>
       </div>
 
       {/* Main registration form */}
       <form onSubmit={handleSignUp} className="space-y-4">
         {/* Full Name input field */}
         <div className="space-y-2">
-          <Label htmlFor="name" className="text-[10px] uppercase font-black opacity-40 ml-1 tracking-widest">Full Name</Label>
-          <div className="relative group">
-            <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
+          <Label
+            htmlFor="name"
+            className="ml-1 text-[10px] font-black tracking-widest uppercase opacity-40"
+          >
+            Full Name
+          </Label>
+          <div className="group relative">
+            <User className="text-muted-foreground group-focus-within:text-primary absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transition-colors" />
             <Input
               id="name"
               placeholder="John Doe"
               type="text"
-              className="pl-9 h-12 bg-secondary/5 border-2 border-transparent focus:border-primary/20 transition-all font-mono text-sm"
+              className="bg-secondary/5 focus:border-primary/20 h-12 border-2 border-transparent pl-9 font-mono text-sm transition-all"
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
             />
           </div>
         </div>
-        
+
         {/* Email Address input field */}
         <div className="space-y-2">
-          <Label htmlFor="email" className="text-[10px] uppercase font-black opacity-40 ml-1 tracking-widest">Email</Label>
-          <div className="relative group">
-            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
+          <Label
+            htmlFor="email"
+            className="ml-1 text-[10px] font-black tracking-widest uppercase opacity-40"
+          >
+            Email
+          </Label>
+          <div className="group relative">
+            <Mail className="text-muted-foreground group-focus-within:text-primary absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transition-colors" />
             <Input
               id="email"
               placeholder="name@example.com"
               type="email"
-              className="pl-9 h-12 bg-secondary/5 border-2 border-transparent focus:border-primary/20 transition-all font-mono text-sm"
+              className="bg-secondary/5 focus:border-primary/20 h-12 border-2 border-transparent pl-9 font-mono text-sm transition-all"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
             />
           </div>
         </div>
-        
+
         {/* Secure Password input field */}
         <div className="space-y-2">
-          <Label htmlFor="password" className="text-[10px] uppercase font-black opacity-40 ml-1 tracking-widest">Password</Label>
-          <div className="relative group">
-            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
+          <Label
+            htmlFor="password"
+            className="ml-1 text-[10px] font-black tracking-widest uppercase opacity-40"
+          >
+            Password
+          </Label>
+          <div className="group relative">
+            <Lock className="text-muted-foreground group-focus-within:text-primary absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transition-colors" />
             <Input
               id="password"
               type="password"
-              className="pl-9 h-12 bg-secondary/5 border-2 border-transparent focus:border-primary/20 transition-all font-mono text-sm"
+              className="bg-secondary/5 focus:border-primary/20 h-12 border-2 border-transparent pl-9 font-mono text-sm transition-all"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
             />
           </div>
         </div>
-        
+
         {/* Submit button with loading feedback */}
-        <Button 
-          type="submit" 
-          className="w-full h-12 font-black text-xs uppercase tracking-widest mt-4 hover:opacity-90 transition-all border-none" 
+        <Button
+          type="submit"
+          className="mt-4 h-12 w-full border-none text-xs font-black tracking-widest uppercase transition-all hover:opacity-90"
           style={{ backgroundColor: 'var(--main-color)', color: 'var(--bg-color)' }}
           disabled={loading !== null}
         >
-          {loading === "signUp" ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+          {loading === 'signUp' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
           create account
         </Button>
       </form>
@@ -194,10 +217,18 @@ export default function SignUpPage() {
       {/* Social login option separator */}
       <div className="relative my-6">
         <div className="absolute inset-0 flex items-center">
-          <span className="w-full border-t" style={{ borderColor: 'var(--sub-color)', opacity: 0.1 }} />
+          <span
+            className="w-full border-t"
+            style={{ borderColor: 'var(--sub-color)', opacity: 0.1 }}
+          />
         </div>
-        <div className="relative flex justify-center text-[10px] uppercase font-black tracking-widest text-muted-foreground/50">
-          <span className="bg-background px-4" style={{ backgroundColor: 'var(--bg-color)', color: 'var(--sub-color)' }}>Or continue with</span>
+        <div className="text-muted-foreground/50 relative flex justify-center text-[10px] font-black tracking-widest uppercase">
+          <span
+            className="bg-background px-4"
+            style={{ backgroundColor: 'var(--bg-color)', color: 'var(--sub-color)' }}
+          >
+            Or continue with
+          </span>
         </div>
       </div>
 
@@ -205,7 +236,7 @@ export default function SignUpPage() {
       <Button
         type="button"
         variant="outline"
-        className="w-full h-12 border-2 font-black uppercase tracking-widest hover:bg-main/5 transition-all group"
+        className="hover:bg-main/5 group h-12 w-full border-2 font-black tracking-widest uppercase transition-all"
         style={{ borderColor: 'var(--sub-color)', color: 'var(--sub-color)', opacity: 0.8 }}
         onMouseEnter={(e) => {
           e.currentTarget.style.borderColor = 'var(--main-color)';
@@ -220,17 +251,33 @@ export default function SignUpPage() {
         onClick={handleGoogleSignIn}
         disabled={loading !== null}
       >
-        <svg className="mr-2 h-4 w-4 transition-colors" aria-hidden="true" focusable="false" data-prefix="fab" data-icon="google" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 488 512">
-            <path fill="currentColor" d="M488 261.8C488 403.3 391.1 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 123 24.5 166.3 64.9l-67.5 64.9C258.5 52.6 94.3 116.6 94.3 256c0 86.5 69.1 156.6 153.7 156.6 98.2 0 135-70.4 140.8-106.9H248v-85.3h236.1c2.3 12.7 3.9 24.9 3.9 41.4z"></path>
+        <svg
+          className="mr-2 h-4 w-4 transition-colors"
+          aria-hidden="true"
+          focusable="false"
+          data-prefix="fab"
+          data-icon="google"
+          role="img"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 488 512"
+        >
+          <path
+            fill="currentColor"
+            d="M488 261.8C488 403.3 391.1 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 123 24.5 166.3 64.9l-67.5 64.9C258.5 52.6 94.3 116.6 94.3 256c0 86.5 69.1 156.6 153.7 156.6 98.2 0 135-70.4 140.8-106.9H248v-85.3h236.1c2.3 12.7 3.9 24.9 3.9 41.4z"
+          ></path>
         </svg>
         google
       </Button>
 
       {/* Navigation link for existing users */}
-      <div className="text-center pt-4">
+      <div className="pt-4 text-center">
         <span className="text-xs lowercase opacity-60">already have an account? </span>
-        <Link href="/sign-in" className="text-xs font-black lowercase text-primary hover:underline" style={{ color: 'var(--main-color)' }}>
-          sign in <ChevronRight className="inline-block w-3 h-3" />
+        <Link
+          href="/sign-in"
+          className="text-primary text-xs font-black lowercase hover:underline"
+          style={{ color: 'var(--main-color)' }}
+        >
+          sign in <ChevronRight className="inline-block h-3 w-3" />
         </Link>
       </div>
     </div>

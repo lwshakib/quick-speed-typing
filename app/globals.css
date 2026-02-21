@@ -1,5 +1,5 @@
-@import "tailwindcss";
-@import "tw-animate-css";
+@import 'tailwindcss';
+@import 'tw-animate-css';
 
 @custom-variant dark (&:is(.dark *));
 
@@ -48,7 +48,7 @@
 
 :root {
   --radius: 0.5rem;
-  
+
   /* Serika Dark (Default) */
   --background: #323437;
   --foreground: #d1d0c5;
@@ -83,7 +83,9 @@
   }
   body {
     @apply bg-background text-foreground selection:bg-primary/30 selection:text-primary;
-    font-feature-settings: "rlig" 1, "calt" 1;
+    font-feature-settings:
+      'rlig' 1,
+      'calt' 1;
   }
 }
 
@@ -96,14 +98,20 @@
   font-family: var(--font-hind-siliguri), var(--font-noto-bengali), serif !important;
   letter-spacing: 0 !important;
   font-variant-ligatures: normal !important;
-  font-feature-settings: "liga" 1, "clig" 1, "calt" 1 !important;
+  font-feature-settings:
+    'liga' 1,
+    'clig' 1,
+    'calt' 1 !important;
 }
 
 .font-hindi {
   font-family: var(--font-hind), sans-serif !important;
   letter-spacing: 0 !important;
   font-variant-ligatures: normal !important;
-  font-feature-settings: "liga" 1, "clig" 1, "calt" 1 !important;
+  font-feature-settings:
+    'liga' 1,
+    'clig' 1,
+    'calt' 1 !important;
 }
 
 .font-arabic {
@@ -119,28 +127,34 @@
 }
 
 /* Global script-specific overrides */
-[lang="bn"], .font-bengali {
+[lang='bn'],
+.font-bengali {
   font-family: var(--font-hind-siliguri), var(--font-noto-bengali), serif !important;
   line-height: 1.6;
 }
 
-[lang="hi"], .font-hindi {
+[lang='hi'],
+.font-hindi {
   font-family: var(--font-hind), sans-serif !important;
   line-height: 1.6;
 }
 
-[lang="ar"], .font-arabic {
+[lang='ar'],
+.font-arabic {
   font-family: var(--font-amiri), serif !important;
   line-height: 1.8;
   direction: rtl;
 }
 
-[lang="zh"], [lang="ja"], [lang="ko"], .font-cjk {
+[lang='zh'],
+[lang='ja'],
+[lang='ko'],
+.font-cjk {
   font-family: var(--font-noto-cjk), sans-serif !important;
 }
 
 .word {
-  @apply relative inline-block mx-[0.25em] transition-colors duration-200;
+  @apply relative mx-[0.25em] inline-block transition-colors duration-200;
 }
 
 .char {
@@ -157,8 +171,8 @@
 }
 
 .char.incorrect.extra {
-    color: var(--error-extra-color);
-    border-bottom: 2px solid var(--error-extra-color);
+  color: var(--error-extra-color);
+  border-bottom: 2px solid var(--error-extra-color);
 }
 
 .char.untyped {
@@ -208,11 +222,11 @@ input::placeholder {
 }
 
 input:-webkit-autofill,
-input:-webkit-autofill:hover, 
-input:-webkit-autofill:focus, 
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
 input:-webkit-autofill:active {
-    -webkit-background-clip: text !important;
-    -webkit-text-fill-color: var(--text-color) !important;
-    -webkit-box-shadow: 0 0 0px 1000px var(--background) inset !important;
-    transition: background-color 5000s ease-in-out 0s !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: var(--text-color) !important;
+  -webkit-box-shadow: 0 0 0px 1000px var(--background) inset !important;
+  transition: background-color 5000s ease-in-out 0s !important;
 }

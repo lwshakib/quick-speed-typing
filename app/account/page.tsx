@@ -1,11 +1,11 @@
 // Import server-side authentication utility
-import { auth } from "@/lib/auth";
+import { auth } from '@/lib/auth';
 // Import Next.js headers to provide context for session retrieval
-import { headers } from "next/headers";
+import { headers } from 'next/headers';
 // Import redirection for unauthenticated navigation control
-import { redirect } from "next/navigation";
+import { redirect } from 'next/navigation';
 // Import the AccountView component which handles the actual UI and session management
-import { AccountView } from "@/components/account-view";
+import { AccountView } from '@/components/account-view';
 
 /**
  * AccountPage: A server-side entry point for the user's account management view.
@@ -19,7 +19,7 @@ export default async function AccountPage() {
 
   // Security guard: If no session exists, bounce the user back to the landing page
   if (!session) {
-    redirect("/");
+    redirect('/');
   }
 
   // Render the account management interface

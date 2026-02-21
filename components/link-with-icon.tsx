@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import { cn } from "@/lib/utils";
-import React from "react";
+import Link from 'next/link';
+import { cn } from '@/lib/utils';
+import React from 'react';
 
 interface LinkWithIconProps {
   href: string;
@@ -21,26 +21,19 @@ export function LinkWithIcon({
 }: LinkWithIconProps) {
   const content = (
     <>
-      <span className="opacity-60 group-hover:text-primary transition-colors">
-        {icon}
-      </span>
+      <span className="group-hover:text-primary opacity-60 transition-colors">{icon}</span>
       {text}
     </>
   );
 
   const classes = cn(
-    "hover:text-foreground transition-colors flex items-center gap-1.5 group",
-    className
+    'hover:text-foreground transition-colors flex items-center gap-1.5 group',
+    className,
   );
 
   if (isExternal) {
     return (
-      <a
-        href={href}
-        target="_blank"
-        rel="noopener noreferrer"
-        className={classes}
-      >
+      <a href={href} target="_blank" rel="noopener noreferrer" className={classes}>
         {content}
       </a>
     );

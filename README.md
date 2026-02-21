@@ -7,7 +7,9 @@ Quicktype is a high-performance, minimalist, and modern speed typing application
 ## 📱 App Preview
 
 ### 🌑 Dark Mode
+
 The definitive typing experience with curated themes like Carbon and Serika Dark.
+
 <div align="center">
   <img src="public/app_demo/dark-demo.png" width="90%" alt="quicktype Dark Mode" />
 </div>
@@ -15,7 +17,9 @@ The definitive typing experience with curated themes like Carbon and Serika Dark
 <br />
 
 ### ☀️ Light Mode
+
 Clean, high-contrast interface for maximum legibility and focus.
+
 <div align="center">
   <img src="public/app_demo/light-demo.png" width="90%" alt="quicktype Light Mode" />
 </div>
@@ -60,18 +64,21 @@ Clean, high-contrast interface for maximum legibility and focus.
 ### Installation
 
 1. **Clone the repository:**
+
    ```bash
    git clone https://github.com/lwshakib/quick-speed-typing.git
    cd quick-speed-typing
    ```
 
 2. **Install dependencies:**
+
    ```bash
    bun install
    ```
 
 3. **Environment Setup:**
    Create a `.env` file in the root:
+
    ```env
    DATABASE_URL="postgresql://..."
    NEXT_PUBLIC_BASE_URL="http://localhost:3000"
@@ -81,6 +88,7 @@ Clean, high-contrast interface for maximum legibility and focus.
    ```
 
 4. **Database Initialization:**
+
    ```bash
    npx prisma db push
    ```

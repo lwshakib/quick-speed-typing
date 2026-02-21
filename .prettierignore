@@ -1,0 +1,14 @@
+.next
+node_modules
+dist
+build
+.env
+*.svg
+*.png
+*.jpg
+*.ico
+package-lock.json
+bun.lockb
+.agent
+.gemini
+public
