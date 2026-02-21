@@ -166,6 +166,14 @@ export default function Home() {
 
   const handleSave = async () => {
     if (hasSaved) return;
+    
+    // Minimum threshold for saving test
+    // 2 seconds and at least 5 correct characters
+    if (testDuration < 2 || charStats.correct < 5) {
+      console.log("Test too short, not saving.");
+      return;
+    }
+
     try {
       await saveTypingHistory({
         wpm,
@@ -630,16 +638,10 @@ export default function Home() {
                   </div>
                   
                   <div className="flex flex-col gap-1 min-w-[100px]">
-                      <span className="text-[10px] md:text-sm font-medium lowercase opacity-70">other</span>
+                      <span className="text-[10px] md:text-sm font-medium lowercase opacity-70">info</span>
                       <div className="flex flex-col text-sm md:text-lg font-bold text-primary leading-tight mt-1">
-                          {accuracy === 0 ? (
-                              <span className="text-primary/70 text-xs md:text-base">invalid (accuracy)</span>
-                          ) : (
-                              <>
-                                <span>failed</span>
-                                <span className="text-[10px] md:text-xs opacity-70">(slow timer)</span>
-                              </>
-                          )}
+                          <span>{mode === 'zen' ? 'zen mode' : 'standard'}</span>
+                          <span className="text-[10px] md:text-xs opacity-70">no tags</span>
                       </div>
                   </div>
 
@@ -664,8 +666,6 @@ export default function Home() {
                       <span className="text-[10px] md:text-sm font-medium lowercase opacity-70">time</span>
                       <div className="flex flex-col items-start md:items-end mt-1">
                           <span className="text-2xl md:text-3xl font-bold text-primary leading-none">{testDuration}s</span>
-                          <span className="text-[8px] md:text-[9px] font-bold opacity-30 uppercase mt-2 tracking-wider">65.25% afk</span>
-                          <span className="text-[8px] md:text-[9px] font-bold opacity-30 uppercase tracking-wider">00:00:02 session</span>
                       </div>
                   </div>
                </div>

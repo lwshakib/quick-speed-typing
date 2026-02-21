@@ -137,10 +137,13 @@ export const useTypingEngine = (options: TypingOptions = {}) => {
   const finish = useCallback(() => {
     if (timerRef.current) clearInterval(timerRef.current);
     timerRef.current = null;
-    setState('finish');
+    
+    // Set final precise duration
     if (startTimeRef.current) {
-        setTestDuration(Math.round((Date.now() - startTimeRef.current) / 1000));
+        setTestDuration((Date.now() - startTimeRef.current) / 1000);
     }
+    
+    setState('finish');
   }, []);
 
   const startTimer = useCallback(() => {
@@ -152,9 +155,11 @@ export const useTypingEngine = (options: TypingOptions = {}) => {
       secondCounterRef.current += 1;
       
       const elapsed = (Date.now() - (startTimeRef.current || 0)) / 1000;
-      const currentWpm = calculateWPM(totalTypedCount - errors, elapsed);
+      
+      // We calculate current stats for the history point
+      const currentCorrect = Array.from(typed).filter((char, i) => char === words[i]).length;
+      const currentWpm = calculateWPM(currentCorrect, elapsed);
       const currentRaw = calculateRawWPM(totalTypedCount, elapsed);
-      // Burst is instantaneous raw WPM for the last second
       const currentBurst = calculateRawWPM(charsInLastSecondRef.current, 1);
       
       setHistory(prev => [...prev, {
@@ -176,11 +181,12 @@ export const useTypingEngine = (options: TypingOptions = {}) => {
           }
           return prev - 1;
         });
-      } else {
-        setTestDuration(prev => prev + 1);
       }
+      
+      // Update duration for live WPM display
+      setTestDuration(elapsed);
     }, 1000);
-  }, [mode, finish, totalTypedCount, errors]);
+  }, [mode, finish, totalTypedCount, typed, words]);
 
   const pause = useCallback(() => {
     if (state !== 'run') return;
@@ -276,10 +282,9 @@ export const useTypingEngine = (options: TypingOptions = {}) => {
 
     if (e.key === 'Backspace') {
       setTyped((prev) => prev.slice(0, -1));
-      setTotalTypedCount(prev => Math.max(0, prev - 1));
-      if (mode === 'zen') {
-          setWords(prev => prev.slice(0, -1));
-      }
+      // In Monkeytype, raw wpm includes characters that were backspaced, 
+      // so we don't decrement totalTypedCount (total keystrokes).
+      // However, for total character counts, we track it separately if needed.
     } else if (e.key.length === 1 || (mode === 'zen' && e.key === 'Enter')) {
       const nextChar = e.key === 'Enter' ? '\n' : e.key;
       const expectedChar = mode === 'zen' ? nextChar : words[typed.length];
@@ -327,10 +332,39 @@ export const useTypingEngine = (options: TypingOptions = {}) => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [handleKeyDown]);
 
-  const finalElapsedTime = startTimeRef.current ? (Date.now() - startTimeRef.current) / 1000 : 0;
+  const finalElapsedTime = testDuration || (startTimeRef.current ? (Date.now() - startTimeRef.current) / 1000 : 0);
   
-  const wpm = calculateWPM(totalTypedCount - errors, testDuration || finalElapsedTime || (1/60));
-  const rawWpm = calculateRawWPM(totalTypedCount, testDuration || finalElapsedTime || (1/60));
+  // Calculate character stats precisely
+  const getCharStats = () => {
+    let correct = 0;
+    let incorrect = 0;
+    let extra = 0;
+    let missed = 0;
+
+    const typedWords = typed.split(" ");
+    const targetWords = words.split(" ");
+
+    typed.split("").forEach((char, i) => {
+        if (i < words.length) {
+            if (char === words[i]) correct++;
+            else incorrect++;
+        } else {
+            extra++;
+        }
+    });
+
+    if (state === 'finish' && mode !== 'zen') {
+        if (words.length > typed.length) {
+            missed = words.length - typed.length;
+        }
+    }
+
+    return { correct, incorrect, extra, missed };
+  };
+
+  const charStats = getCharStats();
+  const wpm = calculateWPM(charStats.correct, finalElapsedTime || (1/60));
+  const rawWpm = calculateRawWPM(totalTypedCount, finalElapsedTime || (1/60));
   const accuracy = totalTypedCount === 0 ? 0 : Math.max(0, Math.round(((totalTypedCount - errors) / totalTypedCount) * 100));
 
   // Consistency calculation: simple standard deviation based consistency
@@ -340,7 +374,6 @@ export const useTypingEngine = (options: TypingOptions = {}) => {
     const avg = wpms.reduce((a, b) => a + b, 0) / wpms.length;
     const variance = wpms.reduce((a, b) => a + Math.pow(b - avg, 2), 0) / wpms.length;
     const stdDev = Math.sqrt(variance);
-    // Rough estimate: consistency is relative to how much you deviate from average
     const cons = Math.max(0, Math.min(100, Math.round(100 - (stdDev / (avg || 1) * 100))));
     return cons;
   };
@@ -361,13 +394,8 @@ export const useTypingEngine = (options: TypingOptions = {}) => {
     rawWpm,
     accuracy,
     history,
-    testDuration: testDuration || Math.round(finalElapsedTime),
+    testDuration: Math.round(finalElapsedTime),
     consistency: calculateConsistency(),
-    charStats: {
-        correct: totalTypedCount - errors,
-        incorrect: errors,
-        extra: 0, // Placeholder
-        missed: 0 // Placeholder
-    }
+    charStats
   };
 };
