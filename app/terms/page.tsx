@@ -29,37 +29,22 @@ export default function TermsPage() {
 
 export function PolicyLayout({ children, title, icon }: { children: React.ReactNode, title: string, icon: React.ReactNode }) {
     return (
-        <div className="min-h-screen bg-background text-secondary font-mono selection:bg-primary/30 selection:text-primary transition-colors duration-300 flex flex-col items-center overflow-x-hidden">
-            <header className="w-full max-w-[1250px] px-8 py-8 flex justify-between items-center z-50 hover:opacity-100 opacity-60 transition-opacity">
-                <Link href="/">
-                    <Logo iconSize={32} textSize="1.5rem" className="text-foreground" />
-                </Link>
-            </header>
-
-            <main className="flex-1 w-full max-w-[800px] px-8 py-12 flex flex-col gap-12">
-                <motion.div 
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="flex flex-col gap-6"
-                >
-                    <div className="flex items-center gap-4 text-primary">
-                        {icon}
-                        <h1 className="text-4xl font-bold lowercase tracking-tighter">{title}</h1>
-                    </div>
-                </motion.div>
-
-                <div className="flex flex-col gap-10">
-                    {children}
+        <main className="flex-1 w-full max-w-[800px] px-8 py-12 flex flex-col gap-12">
+            <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="flex flex-col gap-6"
+            >
+                <div className="flex items-center gap-4 text-primary">
+                    {icon}
+                    <h1 className="text-4xl font-bold lowercase tracking-tighter">{title}</h1>
                 </div>
+            </motion.div>
 
-                <div className="mt-8 flex justify-center">
-                    <Link href="/" className="flex items-center gap-2 text-secondary hover:text-primary transition-colors font-bold group">
-                        <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
-                        <span>back to home</span>
-                    </Link>
-                </div>
-            </main>
-        </div>
+            <div className="flex flex-col gap-10">
+                {children}
+            </div>
+        </main>
     );
 }
 
