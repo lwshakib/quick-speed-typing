@@ -1,4 +1,4 @@
-import { getTypingHistory } from "@/lib/actions";
+import { getTypingHistory, getContributionData } from "@/lib/actions";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
@@ -13,7 +13,16 @@ export default async function ProfilePage() {
     redirect("/");
   }
 
-  const history = await getTypingHistory();
+  const [history, contributionData] = await Promise.all([
+    getTypingHistory(),
+    getContributionData(),
+  ]);
 
-  return <ProfileView session={session} history={history} />;
+  return (
+    <ProfileView 
+      session={session} 
+      history={history} 
+      contributionData={contributionData} 
+    />
+  );
 }

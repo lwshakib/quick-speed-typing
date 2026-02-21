@@ -62,6 +62,83 @@ export async function getTypingHistory() {
   });
 }
 
+export async function getContributionData() {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session) {
+    return { calendar: [], totalContributions: 0 };
+  }
+
+  const history = await prisma.typingHistory.findMany({
+    where: {
+      userId: session.user.id,
+      createdAt: {
+        gte: new Date(new Date().setFullYear(new Date().getFullYear() - 1)),
+      },
+    },
+    select: {
+      createdAt: true,
+    },
+  });
+
+  // Group by date
+  const contributionsByDate: Record<string, number> = {};
+  history.forEach((h) => {
+    const date = h.createdAt.toISOString().split("T")[0];
+    contributionsByDate[date] = (contributionsByDate[date] || 0) + 1;
+  });
+
+  // Create calendar structure
+  const calendar: any[] = [];
+  const today = new Date();
+  const oneYearAgo = new Date();
+  oneYearAgo.setFullYear(today.getFullYear() - 1);
+  
+  // Find the first Sunday before or on oneYearAgo
+  const startDate = new Date(oneYearAgo);
+  startDate.setDate(startDate.getDate() - startDate.getDay());
+
+  let currentDate = new Date(startDate);
+  let currentWeek: any[] = [];
+
+  while (currentDate <= today) {
+    const dateStr = currentDate.toISOString().split("T")[0];
+    const count = contributionsByDate[dateStr] || 0;
+    
+    currentWeek.push({
+      date: dateStr,
+      contributionCount: count,
+    });
+
+    if (currentWeek.length === 7) {
+      calendar.push({ contributionDays: currentWeek });
+      currentWeek = [];
+    }
+
+    currentDate.setDate(currentDate.getDate() + 1);
+  }
+
+  if (currentWeek.length > 0) {
+    // Fill the rest of the week if necessary
+    while (currentWeek.length < 7) {
+        const nextDate = new Date(currentDate);
+        currentWeek.push({
+            date: nextDate.toISOString().split("T")[0],
+            contributionCount: 0,
+        });
+        currentDate.setDate(currentDate.getDate() + 1);
+    }
+    calendar.push({ contributionDays: currentWeek });
+  }
+
+  return {
+    calendar,
+    totalContributions: history.length,
+  };
+}
+
 export async function getLeaderboard(timeRange: "all" | "daily" | "weekly" | "monthly" = "all") {
   let dateFilter = {};
   const now = new Date();

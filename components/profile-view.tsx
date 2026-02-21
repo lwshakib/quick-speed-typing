@@ -31,9 +31,15 @@ import { Button } from "@/components/ui/button";
 import { UserMenu } from "@/components/user-menu";
 import { format, subDays, isAfter } from "date-fns";
 
+import { ContributionActivity } from "@/components/contribution-activity";
+
 interface ProfileViewProps {
   session: any;
   history: any[];
+  contributionData: {
+    calendar: any[];
+    totalContributions: number;
+  };
 }
 
 const chartConfig = {
@@ -47,9 +53,7 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-
-
-export function ProfileView({ session, history }: ProfileViewProps) {
+export function ProfileView({ session, history, contributionData }: ProfileViewProps) {
   const [timeRange, setTimeRange] = React.useState("90d");
 
   const displayHistory = history;
@@ -82,7 +86,7 @@ export function ProfileView({ session, history }: ProfileViewProps) {
   const avgAccuracy = displayHistory.length > 0 ? Math.round(displayHistory.reduce((acc, h) => acc + h.accuracy, 0) / displayHistory.length) : 0;
 
   return (
-    <main className="flex-1 w-full max-w-[1250px] mx-auto py-8 sm:py-12 space-y-8 sm:space-y-12 px-4 sm:px-8">
+    <main className="flex-1 w-full max-w-[1440px] mx-auto py-8 sm:py-12 space-y-8 sm:space-y-12 px-4 sm:px-8">
         <div className="space-y-2">
           <h1 className="text-3xl sm:text-4xl font-black tracking-tighter lowercase" style={{ color: 'var(--text-color)' }}>your progress</h1>
           <p className="text-sm lowercase opacity-60">Track your evolution in speed and accuracy.</p>
@@ -112,6 +116,12 @@ export function ProfileView({ session, history }: ProfileViewProps) {
               <div className="text-4xl font-black transition-transform group-hover:scale-105 duration-300" style={{ color: 'var(--text-color)' }}>{avgAccuracy}%</div>
           </div>
         </div>
+
+        {/* Contribution Activity */}
+        <ContributionActivity 
+          calendar={contributionData.calendar}
+          totalContributions={contributionData.totalContributions}
+        />
 
         {/* Interactive Charts */}
         <div className="rounded-2xl border-2 overflow-hidden" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--muted)' }}>

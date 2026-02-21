@@ -25,7 +25,8 @@ import {
     MoreHorizontal,
     FastForward,
     Image as ImageIcon,
-    Palette
+    Palette,
+    Zap
 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
@@ -244,22 +245,34 @@ export default function Home() {
                       className="bg-muted p-2 rounded-xl flex flex-wrap items-center justify-center text-[10px] sm:text-xs font-bold select-none w-full sm:w-fit gap-y-3 sm:gap-y-0 transition-all duration-300"
                       style={{ backgroundColor: 'rgba(0,0,0,0.1)' }}
                   >
-                    <div className="flex items-center sm:border-r border-background/20 pr-3 sm:pr-4 gap-3 sm:gap-4 px-2 whitespace-nowrap">
-                      <button 
-                        onClick={() => setConfig(prev => ({ ...prev, punctuation: !prev.punctuation }))}
-                        className={cn("hover:text-foreground transition-colors flex items-center gap-1.5", config.punctuation && "text-primary")}
-                      >
-                        <span className="opacity-50 font-black">@</span> punctuation
-                      </button>
-                      <button 
-                        onClick={() => setConfig(prev => ({ ...prev, numbers: !prev.numbers }))}
-                        className={cn("hover:text-foreground transition-colors flex items-center gap-1.5", config.numbers && "text-primary")}
-                      >
-                        <span className="opacity-50 font-black">#</span> numbers
-                      </button>
-                    </div>
+                    <AnimatePresence mode="popLayout">
+                      {(mode === 'time' || mode === 'words') && (
+                        <motion.div 
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          exit={{ opacity: 0, x: -10 }}
+                          className="flex items-center sm:border-r border-background/20 pr-3 sm:pr-4 gap-3 sm:gap-4 px-2 whitespace-nowrap"
+                        >
+                          <button 
+                            onClick={() => setConfig(prev => ({ ...prev, punctuation: !prev.punctuation }))}
+                            className={cn("hover:text-foreground transition-colors flex items-center gap-1.5", config.punctuation && "text-primary")}
+                          >
+                            <span className="opacity-50 font-black">@</span> punctuation
+                          </button>
+                          <button 
+                            onClick={() => setConfig(prev => ({ ...prev, numbers: !prev.numbers }))}
+                            className={cn("hover:text-foreground transition-colors flex items-center gap-1.5", config.numbers && "text-primary")}
+                          >
+                            <span className="opacity-50 font-black">#</span> numbers
+                          </button>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
 
-                    <div className="flex items-center sm:border-r border-background/20 px-3 sm:px-4 gap-3 sm:gap-4 whitespace-nowrap">
+                    <div className={cn(
+                      "flex items-center px-3 sm:px-4 gap-3 sm:gap-4 whitespace-nowrap",
+                      mode !== 'zen' && "sm:border-r border-background/20"
+                    )}>
                       {(['time', 'words', 'quote', 'zen'] as const).map((m) => (
                         <button 
                           key={m}
@@ -270,33 +283,43 @@ export default function Home() {
                             {m === 'time' && <Clock size={12} />}
                             {m === 'words' && <Hash size={12} />}
                             {m === 'quote' && <QuoteIcon size={12} />}
+                            {m === 'zen' && <Zap size={12} />}
                           </span>
                           {m}
                         </button>
                       ))}
                     </div>
 
-                    <div className="flex items-center pl-3 sm:pl-4 gap-3 sm:gap-4 px-2 whitespace-nowrap">
-                      {amounts.map((t) => (
-                        <button 
-                          key={t}
-                          onClick={() => { 
-                              if (mode === 'time') setDuration(t); 
-                              else setWordCount(t);
-                              restart(); 
-                          }}
-                          className={cn("hover:text-foreground transition-colors", amount === t && "text-primary")}
+                    <AnimatePresence mode="popLayout">
+                      {mode !== 'zen' && (
+                        <motion.div 
+                          initial={{ opacity: 0, x: 10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          exit={{ opacity: 0, x: 10 }}
+                          className="flex items-center pl-3 sm:pl-4 gap-3 sm:gap-4 px-2 whitespace-nowrap"
                         >
-                          {t}
-                        </button>
-                      ))}
-                      <button 
-                        onClick={() => setIsCustomDurationOpen(true)}
-                        className="hover:text-foreground transition-colors hover:rotate-90 duration-300 ml-1"
-                      >
-                        <Settings size={12} />
-                      </button>
-                    </div>
+                          {amounts.map((t) => (
+                            <button 
+                              key={t}
+                              onClick={() => { 
+                                  if (mode === 'time') setDuration(t); 
+                                  else if (mode === 'words') setWordCount(t);
+                                  restart(); 
+                              }}
+                              className={cn("hover:text-foreground transition-colors", amount === t && "text-primary")}
+                            >
+                              {t}
+                            </button>
+                          ))}
+                          <button 
+                            onClick={() => setIsCustomDurationOpen(true)}
+                            className="hover:text-foreground transition-colors hover:rotate-90 duration-300 ml-1"
+                          >
+                            <Settings size={12} />
+                          </button>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </div>
                 </div>
 
