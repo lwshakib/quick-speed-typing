@@ -32,7 +32,7 @@ export default function AboutPage() {
         
         <div className="flex flex-col gap-4 text-lg leading-relaxed text-secondary opacity-80">
           <p>
-            <span className="text-primary font-bold">quick type</span> is a minimalist, customizable typing website, inspired by monkeytype. It's designed to provide a distraction-free typing experience while providing detailed analytics and progress tracking.
+            <span className="text-primary font-bold">quick type</span> is a minimalist, customizable typing website. It's designed to provide a distraction-free typing experience while providing detailed analytics and progress tracking.
           </p>
           <p>
             Whether you're a competitive typist looking to break your personal records or a beginner wanting to improve your speed and accuracy, quick type provides the tools you need to reach your goals.
@@ -71,18 +71,6 @@ export default function AboutPage() {
         </div>
       </motion.div>
 
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-        className="flex flex-col gap-6"
-      >
-        <h2 className="text-2xl font-bold text-foreground lowercase tracking-tight">credits</h2>
-        <p className="text-secondary opacity-80 leading-relaxed">
-          Quick was built with ❤️ using Next.js, Tailwind CSS, and Framer Motion. 
-          Huge thanks to the <a href="https://monkeytype.com" target="_blank" className="text-primary hover:underline">Monkeytype</a> team for the inspiration and for creating such an incredible community.
-        </p>
-      </motion.div>
     </main>
   );
 }

@@ -713,31 +713,17 @@ export default function Home() {
           transition={{ duration: 0.5 }}
           className="hidden sm:flex w-full flex-col items-center gap-3 text-[10px] sm:text-xs font-bold select-none hover:opacity-100 transition-opacity duration-500 mt-12 mb-8"
         >
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-6">
               <div className="flex items-center gap-2">
                  <Kbd className="bg-muted border-none text-secondary min-w-[30px] p-1 px-2.5">tab</Kbd>
+                 <span className="ml-1 uppercase">- restart test</span>
+              </div>
+              <div className="flex items-center gap-2">
+                 <Kbd className="bg-muted border-none text-secondary min-w-[30px] p-1 px-2.5">alt</Kbd>
                  <span className="opacity-50">+</span>
                  <Kbd className="bg-muted border-none text-secondary min-w-[50px] p-1 px-2.5">enter</Kbd>
                  <span className="ml-1 uppercase">- restart test</span>
               </div>
-            </div>
-            <div className="flex items-center gap-2">
-                 <div className="flex items-center gap-1 group">
-                    <Kbd className="bg-muted border-none text-secondary min-w-[30px] p-0.5 px-2">alt</Kbd>
-                    <span className="opacity-50">+</span>
-                    <Kbd className="bg-muted border-none text-secondary min-w-[50px] p-0.5 px-2">enter</Kbd>
-                    <span className="ml-1 uppercase">- restart test</span>
-                 </div>
-                 <div className="flex items-center gap-1 group ml-4">
-                    <Kbd className="bg-muted border-none text-secondary min-w-[30px] p-0.5 px-2">esc</Kbd>
-                    <span className="opacity-50 mx-1">or</span>
-                    <Kbd className="bg-muted border-none text-secondary min-w-[30px] p-0.5 px-2">ctrl</Kbd>
-                    <span className="opacity-50">+</span>
-                    <Kbd className="bg-muted border-none text-secondary min-w-[40px] p-0.5 px-2">shift</Kbd>
-                    <span className="opacity-50">+</span>
-                    <Kbd className="bg-muted border-none text-secondary min-w-[30px] p-0.5 px-2">p</Kbd>
-                    <span className="ml-1 uppercase">- command line</span>
-                 </div>
             </div>
         </motion.div>
       </main>

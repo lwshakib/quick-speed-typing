@@ -262,7 +262,8 @@ export const useTypingEngine = (options: TypingOptions = {}) => {
       return;
     }
     
-    if (e.key === 'Tab') {
+    // Tab or Alt+Enter to restart
+    if (e.key === 'Tab' || (e.key === 'Enter' && e.altKey)) {
       e.preventDefault();
       restart();
       return;
