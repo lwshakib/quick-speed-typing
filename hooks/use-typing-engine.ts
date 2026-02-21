@@ -87,19 +87,41 @@ export const useTypingEngine = (options: TypingOptions = {}) => {
   const errorsInLastSecondRef = useRef(0);
   const charsInLastSecondRef = useRef(0);
 
-  const updateWords = useCallback(() => {
-    let newWords = "";
-    if (mode === 'zen') {
-        newWords = ""; // Start empty for Zen mode
-    } else if (mode === 'time' || mode === 'words') {
-        const count = mode === 'time' ? 50 : amount;
-        newWords = generateWords(count, includeNumbers, includePunctuation, language);
-    } else if (mode === 'quote') {
-        newWords = QUOTES[Math.floor(Math.random() * QUOTES.length)];
+  const [lastOptions, setLastOptions] = useState({ mode, amount, includeNumbers, includePunctuation, language });
+
+  const getNewWords = useCallback((m: GameMode, a: number, n: boolean, p: boolean, l: string) => {
+    if (m === 'zen') return "";
+    if (m === 'time' || m === 'words') {
+        const count = m === 'time' ? 50 : a;
+        return generateWords(count, n, p, l);
     }
+    if (m === 'quote') {
+        return QUOTES[Math.floor(Math.random() * QUOTES.length)];
+    }
+    return "";
+  }, []);
+
+  // Synchronous update to avoid flash of old content
+  if (
+    mode !== lastOptions.mode || 
+    amount !== lastOptions.amount || 
+    includeNumbers !== lastOptions.includeNumbers ||
+    includePunctuation !== lastOptions.includePunctuation ||
+    language !== lastOptions.language
+  ) {
+    setLastOptions({ mode, amount, includeNumbers, includePunctuation, language });
+    const nextWords = getNewWords(mode, amount, includeNumbers, includePunctuation, language);
+    setWords(nextWords);
+    setTyped('');
+    setState('start');
+    setTimeLeft(amount);
+  }
+
+  const updateWords = useCallback(() => {
+    const newWords = getNewWords(mode, amount, includeNumbers, includePunctuation, language);
     setWords(newWords);
     setTyped('');
-  }, [mode, amount, includeNumbers, includePunctuation, language]);
+  }, [mode, amount, includeNumbers, includePunctuation, language, getNewWords]);
 
   const restart = useCallback(() => {
     if (timerRef.current) clearInterval(timerRef.current);
@@ -202,11 +224,13 @@ export const useTypingEngine = (options: TypingOptions = {}) => {
   }, [state, startTimer]);
 
   useEffect(() => {
-    updateWords();
+    if (!words && mode !== 'zen') {
+        updateWords();
+    }
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [updateWords]);
+  }, [updateWords, words, mode]);
 
   useEffect(() => {
     if (state === 'start') {
