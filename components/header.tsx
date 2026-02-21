@@ -96,7 +96,7 @@ export function Header() {
 
     return (
         <header className="fixed top-0 left-0 right-0 w-full flex justify-center z-50 bg-background/80 backdrop-blur-md transition-all duration-300">
-            <div className="w-full max-w-[1250px] px-8 py-6 flex justify-between items-center">
+            <div className="w-full max-w-[1440px] px-8 py-6 flex justify-between items-center">
             <div className="flex items-center gap-6">
                 <Link 
                     href="/" 

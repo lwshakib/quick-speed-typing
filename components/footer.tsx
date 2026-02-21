@@ -29,7 +29,7 @@ export function Footer() {
                 pointerEvents: showUi ? 'auto' : 'none'
             }}
             transition={{ duration: 0.5 }}
-            className="w-full max-w-[1250px] px-8 py-10 flex flex-col md:flex-row justify-between items-center text-[10px] font-bold select-none hover:opacity-100 transition-opacity duration-700 gap-6"
+            className="w-full max-w-[1440px] px-8 py-10 flex flex-col md:flex-row justify-between items-center text-[10px] font-bold select-none hover:opacity-100 transition-opacity duration-700 gap-6"
         >
             <div className="flex flex-wrap items-center justify-center md:justify-start gap-y-2 gap-x-6">
                 <LinkWithIcon href="/contact" icon={<Mail size={12} />} text="contact" />

@@ -33,7 +33,7 @@ export default function LeaderboardPage() {
     };
 
     return (
-        <main className="flex-1 w-full max-w-[1000px] px-8 py-12 flex flex-col gap-10">
+        <main className="flex-1 w-full max-w-[1440px] px-8 py-12 flex flex-col gap-10">
                 <motion.div 
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}

@@ -222,7 +222,7 @@ export default function Home() {
         }}
     >
 
-      <main className="w-full max-w-[1250px] px-8 flex flex-col items-center gap-12">
+      <main className="w-full max-w-[1440px] px-8 flex flex-col items-center gap-12">
         <div className="flex-1 w-full flex flex-col items-center justify-center">
           {state !== 'finish' ? (
             <motion.div 
