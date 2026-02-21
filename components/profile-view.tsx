@@ -38,12 +38,12 @@ interface ProfileViewProps {
 
 const chartConfig = {
   wpm: {
-    label: "WPM",
-    color: "#f59e0b", // Vibrant Amber
+    label: "wpm",
+    color: "var(--main-color)",
   },
   accuracy: {
-    label: "Accuracy",
-    color: "#10b981", // Vibrant Emerald
+    label: "accuracy",
+    color: "var(--sub-color)",
   },
 } satisfies ChartConfig;
 
@@ -82,142 +82,121 @@ export function ProfileView({ session, history }: ProfileViewProps) {
   const avgAccuracy = displayHistory.length > 0 ? Math.round(displayHistory.reduce((acc, h) => acc + h.accuracy, 0) / displayHistory.length) : 0;
 
   return (
-    <div className="flex min-h-screen flex-col bg-white dark:bg-[#0a0a0a] text-zinc-900 dark:text-[#d4d4d4] font-mono p-4 sm:p-6 transition-colors duration-300">
-      <header className="p-4 sm:p-6 flex justify-between items-center z-50">
-        <Link href="/">
-          <Button variant="ghost" size="sm" className="gap-2 -ml-2 hover:bg-zinc-100 dark:hover:bg-zinc-900">
-            <ArrowLeft className="w-4 h-4" />
-            <span>Back to Type</span>
-          </Button>
-        </Link>
-        <div className="flex items-center gap-2 sm:gap-4">
-          <ThemeToggle />
-          <UserMenu />
-        </div>
-      </header>
-
-      <main className="flex-1 w-full max-w-5xl mx-auto py-8 sm:py-12 space-y-8 sm:space-y-12">
+    <main className="flex-1 w-full max-w-[1250px] mx-auto py-8 sm:py-12 space-y-8 sm:space-y-12 px-4 sm:px-8">
         <div className="space-y-2">
-          <h1 className="text-3xl sm:text-4xl font-black tracking-tighter">Your Progress</h1>
-          <p className="text-muted-foreground">Track your evolution in speed and accuracy.</p>
+          <h1 className="text-3xl sm:text-4xl font-black tracking-tighter lowercase" style={{ color: 'var(--text-color)' }}>your progress</h1>
+          <p className="text-sm lowercase opacity-60">Track your evolution in speed and accuracy.</p>
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <Card className="bg-card/50 backdrop-blur-sm border-border/50">
-            <CardHeader className="pb-2">
-              <CardDescription className="flex items-center gap-2 uppercase tracking-widest text-[10px] sm:text-xs font-bold">
-                <Zap className="w-3 h-3 text-yellow-500" />
-                Best WPM
-              </CardDescription>
-              <CardTitle className="text-3xl sm:text-4xl font-black">{bestWpm}</CardTitle>
-            </CardHeader>
-          </Card>
-          <Card className="bg-card/50 backdrop-blur-sm border-border/50">
-            <CardHeader className="pb-2">
-              <CardDescription className="flex items-center gap-2 uppercase tracking-widest text-[10px] sm:text-xs font-bold">
-                <TrendingUp className="w-3 h-3 text-green-500" />
-                Avg WPM
-              </CardDescription>
-              <CardTitle className="text-3xl sm:text-4xl font-black">{avgWpm}</CardTitle>
-            </CardHeader>
-          </Card>
-          <Card className="bg-card/50 backdrop-blur-sm border-border/50">
-            <CardHeader className="pb-2">
-              <CardDescription className="flex items-center gap-2 uppercase tracking-widest text-[10px] sm:text-xs font-bold">
-                <Target className="w-3 h-3 text-blue-500" />
-                Avg Accuracy
-              </CardDescription>
-              <CardTitle className="text-3xl sm:text-4xl font-black">{avgAccuracy}%</CardTitle>
-            </CardHeader>
-          </Card>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+          <div className="p-6 rounded-2xl border-2 transition-all duration-300 group" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--muted)' }}>
+              <div className="flex items-center gap-2 uppercase tracking-widest text-[10px] font-bold opacity-40 mb-2">
+                <Zap className="w-3 h-3 text-primary" />
+                best wpm
+              </div>
+              <div className="text-4xl font-black transition-transform group-hover:scale-105 duration-300" style={{ color: 'var(--text-color)' }}>{bestWpm}</div>
+          </div>
+          <div className="p-6 rounded-2xl border-2 transition-all duration-300 group" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--muted)' }}>
+              <div className="flex items-center gap-2 uppercase tracking-widest text-[10px] font-bold opacity-40 mb-2">
+                <TrendingUp className="w-3 h-3 text-primary" />
+                avg wpm
+              </div>
+              <div className="text-4xl font-black transition-transform group-hover:scale-105 duration-300" style={{ color: 'var(--text-color)' }}>{avgWpm}</div>
+          </div>
+          <div className="p-6 rounded-2xl border-2 transition-all duration-300 group" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--muted)' }}>
+              <div className="flex items-center gap-2 uppercase tracking-widest text-[10px] font-bold opacity-40 mb-2">
+                <Target className="w-3 h-3 text-primary" />
+                avg accuracy
+              </div>
+              <div className="text-4xl font-black transition-transform group-hover:scale-105 duration-300" style={{ color: 'var(--text-color)' }}>{avgAccuracy}%</div>
+          </div>
         </div>
 
         {/* Interactive Charts */}
-        <Card className="bg-card/50 backdrop-blur-sm border-border/50 shadow-xl overflow-hidden">
-          <CardHeader className="flex items-center gap-2 space-y-0 border-b border-border/50 py-5 sm:flex-row">
+        <div className="rounded-2xl border-2 overflow-hidden" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--muted)' }}>
+          <div className="flex items-center gap-4 border-b-2 p-6 sm:flex-row flex-col" style={{ borderColor: 'var(--border)' }}>
             <div className="grid flex-1 gap-1">
-              <CardTitle className="text-xl font-bold flex items-center gap-2">
+              <div className="text-xl font-bold flex items-center gap-2 lowercase" style={{ color: 'var(--text-color)' }}>
                 <TrendingUp className="w-5 h-5 text-primary" />
-                Interactive Stats
-              </CardTitle>
-              <CardDescription>
+                interactive stats
+              </div>
+              <div className="text-xs opacity-50 lowercase">
                 Showing typing history for the selected period
-              </CardDescription>
+              </div>
             </div>
             <Select value={timeRange} onValueChange={setTimeRange}>
               <SelectTrigger
-                className="w-[160px] rounded-lg sm:ml-auto"
-                aria-label="Select a value"
+                className="w-[160px] rounded-xl sm:ml-auto border-2 lowercase font-bold h-10"
+                style={{ borderColor: 'var(--border)', backgroundColor: 'transparent' }}
               >
-                <SelectValue placeholder="Last 3 months" />
+                <SelectValue placeholder="last 3 months" />
               </SelectTrigger>
-              <SelectContent className="rounded-xl">
-                <SelectItem value="90d" className="rounded-lg">
-                  Last 3 months
-                </SelectItem>
-                <SelectItem value="30d" className="rounded-lg">
-                  Last 30 days
-                </SelectItem>
-                <SelectItem value="7d" className="rounded-lg">
-                  Last 7 days
-                </SelectItem>
+              <SelectContent className="rounded-xl border-2 font-mono" style={{ backgroundColor: 'var(--background)', borderColor: 'var(--border)' }}>
+                <SelectItem value="90d" className="lowercase">last 3 months</SelectItem>
+                <SelectItem value="30d" className="lowercase">last 30 days</SelectItem>
+                <SelectItem value="7d" className="lowercase">last 7 days</SelectItem>
               </SelectContent>
             </Select>
-          </CardHeader>
-          <CardContent className="px-2 pt-4 sm:px-6 sm:pt-6">
+          </div>
+          <div className="p-6">
             <ChartContainer
               config={chartConfig}
-              className="aspect-auto h-[300px] w-full"
+              className="aspect-auto h-[350px] w-full"
             >
               <AreaChart data={filteredData}>
                 <defs>
                   <linearGradient id="fillWpm" x1="0" y1="0" x2="0" y2="1">
                     <stop
                       offset="5%"
-                      stopColor="var(--color-wpm)"
-                      stopOpacity={0.6}
+                      stopColor="var(--main-color)"
+                      stopOpacity={0.4}
                     />
                     <stop
                       offset="95%"
-                      stopColor="var(--color-wpm)"
+                      stopColor="var(--main-color)"
                       stopOpacity={0}
                     />
                   </linearGradient>
                   <linearGradient id="fillAccuracy" x1="0" y1="0" x2="0" y2="1">
                     <stop
                       offset="5%"
-                      stopColor="var(--color-accuracy)"
-                      stopOpacity={0.6}
+                      stopColor="var(--sub-color)"
+                      stopOpacity={0.2}
                     />
                     <stop
                       offset="95%"
-                      stopColor="var(--color-accuracy)"
+                      stopColor="var(--sub-color)"
                       stopOpacity={0}
                     />
                   </linearGradient>
                 </defs>
-                <CartesianGrid vertical={false} stroke="hsl(var(--border))" strokeDasharray="3 3" />
+                <CartesianGrid vertical={false} stroke="var(--border)" strokeDasharray="3 3" />
                 <XAxis
                   dataKey="formattedDate"
                   tickLine={false}
                   axisLine={false}
-                  tickMargin={8}
-                  minTickGap={32}
-                  stroke="hsl(var(--muted-foreground))"
-                  fontSize={12}
+                  tickMargin={12}
+                  minTickGap={40}
+                  stroke="var(--sub-color)"
+                  opacity={0.5}
+                  fontSize={10}
+                  className="lowercase"
                 />
                 <YAxis
                   tickLine={false}
                   axisLine={false}
-                  stroke="hsl(var(--muted-foreground))"
-                  fontSize={12}
+                  stroke="var(--sub-color)"
+                  opacity={0.5}
+                  fontSize={10}
                 />
                 <ChartTooltip
-                  cursor={false}
+                  cursor={{ stroke: 'var(--border)', strokeWidth: 2 }}
                   content={
                     <ChartTooltipContent
                       indicator="dot"
+                      className="font-mono rounded-lg border-2"
+                      style={{ backgroundColor: 'var(--background)', borderColor: 'var(--border)' }}
                     />
                   }
                 />
@@ -225,62 +204,68 @@ export function ProfileView({ session, history }: ProfileViewProps) {
                   dataKey="accuracy"
                   type="monotone"
                   fill="url(#fillAccuracy)"
-                  stroke="var(--color-accuracy)"
-                  strokeWidth={3}
+                  stroke="var(--sub-color)"
+                  strokeWidth={2}
+                  strokeDasharray="5 5"
                 />
                 <Area
                   dataKey="wpm"
                   type="monotone"
                   fill="url(#fillWpm)"
-                  stroke="var(--color-wpm)"
-                  strokeWidth={3}
+                  stroke="var(--main-color)"
+                  strokeWidth={4}
                 />
-                <ChartLegend content={<ChartLegendContent />} />
+                <ChartLegend content={<ChartLegendContent className="lowercase text-[10px] font-bold opacity-60 mt-4" />} />
               </AreaChart>
             </ChartContainer>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
         {/* History List */}
-        <Card className="bg-card/50 backdrop-blur-sm border-border/50">
-          <CardHeader>
-             <CardTitle className="text-xl font-bold flex items-center gap-2">
-                <History className="w-5 h-5 text-muted-foreground" />
-                Recent Tests
-              </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
+        <div className="space-y-6">
+             <div className="text-xl font-bold flex items-center gap-2 lowercase" style={{ color: 'var(--text-color)' }}>
+                <History className="w-5 h-5 opacity-40" />
+                recent tests
+              </div>
+            <div className="flex flex-col gap-3">
               {history.length === 0 ? (
-                <p className="text-center py-8 text-muted-foreground">No tests completed yet.</p>
+                <div className="text-center py-20 rounded-2xl border-2 border-dashed opacity-40 lowercase" style={{ borderColor: 'var(--border)' }}>
+                    No tests completed yet.
+                </div>
               ) : (
-                history.map((h) => (
-                  <div key={h.id} className="flex items-center justify-between p-4 rounded-xl border border-border/50 bg-background/50">
-                    <div className="flex items-center gap-4 sm:gap-8">
+                history.slice(0, 10).map((h) => (
+                  <div key={h.id} className="flex items-center justify-between p-5 rounded-2xl border-2 transition-all hover:translate-x-1 duration-200" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--muted)' }}>
+                    <div className="flex items-center gap-6 sm:gap-12">
                        <div className="flex flex-col">
-                         <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest">WPM</span>
-                         <span className="text-xl font-black">{h.wpm}</span>
+                         <span className="text-[10px] uppercase font-black opacity-30 tracking-widest mb-1">wpm</span>
+                         <span className="text-2xl font-black" style={{ color: 'var(--text-color)' }}>{h.wpm}</span>
                        </div>
                        <div className="flex flex-col">
-                         <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest">ACC</span>
-                         <span className="text-xl font-black">{h.accuracy}%</span>
+                         <span className="text-[10px] uppercase font-black opacity-30 tracking-widest mb-1">acc</span>
+                         <span className="text-2xl font-black" style={{ color: 'var(--text-color)' }}>{h.accuracy}%</span>
                        </div>
                        <div className="hidden sm:flex flex-col">
-                         <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest">ERR</span>
-                         <span className="text-xl font-black text-destructive">{h.errors}</span>
+                         <span className="text-[10px] uppercase font-black opacity-30 tracking-widest mb-1">err</span>
+                         <span className="text-2xl font-black" style={{ color: 'var(--error-color)' }}>{h.errors}</span>
                        </div>
                     </div>
-                    <div className="flex items-center gap-2 text-muted-foreground text-xs font-medium">
-                      <Calendar className="w-3 h-3" />
-                      {format(new Date(h.createdAt), "MMM d, yyyy HH:mm")}
+                    <div className="flex flex-col items-end gap-1 opacity-40 text-[10px] font-bold uppercase tracking-wider">
+                      <div className="flex items-center gap-2">
+                        <Calendar className="w-3 h-3" />
+                         {format(new Date(h.createdAt), "MMM d, yyyy")}
+                      </div>
+                      <div>{format(new Date(h.createdAt), "HH:mm")}</div>
                     </div>
                   </div>
                 ))
               )}
             </div>
-          </CardContent>
-        </Card>
+            {history.length > 10 && (
+                <div className="flex justify-center pt-4">
+                    <Button variant="ghost" className="lowercase font-bold opacity-40 hover:opacity-100">view all history</Button>
+                </div>
+            )}
+        </div>
       </main>
-    </div>
-  );
+    );
 }
