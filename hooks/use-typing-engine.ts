@@ -1,5 +1,28 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
-import { faker } from '@faker-js/faker';
+import { LOCALIZED_WORDS } from '@/lib/languages-data';
+import { 
+  faker, 
+  fakerES, 
+  fakerFR, 
+  fakerRU, 
+  fakerJA, 
+  fakerZH_CN, 
+  fakerKO, 
+  fakerAR, 
+  fakerBN_BD, 
+  fakerNE,
+  fakerTR, 
+  fakerVI, 
+  fakerTH, 
+  fakerNL, 
+  fakerSV, 
+  fakerNB_NO, 
+  fakerDA,
+  fakerDE,
+  fakerIT,
+  fakerPL,
+  fakerPT_BR
+} from '@faker-js/faker';
 
 /** Defines the available game modes */
 export type GameMode = 'time' | 'words' | 'quote' | 'zen';
@@ -39,27 +62,89 @@ const QUOTES = [
 ];
 
 /**
- * Utility to generate random words using faker.
- * Optionally injects numbers and punctuation based on configuration.
+ * Languages that do not have upper/lower case distinctions.
+ */
+const LANGUAGES_WITHOUT_CASING = [
+  'japanese', 'chinese', 'korean', 'arabic', 'bengali', 'thai', 'nepali'
+];
+
+/**
+ * Maps a language string to a specific Faker instance for localized word generation.
+ * Supports prefixes to handle variations like "english 1k" or "spanish 10k".
+ */
+const getFakerInstance = (lang: string) => {
+  const l = lang.toLowerCase();
+  if (l.startsWith('spanish')) return fakerES;
+  if (l.startsWith('french')) return fakerFR;
+  if (l.startsWith('russian')) return fakerRU;
+  if (l.startsWith('japanese')) return fakerJA;
+  if (l.startsWith('chinese')) return fakerZH_CN;
+  if (l.startsWith('korean')) return fakerKO;
+  if (l.startsWith('arabic')) return fakerAR;
+  if (l.startsWith('bengali')) return fakerBN_BD;
+  if (l.startsWith('nepali')) return fakerNE;
+  if (l.startsWith('turkish')) return fakerTR;
+  if (l.startsWith('vietnamese')) return fakerVI;
+  if (l.startsWith('thai')) return fakerTH;
+  if (l.startsWith('dutch')) return fakerNL;
+  if (l.startsWith('swedish')) return fakerSV;
+  if (l.startsWith('norwegian')) return fakerNB_NO;
+  if (l.startsWith('danish')) return fakerDA;
+  if (l.startsWith('german')) return fakerDE;
+  if (l.startsWith('italian')) return fakerIT;
+  if (l.startsWith('polish')) return fakerPL;
+  if (l.startsWith('portuguese')) return fakerPT_BR;
+  // Default to English
+  return faker;
+};
+
+/**
+ * Utility to generate random words.
+ * Uses localized word lists for non-latin languages (Bengali, Arabic, etc.) 
+ * and falls back to localized Faker instances for supported western languages.
  */
 const generateWords = (count: number, includeNumbers: boolean, includePunctuation: boolean, language: string) => {
   try {
-    let wordsArray = faker.word.words(count).toLowerCase().split(" ");
+    const langKey = language.toLowerCase();
+    let wordsArray: string[] = [];
+
+    // Check if we have a high-quality static list for this language
+    // This solves the issue of Faker falling back to English for non-Latin locales.
+    const customList = LOCALIZED_WORDS[langKey] || 
+                      Object.entries(LOCALIZED_WORDS).find(([k]) => langKey.includes(k))?.[1];
+
+    if (customList) {
+      // Pick random words from our high-quality dictionary
+      for (let i = 0; i < count; i++) {
+        const randomWord = customList[Math.floor(Math.random() * customList.length)];
+        wordsArray.push(randomWord);
+      }
+    } else {
+      // Fallback to Faker for supported western languages
+      const fakerInstance = getFakerInstance(language);
+      wordsArray = fakerInstance.word.words(count).split(" ");
+      
+      // Only apply lowercase to languages that have casing
+      const hasCasing = !LANGUAGES_WITHOUT_CASING.some((l: string) => language.toLowerCase().includes(l));
+      if (hasCasing) {
+        wordsArray = wordsArray.map((w: string) => w.toLowerCase());
+      }
+    }
     
-    // Inject random numbers (approx 20% chance per word)
+    // Inject random numbers (approx 15% chance per word)
     if (includeNumbers) {
       for (let i = 0; i < wordsArray.length; i++) {
-          if (Math.random() > 0.8) {
+          if (Math.random() > 0.85) {
               wordsArray[i] = Math.floor(Math.random() * 1000).toString();
           }
       }
     }
 
-    // Inject random punctuation (approx 20% chance per word)
+    // Inject random punctuation (approx 15% chance per word)
     if (includePunctuation) {
       const punctuations = [".", ",", "!", "?", ";", ":"];
       for (let i = 0; i < wordsArray.length; i++) {
-          if (Math.random() > 0.8) {
+          if (Math.random() > 0.85) {
               const pChar = punctuations[Math.floor(Math.random() * punctuations.length)];
               wordsArray[i] += pChar;
           }
@@ -356,7 +441,7 @@ export const useTypingEngine = (options: TypingOptions = {}) => {
 
     // -- Actual Character Processing --
     if (e.key === 'Backspace') {
-      setTyped((prev) => prev.slice(0, -1));
+      setTyped((prev: string) => prev.slice(0, -1));
       // In professional typing tools, raw wpm includes backspaced characters (keystrokes).
       // Accuracy is focused on the final correct characters.
     } else if (e.key.length === 1 || (mode === 'zen' && e.key === 'Enter')) {
@@ -367,7 +452,7 @@ export const useTypingEngine = (options: TypingOptions = {}) => {
       
       // Error Detection
       if (nextChar !== expectedChar) {
-        setErrors((prev) => prev + 1);
+        setErrors((prev: number) => prev + 1);
         errorsInLastSecondRef.current += 1;
         setIsError(true);
         setLastError(nextChar);
@@ -383,22 +468,22 @@ export const useTypingEngine = (options: TypingOptions = {}) => {
         setLastError(null);
       }
       
-      setTyped((prev) => {
+      setTyped((prev: string) => {
         const newVal = prev + nextChar;
         // Infinity scroll for Time mode: generate more words if we reach the end
         if (newVal.length >= words.length - 20 && mode === 'time') {
             const extra = generateWords(20, includeNumbers, includePunctuation, language);
-            setWords(w => w + " " + extra);
+            setWords((w: string) => w + " " + extra);
         }
         return newVal;
       });
 
       // Special handling for Zen mode which reflects input back into the 'target' words
       if (mode === 'zen') {
-          setWords(prev => prev + nextChar);
+          setWords((prev: string) => prev + nextChar);
       }
 
-      setTotalTypedCount(prev => prev + 1);
+      setTotalTypedCount((prev: number) => prev + 1);
 
       // Quote mode completion detection
       if (mode === 'quote' && typed.length + 1 >= words.length) {
@@ -425,7 +510,7 @@ export const useTypingEngine = (options: TypingOptions = {}) => {
     let extra = 0;
     let missed = 0;
 
-    typed.split("").forEach((char, i) => {
+    typed.split("").forEach((char: string, i: number) => {
         if (i < words.length) {
             if (char === words[i]) correct++;
             else incorrect++;
@@ -457,9 +542,9 @@ export const useTypingEngine = (options: TypingOptions = {}) => {
    */
   const calculateConsistency = () => {
     if (history.length < 2) return 100;
-    const wpms = history.map(h => h.wpm);
-    const avg = wpms.reduce((a, b) => a + b, 0) / wpms.length;
-    const variance = wpms.reduce((a, b) => a + Math.pow(b - avg, 2), 0) / wpms.length;
+    const wpms = history.map((h: HistoryPoint) => h.wpm);
+    const avg = wpms.reduce((a: number, b: number) => a + b, 0) / wpms.length;
+    const variance = wpms.reduce((a: number, b: number) => a + Math.pow(b - avg, 2), 0) / wpms.length;
     const stdDev = Math.sqrt(variance);
     // Lower relative deviation = higher consistency
     const cons = Math.max(0, Math.min(100, Math.round(100 - (stdDev / (avg || 1) * 100))));
