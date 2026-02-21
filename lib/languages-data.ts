@@ -129,5 +129,90 @@ export const LOCALIZED_WORDS: Record<string, string[]> = {
     "人", "朋友", "家人", "父亲", "母亲", "兄弟", "姐妹", "房子", "学校", "工作",
     "好", "坏", "美", "小", "大", "红色", "蓝色", "绿色", "时间", "话",
     "白天", "晚上", "早上", "下午", "晚上", "语言", "生活", "和平", "爱", "城市"
+  ],
+  hindi: [
+    "मैं", "तुम", "वह", "हम", "वे", "किताब", "कलम", "पानी", "खाना", "बगीचा",
+    "फूल", "पक्षी", "मछली", "आसमान", "हवा", "सूरज", "चाँद", "तारा", "पृथ्वी", "इंसान",
+    "दोस्त", "परिवार", "पिता", "माँ", "भाई", "बहन", "घर", "स्कूल", "काम", "अच्छा",
+    "बुरा", "सुंदर", "छोटा", "बड़ा", "लाल", "नीला", "हरा", "समय", "बात", "दिन",
+    "रात", "सुबह", "शाम", "भाषा", "जीवन", "शांति", "प्यार", "शहर", "देश", "शिक्षा"
+  ]
+};
+
+/**
+ * Localized quotes for 'quote' mode.
+ */
+export const LOCALIZED_QUOTES: Record<string, string[]> = {
+  english: [
+    "The only way to do great work is to love what you do.",
+    "Stay hungry, stay foolish.",
+    "Innovation distinguishes between a leader and a follower.",
+    "Your time is limited, so don't waste it living someone else's life.",
+    "Design is not just what it looks like and feels like. Design is how it works.",
+    "Be the change that you wish to see in the world.",
+    "In the end, it's not the years in your life that count. It's the life in your years.",
+    "Life is what happens when you're busy making other plans."
+  ],
+  spanish: [
+    "La única forma de hacer un gran trabajo es amar lo que haces.",
+    "Tu tiempo es limitado, así que no lo desperdicies viviendo la vida de otra persona.",
+    "Sé el cambio que deseas ver en el mundo.",
+    "La vida es lo que sucede mientras estás ocupado haciendo otros planes.",
+    "No cuentes los días, haz que los días cuenten."
+  ],
+  french: [
+    "Le seul moyen de faire du bon travail est d'aimer ce que vous faites.",
+    "Votre temps est limité, ne le gaspillez pas à vivre la vie de quelqu'un d'autre.",
+    "Soyez le changement que vous voulez voir dans le monde.",
+    "La vie, c'est ce qui arrive quand on a d'autres projets.",
+    "Petit à petit, l'oiseau fait son nid."
+  ],
+  german: [
+    "Der einzige Weg, großartige Arbeit zu leisten, ist zu lieben, was man tut.",
+    "Deine Zeit ist begrenzt, also verschwende sie nicht damit, das Leben eines anderen zu leben.",
+    "Sei du selbst die Veränderung, die du dir wünschst für diese Welt.",
+    "Das Leben ist das, was passiert, während du eifrig dabei bist, andere Pläne zu machen."
+  ],
+  russian: [
+    " Единственный способ делать великие дела — любить то, что вы делаете.",
+    "Ваше время ограничено, поэтому не тратьте его на жизнь чужой жизнью.",
+    "Будьте теми переменами, которые вы хотите видеть в мире.",
+    "Жизнь — это то, что происходит, пока вы строите другие планы."
+  ],
+  arabic: [
+    "الطريقة الوحيدة للقيام بعمل رائع هي أن تحب ما تفعله.",
+    "وقتك محدود، فلا تضيعه في عيش حياة شخص آخر.",
+    "كن أنت التغيير الذي تريد أن تراه في العالم.",
+    "الحياة هي ما يحدث لك بينما أنت مشغول في صنع خطط أخرى."
+  ],
+  bengali: [
+    "ভালো কাজ করার একমাত্র উপায় হলো নিজের কাজকে ভালোবাসা।",
+    "আপনার সময় সীমিত, তাই অন্যের জীবন যাপন করে এটি নষ্ট করবেন না।",
+    "আপনি বিশ্বে যে পরিবর্তন দেখতে চান তা নিজেই হয়ে উঠুন।",
+    "জীবন হলো তা-ই যা আপনার অন্য পরিকল্পনা করার সময় ঘটে।"
+  ],
+  hindi: [
+    "महान कार्य करने का एकमात्र तरीका यह है कि आप जो करते हैं उससे प्यार करें।",
+    "आपका समय सीमित है, इसलिए इसे किसी और का जीवन जीने में बर्बाद न करें।",
+    "वह परिवर्तन खुद बनिए जो आप दुनिया में देखना चाहते हैं।",
+    "जीवन वह है जो तब घटित होता है जब आप अन्य योजनाएं बनाने में व्यस्त होते हैं।"
+  ],
+  chinese: [
+    "取得伟大成就的唯一途径是热爱你的工作。",
+    "你的时间有限，所以不要浪费时间去过别人的生活。",
+    "成为你想在世界上看到的改变。",
+    "生活就是当你忙于制定其他计划时所发生的事情。"
+  ],
+  japanese: [
+    "素晴らしい仕事をする唯一の方法は、自分の仕事を愛することだ。",
+    "あなたの時間は限られている。だから、誰かの人生を生きることで浪費してはいけない。",
+    "世界に変革を求めるなら、自分自身がその変革になれ。",
+    "人生とは、他の計画を立てるのに忙しいときに起こるものだ。"
+  ],
+  korean: [
+    "위대한 일을 하는 유일한 방법은 당신이 하는 일을 사랑하는 것입니다.",
+    "당신의 시간은 한정되어 있습니다. 그러니 다른 사람의 삶을 사느라 시간을 낭비하지 마십시오.",
+    "세상에서 보고 싶은 변화가 있다면 당신 스스로 그 변화가 되십시오.",
+    "인생이란 당신이 다른 계획을 세우느라 바쁠 때 일어나는 것입니다."
   ]
 };

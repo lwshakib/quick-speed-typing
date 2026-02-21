@@ -25,6 +25,7 @@ const LANGUAGES = [
   "vietnamese",
   "thai",
   "nepali",
+  "hindi",
   "bengali",
   "arabic",
   "chinese",

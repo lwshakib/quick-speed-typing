@@ -368,7 +368,25 @@ export default function Home() {
               </motion.div>
 
               {/* Typing Container */}
-              <div className="relative text-2xl md:text-3xl leading-relaxed tracking-wide min-h-[140px] focus:outline-none perspective-1000 w-full text-left">
+              <div 
+                lang={
+                  language === 'bengali' ? 'bn' : 
+                  language === 'hindi' ? 'hi' : 
+                  language === 'arabic' ? 'ar' : 
+                  language.includes('chinese') ? 'zh' : 
+                  language === 'japanese' ? 'ja' : 
+                  language === 'korean' ? 'ko' : 'en'
+                }
+                dir={language === 'arabic' ? 'rtl' : 'ltr'}
+                className={cn(
+                  "relative text-2xl md:text-3xl leading-relaxed min-h-[140px] focus:outline-none perspective-1000 w-full text-left",
+                  language === 'bengali' ? "font-bengali" : 
+                  language === 'hindi' ? "font-hindi" : 
+                  language === 'arabic' ? "font-arabic" : 
+                  (language === 'japanese' || language === 'chinese' || language === 'korean') ? "font-cjk" : 
+                  "tracking-wide font-mono"
+                )}
+              >
                   {/* Timer Display */}
                   {state === 'run' && (
                     <motion.div 
@@ -435,7 +453,8 @@ export default function Home() {
                             <span 
                               key={cIdx} 
                               className={cn(
-                                "char relative inline-block transition-colors duration-150",
+                                "char relative transition-colors duration-150",
+                                language === 'bengali' || language === 'hindi' || language === 'arabic' ? "inline" : "inline-block",
                                 item.state === 'correct' && "text-foreground",
                                 item.state === 'incorrect' && (item.isExtra ? "opacity-60 text-destructive" : "text-destructive"),
                                 item.state === 'untyped' && "text-secondary"

@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
-import { LOCALIZED_WORDS } from '@/lib/languages-data';
+import { LOCALIZED_WORDS, LOCALIZED_QUOTES } from '@/lib/languages-data';
 import { 
   faker, 
   fakerES, 
@@ -49,23 +49,11 @@ interface TypingOptions {
   disabled?: boolean;
 }
 
-/** Static quotes used for 'quote' mode */
-const QUOTES = [
-  "the only way to do great work is to love what you do.",
-  "stay hungry, stay foolish.",
-  "innovation distinguishes between a leader and a follower.",
-  "your time is limited, so don't waste it living someone else's life.",
-  "design is not just what it looks like and feels like. design is how it works.",
-  "be the change that you wish to see in the world.",
-  "in the end, it's not the years in your life that count. it's the life in your years.",
-  "life is what happens when you're busy making other plans.",
-];
-
 /**
  * Languages that do not have upper/lower case distinctions.
  */
 const LANGUAGES_WITHOUT_CASING = [
-  'japanese', 'chinese', 'korean', 'arabic', 'bengali', 'thai', 'nepali'
+  'japanese', 'chinese', 'korean', 'arabic', 'hindi', 'bengali', 'thai', 'nepali'
 ];
 
 /**
@@ -202,7 +190,10 @@ export const useTypingEngine = (options: TypingOptions = {}) => {
         return generateWords(count, n, p, l);
     }
     if (m === 'quote') {
-        return QUOTES[Math.floor(Math.random() * QUOTES.length)];
+        const langQuotes = LOCALIZED_QUOTES[l] || 
+                          Object.entries(LOCALIZED_QUOTES).find(([k]) => l.includes(k))?.[1] ||
+                          LOCALIZED_QUOTES['english'];
+        return langQuotes[Math.floor(Math.random() * langQuotes.length)];
     }
     return "";
   }, []);

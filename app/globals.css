@@ -92,6 +92,53 @@
   letter-spacing: -0.01em;
 }
 
+.font-bengali {
+  font-family: var(--font-hind-siliguri), var(--font-noto-bengali), serif !important;
+  letter-spacing: 0 !important;
+  font-variant-ligatures: normal !important;
+  font-feature-settings: "liga" 1, "clig" 1, "calt" 1 !important;
+}
+
+.font-hindi {
+  font-family: var(--font-hind), sans-serif !important;
+  letter-spacing: 0 !important;
+  font-variant-ligatures: normal !important;
+  font-feature-settings: "liga" 1, "clig" 1, "calt" 1 !important;
+}
+
+.font-arabic {
+  font-family: var(--font-amiri), serif !important;
+  letter-spacing: 0 !important;
+  font-weight: 500;
+  font-variant-ligatures: normal !important;
+}
+
+.font-cjk {
+  font-family: var(--font-noto-cjk), sans-serif !important;
+  letter-spacing: 0 !important;
+}
+
+/* Global script-specific overrides */
+[lang="bn"], .font-bengali {
+  font-family: var(--font-hind-siliguri), var(--font-noto-bengali), serif !important;
+  line-height: 1.6;
+}
+
+[lang="hi"], .font-hindi {
+  font-family: var(--font-hind), sans-serif !important;
+  line-height: 1.6;
+}
+
+[lang="ar"], .font-arabic {
+  font-family: var(--font-amiri), serif !important;
+  line-height: 1.8;
+  direction: rtl;
+}
+
+[lang="zh"], [lang="ja"], [lang="ko"], .font-cjk {
+  font-family: var(--font-noto-cjk), sans-serif !important;
+}
+
 .word {
   @apply relative inline-block mx-[0.25em] transition-colors duration-200;
 }
