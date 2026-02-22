@@ -1,6 +1,12 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { LOCALIZED_WORDS, LOCALIZED_QUOTES } from '@/lib/languages-data';
 import {
+  calculateWPM,
+  calculateRawWPM,
+  calculateAccuracy,
+  calculateConsistency,
+} from '@/lib/calculations';
+import {
   faker,
   fakerES,
   fakerFR,
@@ -266,27 +272,7 @@ export const useTypingEngine = (options: TypingOptions = {}) => {
     updateWords();
   }, [amount, updateWords]);
 
-  /**
-   * WPM Formula: ((correct_chars / 5) / (seconds / 60))
-   * Accounts for standard word length (5 characters).
-   */
-  const calculateWPM = (correctChars: number, seconds: number) => {
-    if (seconds <= 0) return 0;
-    const minutes = seconds / 60;
-    const wordsTyped = correctChars / 5;
-    return Math.round(wordsTyped / minutes);
-  };
 
-  /**
-   * Raw WPM Formula: ((total_chars_including_errors / 5) / (seconds / 60))
-   * Measures pure typing speed regardless of accuracy.
-   */
-  const calculateRawWPM = (totalChars: number, seconds: number) => {
-    if (seconds <= 0) return 0;
-    const minutes = seconds / 60;
-    const wordsTyped = totalChars / 5;
-    return Math.round(wordsTyped / minutes);
-  };
 
   /** Finalizes a test and cleans up timers */
   const finish = useCallback(() => {
@@ -567,26 +553,9 @@ export const useTypingEngine = (options: TypingOptions = {}) => {
   // Real-time Metrics
   const wpm = calculateWPM(charStats.correct, finalElapsedTime || 1 / 60);
   const rawWpm = calculateRawWPM(totalTypedCount, finalElapsedTime || 1 / 60);
-  const accuracy =
-    totalTypedCount === 0
-      ? 0
-      : Math.max(0, Math.round(((totalTypedCount - errors) / totalTypedCount) * 100));
+  const accuracy = calculateAccuracy(totalTypedCount, errors);
 
-  /**
-   * Consistency calculation based on speed variance over time.
-   * High consistency means the typist maintained a steady pace.
-   */
-  const calculateConsistency = () => {
-    if (history.length < 2) return 100;
-    const wpms = history.map((h: HistoryPoint) => h.wpm);
-    const avg = wpms.reduce((a: number, b: number) => a + b, 0) / wpms.length;
-    const variance =
-      wpms.reduce((a: number, b: number) => a + Math.pow(b - avg, 2), 0) / wpms.length;
-    const stdDev = Math.sqrt(variance);
-    // Lower relative deviation = higher consistency
-    const cons = Math.max(0, Math.min(100, Math.round(100 - (stdDev / (avg || 1)) * 100)));
-    return cons;
-  };
+  const consistency = calculateConsistency(history.map((h) => h.wpm));
 
   return {
     state,
@@ -605,7 +574,7 @@ export const useTypingEngine = (options: TypingOptions = {}) => {
     accuracy,
     history,
     testDuration: Math.round(finalElapsedTime),
-    consistency: calculateConsistency(),
+    consistency,
     charStats,
   };
 };

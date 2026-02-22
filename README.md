@@ -3,6 +3,7 @@
 **Quicktype** is a high-performance, minimalist, and minimalist speed typing application designed for the modern web. Built with a focus on speed, precision, and aesthetics, it provides a distraction-free environment with real-time analytics, deep progress tracking, and a premium user experience.
 
 [![Project Status: Active](https://img.shields.io/badge/Project%20Status-Active-brightgreen.svg)](https://github.com/lwshakib/quick-speed-typing)
+[![CI](https://github.com/lwshakib/quick-speed-typing/actions/workflows/ci.yml/badge.svg)](https://github.com/lwshakib/quick-speed-typing/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Built with Bun](https://img.shields.io/badge/Built%20with-Bun-f9f9f9.svg?logo=bun&logoColor=black)](https://bun.sh)
 
