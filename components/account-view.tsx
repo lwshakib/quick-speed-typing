@@ -38,14 +38,27 @@ import { format } from 'date-fns';
 // Import animation library for entrance transitions
 import { motion } from 'framer-motion';
 
+interface SessionData {
+  id: string;
+  userAgent: string;
+  ipAddress?: string | null;
+  createdAt: string | Date;
+  token: string;
+}
+
+interface LinkedAccountData {
+  id: string;
+  provider: string;
+}
+
 export function AccountView() {
   const { data: session } = useSession();
 
   // Local state for profile and account management
   const [name, setName] = useState('');
   const [isUpdating, setIsUpdating] = useState(false);
-  const [activeSessions, setActiveSessions] = useState<Record<string, unknown>[]>([]);
-  const [linkedAccounts, setLinkedAccounts] = useState<Record<string, unknown>[]>([]);
+  const [activeSessions, setActiveSessions] = useState<SessionData[]>([]);
+  const [linkedAccounts, setLinkedAccounts] = useState<LinkedAccountData[]>([]);
   // Tracking loading states for different segments of the account view
   const [isLoadingSessions, setIsLoadingSessions] = useState(true);
 
@@ -62,7 +75,7 @@ export function AccountView() {
   const fetchSessions = async () => {
     try {
       const { data } = await authClient.listSessions();
-      setActiveSessions(data || []);
+      setActiveSessions((data as unknown as SessionData[]) || []);
     } catch {
       console.error('Failed to fetch sessions');
     } finally {
@@ -76,7 +89,7 @@ export function AccountView() {
       if ('listAccounts' in authClient) {
         const { data } = await (
           authClient as unknown as {
-            listAccounts: () => Promise<{ data: Record<string, unknown>[] }>;
+            listAccounts: () => Promise<{ data: LinkedAccountData[] }>;
           }
         ).listAccounts();
         setLinkedAccounts(data || []);
@@ -161,7 +174,7 @@ export function AccountView() {
   };
 
   // Helper function to parse user agents into human-readable device/browser names
-  const getDeviceName = (userAgent: string) => {
+  const getDeviceName = (userAgent: string | undefined | null) => {
     if (!userAgent) return 'unknown device';
     const browsers = ['chrome', 'firefox', 'safari', 'edge', 'opera'];
     const os = ['windows', 'macintosh', 'linux', 'android', 'iphone'];
@@ -303,9 +316,12 @@ export function AccountView() {
                   variant="ghost"
                   size="sm"
                   className="text-destructive hover:bg-destructive/10 h-8 rounded-md px-4 text-xs font-bold lowercase"
-                  onClick={() =>
-                    handleUnlinkAccount(linkedAccounts.find((a) => a.provider === 'google').id)
-                  }
+                  onClick={() => {
+                    const acc = linkedAccounts.find((a) => a.provider === 'google');
+                    if (acc && typeof acc.id === 'string') {
+                      handleUnlinkAccount(acc.id);
+                    }
+                  }}
                 >
                   unlink
                 </Button>

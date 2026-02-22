@@ -47,7 +47,9 @@ import { cn } from '@/lib/utils';
 
 interface ProfileStats {
   user: {
-    name?: string | null;
+    id: string;
+    name: string;
+    email: string;
     image?: string | null;
     createdAt: string | Date;
   };
@@ -85,8 +87,8 @@ interface ProfileStats {
     errors: number;
     duration: number;
     consistency: number | null;
-    mode: string;
-    amount: number;
+    mode: string | null;
+    amount: number | null;
     createdAt: string | Date;
   }[]; // Raw historical records
 }

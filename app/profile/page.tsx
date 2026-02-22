@@ -1,5 +1,5 @@
 // Import server actions for fetching user-specific typing data
-import { getTypingHistory, getContributionData, getProfileStats } from '@/lib/actions';
+import { getContributionData, getProfileStats } from '@/lib/actions';
 // Import authentication utilities for server-side session validation
 import { auth } from '@/lib/auth';
 // Import Next.js headers for session context
@@ -25,8 +25,7 @@ export default async function ProfilePage() {
   }
 
   // Fetch all necessary profile data concurrently to optimize page load time
-  const [history, contributionData, profileStats] = await Promise.all([
-    getTypingHistory(), // List of recent typing tests
+  const [contributionData, profileStats] = await Promise.all([
     getContributionData(), // Aggregated daily activity for the heatmap
     getProfileStats(), // Global personal bests and averages
   ]);
@@ -39,8 +38,6 @@ export default async function ProfilePage() {
   // Pass the fetched data to the client-side ProfileView for rich visualization
   return (
     <ProfileView
-      session={session}
-      history={history}
       contributionData={contributionData}
       profileStats={profileStats}
     />
