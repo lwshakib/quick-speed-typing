@@ -12,7 +12,9 @@
 ## 📱 Snapshot
 
 ### 🌑 Dark Mode (Carbon Theme)
+
 The definitive typing experience with curated themes that are easy on the eyes.
+
 <div align="center">
   <img src="public/app_demo/dark-demo.png" width="90%" alt="Quicktype Dark Mode" style="border-radius: 10px; box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);" />
 </div>
@@ -20,7 +22,9 @@ The definitive typing experience with curated themes that are easy on the eyes.
 <br />
 
 ### ☀️ Light Mode
+
 Clean, high-contrast interface for maximum legibility and focus.
+
 <div align="center">
   <img src="public/app_demo/light-demo.png" width="90%" alt="Quicktype Light Mode" style="border-radius: 10px; box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);" />
 </div>
@@ -74,18 +78,21 @@ Quicktype is built using a modern, type-safe stack designed for performance and 
 ### Installation
 
 1. **Clone the repository:**
+
    ```bash
    git clone https://github.com/lwshakib/quick-speed-typing.git
    cd quick-speed-typing
    ```
 
 2. **Install dependencies:**
+
    ```bash
    bun install
    ```
 
 3. **Environment Setup:**
    Create a `.env` file in the root directory (refer to `.env.example`):
+
    ```env
    # Database
    DATABASE_URL="postgresql://user:password@host/dbname?sslmode=require"
@@ -103,6 +110,7 @@ Quicktype is built using a modern, type-safe stack designed for performance and 
    ```
 
 4. **Initialize Database:**
+
    ```bash
    bun x prisma db push
    bun x prisma generate

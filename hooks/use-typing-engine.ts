@@ -272,8 +272,6 @@ export const useTypingEngine = (options: TypingOptions = {}) => {
     updateWords();
   }, [amount, updateWords]);
 
-
-
   /** Finalizes a test and cleans up timers */
   const finish = useCallback(() => {
     if (timerRef.current) clearInterval(timerRef.current);
