@@ -3,9 +3,9 @@
 // Import sheet primitive for the drawer UI
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 // Import descriptive icon set
-import { Bell, Info, Trophy, Star, Clock, FileText } from 'lucide-react';
+import { Bell, Info, Trophy, Star } from 'lucide-react';
 // Import animation toolkit
-import { motion } from 'framer-motion';
+
 // Import utility for conditional class merging
 import { cn } from '@/lib/utils';
 

@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 // Import descriptive icons
-import { Mail, Lock, User, Loader2, ChevronRight, CheckCircle2 } from 'lucide-react';
+import { Mail, Lock, User, Loader2, ChevronRight } from 'lucide-react';
 // Import feedback and navigation utilities
 import { toast } from 'sonner';
 import Link from 'next/link';
@@ -21,7 +21,7 @@ export default function SignUpPage() {
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
-  const router = useRouter();
+  useRouter();
 
   // Handler for creating a new account via Email and Password
   const handleSignUp = async (e: React.FormEvent) => {
@@ -41,13 +41,13 @@ export default function SignUpPage() {
             setIsSuccess(true);
             toast.success('Account created! Please verify your email.');
           },
-          onError: (ctx: any) => {
+          onError: (ctx: { error: { message?: string } }) => {
             // Provide granular feedback on registration failures
             toast.error(ctx.error.message || 'Failed to create account');
           },
         },
       );
-    } catch (error) {
+    } catch {
       toast.error('Something went wrong');
     } finally {
       setLoading(null);
@@ -56,13 +56,13 @@ export default function SignUpPage() {
 
   // Handler for quick registration/sign-in via Google social auth
   const handleGoogleSignIn = async () => {
-    setLoading('signUp' as any); // Track loading state during redirect
+    setLoading('signUp'); // Track loading state during redirect
     try {
       await signIn.social({
         provider: 'google',
         callbackURL: '/',
       });
-    } catch (error) {
+    } catch {
       toast.error('Failed to sign in with Google');
       setLoading(null);
     }
@@ -84,7 +84,7 @@ export default function SignUpPage() {
             check your email
           </h2>
           <p className="text-sm lowercase opacity-60">
-            We've sent a link to <span className="text-foreground font-bold">{email}</span> to
+            We&apos;ve sent a link to <span className="text-foreground font-bold">{email}</span> to
             verify your account.
           </p>
         </div>

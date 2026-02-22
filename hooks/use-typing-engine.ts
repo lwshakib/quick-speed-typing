@@ -161,7 +161,7 @@ const generateWords = (
     }
 
     return wordsArray.join(' ');
-  } catch (e) {
+  } catch {
     return 'error generating words';
   }
 };
@@ -503,8 +503,8 @@ export const useTypingEngine = (options: TypingOptions = {}) => {
       includePunctuation,
       restart,
       finish,
-      amount,
       disabled,
+      resume,
     ],
   );
 

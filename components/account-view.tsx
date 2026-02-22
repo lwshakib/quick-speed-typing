@@ -1,5 +1,7 @@
 'use client';
 
+import Image from 'next/image';
+
 // Import core React hooks for state and lifecycle management
 import { useState, useEffect } from 'react';
 // Import authentication client hooks for sessions and user data
@@ -19,11 +21,9 @@ import {
 // Import a set of icons to enrich the visual categories
 import {
   User,
-  Shield,
   Trash2,
   Smartphone,
   Monitor,
-  Globe,
   Plus,
   LogOut,
   Mail,
@@ -44,11 +44,10 @@ export function AccountView() {
   // Local state for profile and account management
   const [name, setName] = useState('');
   const [isUpdating, setIsUpdating] = useState(false);
-  const [activeSessions, setActiveSessions] = useState<any[]>([]);
-  const [linkedAccounts, setLinkedAccounts] = useState<any[]>([]);
+  const [activeSessions, setActiveSessions] = useState<Record<string, unknown>[]>([]);
+  const [linkedAccounts, setLinkedAccounts] = useState<Record<string, unknown>[]>([]);
   // Tracking loading states for different segments of the account view
   const [isLoadingSessions, setIsLoadingSessions] = useState(true);
-  const [isLoadingAccounts, setIsLoadingAccounts] = useState(true);
 
   // Synchronize state with current session data when it becomes available
   useEffect(() => {
@@ -64,8 +63,8 @@ export function AccountView() {
     try {
       const { data } = await authClient.listSessions();
       setActiveSessions(data || []);
-    } catch (error) {
-      console.error('Failed to fetch sessions', error);
+    } catch {
+      console.error('Failed to fetch sessions');
     } finally {
       setIsLoadingSessions(false);
     }
@@ -75,13 +74,13 @@ export function AccountView() {
   const fetchAccounts = async () => {
     try {
       if ('listAccounts' in authClient) {
-        const { data } = await (authClient as any).listAccounts();
+        const { data } = await (authClient as unknown as { listAccounts: () => Promise<{ data: Record<string, unknown>[] }> }).listAccounts();
         setLinkedAccounts(data || []);
       }
-    } catch (error) {
-      console.error('Failed to fetch accounts', error);
+    } catch {
+      console.error('Failed to fetch accounts');
     } finally {
-      setIsLoadingAccounts(false);
+      // Logic for accounts loading finished
     }
   };
 
@@ -94,7 +93,7 @@ export function AccountView() {
         name: name,
       });
       toast.success('profile updated');
-    } catch (error) {
+    } catch {
       toast.error('failed to update profile');
     } finally {
       setIsUpdating(false);
@@ -108,7 +107,7 @@ export function AccountView() {
         await authClient.deleteUser();
         toast.success('account deleted');
         window.location.href = '/'; // Force redirect to homepage
-      } catch (error) {
+      } catch {
         toast.error('failed to delete account');
       }
     }
@@ -120,7 +119,7 @@ export function AccountView() {
       await authClient.revokeSession({ token });
       toast.success('session revoked');
       fetchSessions(); // Refresh list after modification
-    } catch (error) {
+    } catch {
       toast.error('failed to revoke session');
     }
   };
@@ -132,7 +131,7 @@ export function AccountView() {
         provider: provider,
         callbackURL: window.location.href,
       });
-    } catch (error) {
+    } catch {
       toast.error(`failed to link ${provider} account`);
     }
   };
@@ -146,11 +145,11 @@ export function AccountView() {
 
     try {
       if ('unlinkAccount' in authClient) {
-        await (authClient as any).unlinkAccount({ accountId });
+        await (authClient as unknown as { unlinkAccount: (p: { accountId: string }) => Promise<void> }).unlinkAccount({ accountId });
         toast.success('account unlinked');
         fetchAccounts();
       }
-    } catch (error) {
+    } catch {
       toast.error('failed to unlink account');
     }
   };
@@ -203,11 +202,12 @@ export function AccountView() {
             <div className="space-y-4">
               <div className="mb-2 flex items-center gap-4">
                 <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-xl border border-white/10 bg-white/5">
-                  {/* Priority to social avatar image if present */}
                   {session.user.image ? (
-                    <img
+                    <Image
                       src={session.user.image}
-                      alt={session.user.name}
+                      alt={session.user.name || 'user avatar'}
+                      width={64}
+                      height={64}
                       className="h-full w-full object-cover"
                     />
                   ) : (
@@ -271,8 +271,8 @@ export function AccountView() {
             {/* Individal provider account status visualization */}
             <div className="flex items-center justify-between rounded-lg border border-white/10 bg-white/5 p-4">
               <div className="flex items-center gap-3">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white">
-                  <img src="https://www.google.com/favicon.ico" alt="Google" className="h-4 w-4" />
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white overflow-hidden">
+                  <Image src="https://www.google.com/favicon.ico" alt="Google" width={16} height={16} className="h-4 w-4" />
                 </div>
                 <div>
                   <p className="text-sm font-bold lowercase">google</p>

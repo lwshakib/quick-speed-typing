@@ -33,8 +33,9 @@ export function ThemeDialog({
   const [mode, setMode] = useState<'light' | 'dark'>('dark');
   const [isCustomOpen, setIsCustomOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
 
-  // Local state for the "Custom" theme creator, initialized with default "Monkeytype" colors
+
   const [customColors, setCustomColors] = useState({
     background: '#323437',
     main: '#e2b714',
@@ -42,34 +43,45 @@ export function ThemeDialog({
     sub: '#646669',
     text: '#d1d0c5',
     error: '#ca4754',
-    errorExtra: '#793e44',
+    errorExtra: '#7e2a33',
   });
+
+  // Sync state when dialog opens to avoid calling setState inside useEffect
+  if (isOpen !== prevIsOpen) {
+    setPrevIsOpen(isOpen);
+    if (isOpen) {
+      setSearch('');
+      const current = THEMES.find((t) => t.id === currentTheme);
+      if (current) setMode(current.type);
+
+      // Load any previously saved custom theme colors from local storage
+      if (typeof window !== 'undefined') {
+        const savedCustom = localStorage.getItem('custom-theme-colors');
+        if (savedCustom) {
+          try {
+            setCustomColors(JSON.parse(savedCustom));
+          } catch {
+            console.error('Failed to parse custom colors');
+          }
+        }
+      }
+    }
+  }
 
   // Derived state: Filtered themes based on search term and light/dark toggle
   const filteredThemes = THEMES.filter(
     (theme) => theme.name.toLowerCase().includes(search.toLowerCase()) && theme.type === mode,
   );
 
-  // Handle side effects when the modal opens (focus, state sync)
+  // Handle side effects when the modal opens (focus)
   useEffect(() => {
     if (isOpen) {
       // Small timeout to ensure the dialog transition is ready before focusing the input
       setTimeout(() => {
         inputRef.current?.focus();
       }, 100);
-      setSearch('');
-
-      // Automatically switch the mode toggle to match the user's current theme
-      const current = THEMES.find((t) => t.id === currentTheme);
-      if (current) setMode(current.type);
-
-      // Load any previously saved custom theme colors from local storage
-      const savedCustom = localStorage.getItem('custom-theme-colors');
-      if (savedCustom) {
-        setCustomColors(JSON.parse(savedCustom));
-      }
     }
-  }, [isOpen, currentTheme]);
+  }, [isOpen]);
 
   /**
    * Update a specific color in the custom theme and persist it.
@@ -248,7 +260,7 @@ export function ThemeDialog({
                         <input
                           type="color"
                           value={value}
-                          onChange={(e) => handleCustomColorChange(key as any, e.target.value)}
+                          onChange={(e) => handleCustomColorChange(key as keyof typeof customColors, e.target.value)}
                           className="h-5 w-5 cursor-pointer appearance-none overflow-hidden rounded border-none bg-transparent"
                         />
                       </div>

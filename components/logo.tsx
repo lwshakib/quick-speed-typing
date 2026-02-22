@@ -46,7 +46,7 @@ export interface LogoProps {
   hideText?: boolean;
 }
 
-import { Badge } from '@/components/ui/badge';
+
 
 /**
  * Logo: The primary branding component used in the Header, Footer, and other areas.

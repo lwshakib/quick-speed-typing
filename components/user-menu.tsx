@@ -14,7 +14,6 @@ import {
 // Import Avatar sub-components for user visualization
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 // Import basic button and icon sets
-import { Button } from '@/components/ui/button';
 import { User, LogOut, LayoutDashboard, Settings } from 'lucide-react';
 // Import Next.js linking for client-side navigation
 import Link from 'next/link';

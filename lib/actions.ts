@@ -123,7 +123,7 @@ export async function getContributionData() {
   });
 
   // Initialization: Define the logical starting point for the contribution grid
-  const calendar: any[] = [];
+  const calendar: { contributionDays: { date: string; contributionCount: number }[] }[] = [];
   const today = new Date();
   const oneYearAgo = new Date();
   oneYearAgo.setFullYear(today.getFullYear() - 1);
@@ -132,8 +132,8 @@ export async function getContributionData() {
   const startDate = new Date(oneYearAgo);
   startDate.setDate(startDate.getDate() - startDate.getDay());
 
-  let currentDate = new Date(startDate);
-  let currentWeek: any[] = [];
+  const currentDate = new Date(startDate);
+  let currentWeek: { date: string; contributionCount: number }[] = [];
 
   // Iterator: Scan through every day from one year ago until today
   while (currentDate <= today) {
@@ -217,7 +217,7 @@ export async function getLeaderboard(timeRange: 'all' | 'daily' | 'weekly' | 'mo
   });
 
   // Logic: Extract only the single best performance for each unique user to prevent leaderboard flooding
-  const uniqueRankings: any[] = [];
+  const uniqueRankings: typeof results = [];
   const seenUsers = new Set();
 
   for (const item of results) {
@@ -246,7 +246,7 @@ export async function updateUserTheme(themeId: string) {
 
   return await prisma.user.update({
     where: { id: session.user.id },
-    data: { theme: themeId } as any,
+    data: { theme: themeId } as Record<string, string>,
   });
 }
 
@@ -264,7 +264,7 @@ export async function getUserTheme() {
 
   const user = (await prisma.user.findUnique({
     where: { id: session.user.id },
-    select: { theme: true } as any,
+    select: { theme: true } as Record<string, boolean>,
   })) as { theme: string | null } | null;
 
   return user?.theme || 'default-theme';

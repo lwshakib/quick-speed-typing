@@ -4,33 +4,22 @@
 import { TestDurationDialog } from '@/components/test-duration-dialog';
 import { Kbd } from '@/components/ui/kbd';
 // Import server actions and authentication client
-import { saveTypingHistory, getUserTheme } from '@/lib/actions';
+import { saveTypingHistory } from '@/lib/actions';
 import { useSession } from '@/lib/auth-client';
 // Import custom hooks for typing logic and UI state
 import { useTypingEngine, GameMode } from '@/hooks/use-typing-engine';
-import { THEMES, Theme } from '@/lib/themes';
 // Import animation libraries
 import { motion, AnimatePresence } from 'framer-motion';
 // Import icons from Lucide
 import {
   RefreshCw,
-  Keyboard,
-  Trophy,
-  Info,
   Settings,
-  Bell,
-  User as UserIcon,
   Globe,
   Quote as QuoteIcon,
   Hash,
   Clock,
   ChevronRight,
-  AlertTriangle,
   History,
-  MoreHorizontal,
-  FastForward,
-  ImageIcon,
-  Palette,
   Zap,
 } from 'lucide-react';
 // Import React hooks
@@ -68,8 +57,6 @@ export default function Home() {
     isThemeOpen,
     isLangOpen,
     setIsLangOpen,
-    currentTheme,
-    applyTheme,
     restartCount,
   } = useUiStore();
 
@@ -105,7 +92,6 @@ export default function Home() {
     consistency,
     charStats,
     pause,
-    resume,
   } = useTypingEngine({
     mode,
     amount,
@@ -160,7 +146,7 @@ export default function Home() {
     const focus = state === 'run' && !isMouseMoving;
     setIsFocusMode(focus);
     setShowUi(!focus);
-  }, [state, isMouseMoving]);
+  }, [state, isMouseMoving, setIsFocusMode, setShowUi]);
 
   // Set mounted state on component mount
   useEffect(() => {
@@ -172,19 +158,7 @@ export default function Home() {
     if (restartCount > 0) {
       restart();
     }
-  }, [restartCount]);
-
-  // Handle automatic saving of results when the test finishes
-  useEffect(() => {
-    const isFinished = state === 'finish';
-    if (isFinished && !lastFinishRef.current) {
-      setHasSaved(false);
-      if (session) {
-        handleSave();
-      }
-    }
-    lastFinishRef.current = isFinished;
-  }, [state, session]);
+  }, [restartCount, restart]);
 
   // Function to save the typing test results to the database
   const handleSave = async () => {
@@ -221,6 +195,19 @@ export default function Home() {
     }
   };
 
+  // Handle automatic saving of results when the test finishes
+  useEffect(() => {
+    const isFinished = state === 'finish';
+    if (isFinished && !lastFinishRef.current) {
+      setHasSaved(false);
+      if (session) {
+        handleSave();
+      }
+    }
+    lastFinishRef.current = isFinished;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state, session]);
+
   // Prepare current typing data for rendering
   const wordsArray = words.split(' ');
   const currentWordIndex = typed.split(' ').length - 1;
@@ -243,7 +230,7 @@ export default function Home() {
 
   // Listen for language change events dispatched from custom UI components
   useEffect(() => {
-    const handleLanguageChange = (e: any) => {
+    const handleLanguageChange = (e: CustomEvent<string>) => {
       if (e.detail) setLanguage(e.detail);
     };
     window.addEventListener('language-changed', handleLanguageChange as EventListener);
@@ -724,9 +711,9 @@ export default function Home() {
                           type="monotone"
                           dataKey="errors"
                           stroke="transparent"
-                          dot={(props: any) => {
+                          dot={(props: { cx?: number; payload?: { errors: number } }) => {
                             const { cx, payload } = props;
-                            if (payload.errors > 0) {
+                            if (payload && payload.errors > 0 && typeof cx === 'number') {
                               return (
                                 <g key={`error-dot-${cx}`}>
                                   <text

@@ -38,7 +38,7 @@ interface UiState {
    * Updates the theme locally and optionally syncs it with the database
    * if a user session is present.
    */
-  applyTheme: (theme: Theme, session: any) => void;
+  applyTheme: (theme: Theme, session: { user: { id: string } } | null) => void;
 
   // -- Global Sequence Controls --
 
@@ -51,7 +51,7 @@ interface UiState {
  * Global store for managing application-wide UI states and transitions.
  * Powered by Zustand for lightweight and fast state management.
  */
-export const useUiStore = create<UiState>((set, get) => ({
+export const useUiStore = create<UiState>((set) => ({
   // Defaults
   showUi: true,
   setShowUi: (showUi) => set({ showUi }),

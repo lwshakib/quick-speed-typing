@@ -1,21 +1,19 @@
 'use client';
 
-// Import core branding components
-import { Logo } from '@/components/logo';
 // Import a set of utility icons for data visualization and navigation
-import { Trophy, Clock, Calendar, Globe, User, ChevronRight, Hash, Star } from 'lucide-react';
-// Import Next.js linking for client-side navigation
-import Link from 'next/link';
+import { Trophy, Clock, Globe, User, Hash, Star } from 'lucide-react';
 // Import animation toolkit for fluid state transitions and entry animations
 import { motion, AnimatePresence } from 'framer-motion';
 // Import React hooks for local state management and lifecycle control
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 // Import server action to fetch leaderboard data based on time periods
 import { getLeaderboard } from '@/lib/actions';
 // Import utility for logic-based className merging
 import { cn } from '@/lib/utils';
 // Import date formatting utility
 import { format } from 'date-fns';
+// Import optimized image component
+import Image from 'next/image';
 
 // Type definition for the supported ranking filter periods
 type RankingPeriod = 'all' | 'daily' | 'weekly' | 'monthly';
@@ -27,19 +25,14 @@ type RankingPeriod = 'all' | 'daily' | 'weekly' | 'monthly';
 export default function LeaderboardPage() {
   // Local state for filter selections and data management
   const [period, setPeriod] = useState<RankingPeriod>('daily');
-  const [rankings, setRankings] = useState<any[]>([]);
+  const [rankings, setRankings] = useState<Record<string, unknown>[]>([]);
   const [loading, setLoading] = useState(true);
-
-  // Re-fetch data whenever the chosen filter period changes
-  useEffect(() => {
-    fetchRankings();
-  }, [period]);
 
   /**
    * Executes the data retrieval process using the current period filter.
    * Manages loading states to provide visual feedback during the network request.
    */
-  const fetchRankings = async () => {
+  const fetchRankings = useCallback(async () => {
     setLoading(true);
     try {
       const data = await getLeaderboard(period);
@@ -49,7 +42,12 @@ export default function LeaderboardPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [period]);
+
+  // Re-fetch data whenever the chosen filter period changes
+  useEffect(() => {
+    fetchRankings();
+  }, [fetchRankings]);
 
   return (
     <main className="flex w-full max-w-[1440px] flex-1 flex-col gap-10 px-8 py-12">
@@ -140,7 +138,7 @@ export default function LeaderboardPage() {
                 className="flex flex-col gap-1"
               >
                 {rankings.map((rank, index) => (
-                  <RankingRow key={rank.id} rank={index + 1} data={rank} />
+                  <RankingRow key={rank.id as string} rank={index + 1} data={rank} />
                 ))}
               </motion.div>
             ) : (
@@ -197,7 +195,7 @@ function PeriodButton({
 /**
  * RankingRow: Displays a single user's performance record with specialized styling for the Top 3 podium.
  */
-function RankingRow({ rank, data }: { rank: number; data: any }) {
+function RankingRow({ rank, data }: { rank: number; data: Record<string, unknown> }) {
   // Visual importance for the highest achievers
   const isTop3 = rank <= 3;
 
@@ -234,10 +232,12 @@ function RankingRow({ rank, data }: { rank: number; data: any }) {
       {/* User Identity: Displays avatar and name */}
       <div className="flex items-center gap-3 overflow-hidden">
         <div className="bg-secondary/20 border-secondary/10 h-6 w-6 shrink-0 overflow-hidden rounded-full border md:h-8 md:w-8">
-          {data.user.image ? (
-            <img
-              src={data.user.image}
-              alt={data.user.name}
+          {(data.user as Record<string, string>).image ? (
+            <Image
+              src={(data.user as Record<string, string>).image}
+              alt={(data.user as Record<string, string>).name}
+              width={32}
+              height={32}
               className="h-full w-full object-cover"
             />
           ) : (
@@ -247,22 +247,22 @@ function RankingRow({ rank, data }: { rank: number; data: any }) {
           )}
         </div>
         <span className="text-foreground group-hover:text-primary truncate text-xs font-bold transition-colors md:text-sm">
-          {data.user.name}
+          {(data.user as Record<string, string>).name}
         </span>
       </div>
 
       {/* Performance Stats: WPM, Accuracy, and Consistency */}
-      <div className="text-primary text-base font-black md:text-xl">{data.wpm}</div>
+      <div className="text-primary text-base font-black md:text-xl">{data.wpm as number}</div>
 
-      <div className="hidden text-sm font-bold opacity-60 md:block">{data.accuracy}%</div>
-      <div className="hidden text-sm font-bold opacity-40 md:block">{data.rawWpm || data.wpm}</div>
+      <div className="hidden text-sm font-bold opacity-60 md:block">{data.accuracy as number}%</div>
+      <div className="hidden text-sm font-bold opacity-40 md:block">{(data.rawWpm as number) || (data.wpm as number)}</div>
       <div className="hidden text-sm font-bold opacity-40 md:block">
-        {data.consistency || '--'}%
+        {(data.consistency as number) || '--'}%
       </div>
 
       {/* Achievement Timestamp */}
       <div className="text-right text-[8px] font-bold tracking-tighter uppercase opacity-30 md:text-[10px]">
-        {format(new Date(data.createdAt), 'dd MMM yyyy')}
+        {format(new Date(data.createdAt as string), 'dd MMM yyyy')}
       </div>
     </motion.div>
   );

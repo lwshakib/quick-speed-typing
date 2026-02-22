@@ -42,13 +42,13 @@ export default function SignInPage() {
             router.push('/'); // Navigate to the homepage
             router.refresh(); // Refresh the page to update the session state globally
           },
-          onError: (ctx: any) => {
+          onError: (ctx: { error: { message?: string } }) => {
             // Display descriptive error messages from the server
             toast.error(ctx.error.message || 'Failed to sign in');
           },
         },
       );
-    } catch (error) {
+    } catch {
       toast.error('Something went wrong');
     } finally {
       // Clear the loading state
@@ -65,7 +65,7 @@ export default function SignInPage() {
         provider: 'google',
         callbackURL: '/',
       });
-    } catch (error) {
+    } catch {
       toast.error('Failed to sign in with Google');
       setLoading(null);
     }

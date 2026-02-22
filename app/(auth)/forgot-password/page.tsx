@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 // Import iconic metaphors for the UI
-import { Mail, Loader2, ChevronRight, ArrowLeft } from 'lucide-react';
+import { Mail, Loader2, ChevronRight } from 'lucide-react';
 // Import feedback and navigation tools
 import { toast } from 'sonner';
 import Link from 'next/link';
@@ -35,13 +35,13 @@ export default function ForgotPasswordPage() {
             setIsSuccess(true);
             toast.success('Password reset email sent!');
           },
-          onError: (ctx: any) => {
+          onError: (ctx: { error: { message?: string } }) => {
             // Provide granular error feedback from the authentication server
             toast.error(ctx.error.message || 'Failed to send reset email');
           },
         },
       );
-    } catch (error) {
+    } catch {
       toast.error('Something went wrong');
     } finally {
       setLoading(false);
@@ -114,7 +114,7 @@ export default function ForgotPasswordPage() {
           forgot password?
         </h1>
         <p className="text-sm lowercase opacity-60">
-          Enter your email and we'll send you a reset link.
+          Enter your email and we&apos;ll send you a reset link.
         </p>
       </div>
 

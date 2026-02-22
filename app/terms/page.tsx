@@ -1,9 +1,7 @@
 'use client';
 
 // Import core UI components and icons
-import { Logo } from '@/components/logo';
-import { ArrowLeft, FileText, Shield, Lock, Scale } from 'lucide-react';
-import Link from 'next/link';
+import { FileText } from 'lucide-react';
 // Import animation library for smooth content reveals
 import { motion } from 'framer-motion';
 
@@ -28,7 +26,7 @@ export default function TermsPage() {
 
       <PolicySection title="3. disclaimer">
         <p>
-          the materials on quick type are provided on an 'as is' basis. quick type makes no
+          the materials on quick type are provided on an &apos;as is&apos; basis. quick type makes no
           warranties, expressed or implied, and hereby disclaims and negates all other warranties
           including, without limitation, implied warranties or conditions of merchantability,
           fitness for a particular purpose, or non-infringement of intellectual property or other

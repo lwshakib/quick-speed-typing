@@ -7,8 +7,6 @@ import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from 'recharts';
 // Import UI components from the specialized chart design system
 import {
   ChartContainer,
-  ChartLegend,
-  ChartLegendContent,
   ChartTooltip,
   ChartTooltipContent,
   type ChartConfig,
@@ -28,15 +26,10 @@ import {
   Target,
   History as HistoryIcon,
   Crown,
-  Info,
-  Tag,
   Clock,
   FileDown,
-  Star,
   Activity,
   BarChart3,
-  Smartphone,
-  Monitor,
   Shield,
 } from 'lucide-react';
 // Import basic UI primitives
@@ -49,12 +42,15 @@ import { motion } from 'framer-motion';
 // Local sub-components for specialized views
 import { ContributionActivity } from '@/components/contribution-activity';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
+
 import { cn } from '@/lib/utils';
 
-// Interface defining the structure of aggregate user statistics
 interface ProfileStats {
-  user: any;
+  user: {
+    name?: string | null;
+    image?: string | null;
+    createdAt: string | Date;
+  };
   totalTests: number;
   completedTests: number;
   totalTimeSeconds: number;
@@ -72,15 +68,32 @@ interface ProfileStats {
   avgConsistency10: number;
   timeRecords: Record<string, { wpm: number; accuracy: number }>;
   wordRecords: Record<string, { wpm: number; accuracy: number }>;
-  chartData: any[]; // History formatted for charting
-  history: any[]; // Raw historical records
+  chartData: {
+    date: string;
+    wpm: number;
+    rawWpm: number;
+    accuracy: number;
+    consistency: number;
+    tests: number;
+    time: number;
+  }[]; // History formatted for charting
+  history: {
+    id: string;
+    wpm: number;
+    rawWpm: number | null;
+    accuracy: number;
+    errors: number;
+    duration: number;
+    consistency: number | null;
+    mode: string;
+    amount: number;
+    createdAt: string | Date;
+  }[]; // Raw historical records
 }
 
 interface ProfileViewProps {
-  session: any;
-  history: any[];
   contributionData: {
-    calendar: any[];
+    calendar: { contributionDays: { date: string; contributionCount: number }[] }[];
     totalContributions: number;
   };
   profileStats: ProfileStats;
@@ -119,8 +132,6 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 export function ProfileView({
-  session,
-  history: initialHistory,
   contributionData,
   profileStats,
 }: ProfileViewProps) {
@@ -199,7 +210,7 @@ export function ProfileView({
   };
 
   // Metric definitions for the chart's filter bar
-  const metrics: { id: keyof typeof chartConfig; label: string; icon: any }[] = [
+  const metrics: { id: keyof typeof chartConfig; label: string; icon: React.ElementType }[] = [
     { id: 'wpm', label: 'wpm', icon: Zap },
     { id: 'rawWpm', label: 'raw', icon: BarChart3 },
     { id: 'accuracy', label: 'accuracy', icon: Target },

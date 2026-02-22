@@ -35,7 +35,7 @@ export const auth = betterAuth({
      * Triggered when a user requests a password recovery link.
      * Generates a secure token and sends it via a React-based email template.
      */
-    sendResetPassword: async ({ user, url, token }) => {
+    sendResetPassword: async ({ user, token }) => {
       const resetUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/reset-password?token=${token}`;
       try {
         const { error } = await resend.emails.send({
@@ -70,7 +70,7 @@ export const auth = betterAuth({
   // Manages the "Check your email" loop after account registration.
   emailVerification: {
     sendOnSignUp: true, // Automatically triggers the verification mail as soon as a user signs up.
-    sendVerificationEmail: async ({ user, url, token }, request) => {
+    sendVerificationEmail: async ({ user, token }) => {
       const verifyUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/verify-email?token=${token}`;
       try {
         await resend.emails.send({

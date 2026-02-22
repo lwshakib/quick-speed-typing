@@ -1,22 +1,15 @@
 'use client';
 
-// Import the branding logo
-import { Logo } from '@/components/logo';
 // Import a set of utility icons for the settings interface
 import {
-  ArrowLeft,
   Settings as SettingsIcon,
   Palette,
-  Globe,
   Keyboard,
-  Bell,
   Eye,
   EyeOff,
   Volume2,
   VolumeX,
 } from 'lucide-react';
-// Import Next.js linking for client-side navigation
-import Link from 'next/link';
 // Import animation library for entrance/transition effects
 import { motion } from 'framer-motion';
 // Import the switch toggle component from the UI library
@@ -43,6 +36,7 @@ export default function SettingsPage() {
   // Synchronize state with persisted local storage on initial mount
   useEffect(() => {
     const savedThemeId = localStorage.getItem('typing-theme');
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (savedThemeId) setCurrentThemeId(savedThemeId);
   }, []);
 

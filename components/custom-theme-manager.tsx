@@ -68,7 +68,7 @@ export function CustomThemeManager() {
     }
 
     // Listen for theme changes from other components
-    const handleThemeChange = (e: any) => {
+    const handleThemeChange = (e: CustomEvent<Theme>) => {
       if (e.detail) {
         applyTheme(e.detail);
       }

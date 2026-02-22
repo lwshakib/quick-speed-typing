@@ -3,7 +3,7 @@
 // Import core Next.js navigation and layout components
 import Link from 'next/link';
 // Import animation library for handling interface visibility and micro-interactions
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 // Import icons to represent navigation destinations and actions
 import { Keyboard, Trophy, Info, Settings, Bell, User as UserIcon } from 'lucide-react';
 import { usePathname } from 'next/navigation';
@@ -95,14 +95,6 @@ export function Header() {
       hasSyncedTheme.current = false;
     }
   }, [session, currentTheme.id, applyTheme]);
-
-  // Helper to determine if the current view is part of the authentication flow
-  const isAuthPage =
-    pathname?.startsWith('/sign-in') ||
-    pathname?.startsWith('/sign-up') ||
-    pathname?.startsWith('/forgot-password') ||
-    pathname?.startsWith('/verify-email') ||
-    pathname?.startsWith('/reset-password');
 
   return (
     // Fixed header with glassmorphism effect

@@ -2,7 +2,7 @@
 
 // Import core React hooks and Next.js navigation utilities
 import { useEffect, useState } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 // Import the authentication client for email verification processing
 import { authClient } from '@/lib/auth-client';
 // Import UI design system components
@@ -20,15 +20,17 @@ function VerifyEmailContent() {
   const token = searchParams.get('token'); // Extract verification token from URL
 
   // Local state to track the verification lifecycle and error feedback
-  const [status, setStatus] = useState<'verifying' | 'success' | 'error'>('verifying');
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [status, setStatus] = useState<'verifying' | 'success' | 'error'>(
+    token ? 'verifying' : 'error'
+  );
+  const [errorMessage, setErrorMessage] = useState<string | null>(
+    token ? null : 'Missing verification token.'
+  );
 
   // Trigger verification as soon as the component mounts and the token is available
   useEffect(() => {
-    // If no token is provided in the URL, immediately flag an error
+    // If no token is provided in the URL, the initial state already handles the error
     if (!token) {
-      setStatus('error');
-      setErrorMessage('Missing verification token.');
       return;
     }
 
@@ -53,7 +55,7 @@ function VerifyEmailContent() {
             },
           },
         );
-      } catch (err) {
+      } catch {
         setStatus('error');
         setErrorMessage('An unexpected error occurred.');
       }

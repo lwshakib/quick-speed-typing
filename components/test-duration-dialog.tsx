@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Kbd } from '@/components/ui/kbd';
-import { cn } from '@/lib/utils';
+
 
 interface TestDurationDialogProps {
   isOpen: boolean;
@@ -20,16 +20,24 @@ export function TestDurationDialog({
 }: TestDurationDialogProps) {
   const [inputValue, setInputValue] = useState(currentDuration.toString());
   const inputRef = useRef<HTMLInputElement>(null);
+  const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
+
+  // Sync input value when dialog opens (using state to avoid setState in effect)
+  if (isOpen !== prevIsOpen) {
+    setPrevIsOpen(isOpen);
+    if (isOpen) {
+      setInputValue(currentDuration.toString());
+    }
+  }
 
   useEffect(() => {
     if (isOpen) {
-      setInputValue(currentDuration.toString());
       setTimeout(() => {
         inputRef.current?.focus();
         inputRef.current?.select();
       }, 100);
     }
-  }, [isOpen, currentDuration]);
+  }, [isOpen]);
 
   const parseDuration = (input: string): number => {
     if (input === '0') return 0;
@@ -59,7 +67,7 @@ export function TestDurationDialog({
     const m = Math.floor((seconds % 3600) / 60);
     const s = seconds % 60;
 
-    let parts = [];
+    const parts = [];
     if (h > 0) parts.push(`${h} second${h > 1 ? 's' : ''}`); // Wait, looking at image "1h30m" is mentioned.
     // Let's re-read the image text.
     // "You can use 'h' for hours and 'm' for minutes, for example '1h30m'."
@@ -120,7 +128,7 @@ export function TestDurationDialog({
 
           <div className="flex flex-col gap-4 text-xs leading-relaxed opacity-60">
             <p className="lowercase">
-              You can use "h" for hours and "m" for minutes, for example "1h30m".
+              You can use &quot;h&quot; for hours and &quot;m&quot; for minutes, for example &quot;1h30m&quot;.
             </p>
 
             <div className="flex flex-col gap-1">

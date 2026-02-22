@@ -1,22 +1,14 @@
 'use client';
 
 // Import visual identifiers and UI helpers
-import { Logo } from '@/components/logo';
-import { LinkWithIcon } from '@/components/link-with-icon';
 // Import a set of iconic symbols to represent features and navigate
 import {
-  ArrowLeft,
   Info,
-  Shield,
   Lock,
-  Mail,
-  Github,
-  Heart,
   Keyboard,
   Palette,
   History,
 } from 'lucide-react';
-import Link from 'next/link';
 // Import animation library for smooth transitions
 import { motion } from 'framer-motion';
 
@@ -39,11 +31,11 @@ export default function AboutPage() {
         <div className="text-secondary flex flex-col gap-4 text-lg leading-relaxed opacity-80">
           <p>
             <span className="text-primary font-bold">quick type</span> is a minimalist, customizable
-            typing website. It's designed to provide a distraction-free typing experience while
+            typing website. It&apos;s designed to provide a distraction-free typing experience while
             providing detailed analytics and progress tracking.
           </p>
           <p>
-            Whether you're a competitive typist looking to break your personal records or a beginner
+            Whether you&apos;re a competitive typist looking to break your personal records or a beginner
             wanting to improve your speed and accuracy, quick type provides the tools you need to
             reach your goals.
           </p>

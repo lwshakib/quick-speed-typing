@@ -2,7 +2,7 @@
 
 // Import core React hooks and Next.js internal navigation/search utilities
 import { useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 // Import authentication action for processing the password reset
 import { resetPassword } from '@/lib/auth-client';
 // Import UI design system components
@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 // Import icons for visual state representation
-import { Lock, Loader2, CheckCircle2, XCircle, ChevronRight, ArrowLeft } from 'lucide-react';
+import { Lock, Loader2, CheckCircle2, XCircle, ChevronRight } from 'lucide-react';
 // Import toast feedback and React built-ins
 import { toast } from 'sonner';
 import Link from 'next/link';
@@ -65,7 +65,7 @@ function ResetPasswordContent() {
             setIsSuccess(true);
             toast.success('Password reset successful!');
           },
-          onError: (ctx: any) => {
+          onError: (ctx: { error: { message?: string } }) => {
             // Capture and display server-side errors
             const msg = ctx.error.message || 'Failed to reset password';
             setError(msg);
@@ -73,7 +73,7 @@ function ResetPasswordContent() {
           },
         },
       );
-    } catch (err) {
+    } catch {
       setError('An unexpected error occurred');
       toast.error('Something went wrong');
     } finally {

@@ -1,10 +1,7 @@
 'use client';
 
-// Import visual identifiers and UI primitives
-import { Logo } from '@/components/logo';
 // Import icons representing communication channels and actions
 import { ArrowLeft, Mail, MessageCircle, Github, Twitter, Heart, Send } from 'lucide-react';
-import Link from 'next/link';
 // Import animation library for dynamic entrances
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
@@ -40,7 +37,7 @@ export default function ContactPage() {
         >
           <div className="flex flex-col gap-2">
             <h2 className="text-foreground text-xl font-bold lowercase">send a message</h2>
-            <p className="text-xs opacity-60">we'll get back to you as soon as possible.</p>
+            <p className="text-xs opacity-60">we&apos;ll get back to you as soon as possible.</p>
           </div>
 
           {/* Form fields with custom styling mirroring the overall theme */}

@@ -44,6 +44,15 @@ export function LanguageDialog({
   onSelectLanguage,
 }: LanguageDialogProps) {
   const [search, setSearch] = useState('');
+  const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
+
+  if (isOpen !== prevIsOpen) {
+    setPrevIsOpen(isOpen);
+    if (isOpen) {
+      setSearch('');
+    }
+  }
+
   const inputRef = useRef<HTMLInputElement>(null);
 
   const filteredLanguages = LANGUAGES.filter((lang) =>
@@ -55,7 +64,6 @@ export function LanguageDialog({
       setTimeout(() => {
         inputRef.current?.focus();
       }, 100);
-      setSearch('');
     }
   }, [isOpen]);
 

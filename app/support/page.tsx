@@ -1,10 +1,8 @@
 'use client';
 
 // Import visual identifiers and UI primitives
-import { Logo } from '@/components/logo';
 // Import icons representing gratitude and specific support actions
-import { ArrowLeft, Heart, Coffee, Star, Github, Twitter, Shield } from 'lucide-react';
-import Link from 'next/link';
+import { Heart, Coffee, Star, Shield } from 'lucide-react';
 // Import animation library for engaging UI transitions
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
