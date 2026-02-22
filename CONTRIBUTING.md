@@ -49,13 +49,17 @@ Quicktype aims to be:
 We prioritize stability. Please ensure your changes pass all tests before submitting a PR.
 
 ### Unit Tests
+
 We use **Jest** for unit testing core logic (calculations, utilities).
+
 ```bash
 bun test:unit
 ```
 
 ### End-to-End (E2E) Tests
+
 We use **Playwright** for UI and flow testing.
+
 1. Install browsers (first time only):
    ```bash
    bun x playwright install
@@ -70,14 +74,17 @@ We use **Playwright** for UI and flow testing.
 ## 🤝 How to Contribute
 
 ### 1. Reporting Bugs
+
 - Search existing issues to avoid duplicates.
 - Use the **Bug Report** template if available, or provide clear steps to reproduce, including your OS and browser.
 
 ### 2. Feature Requests
+
 - Check the issues list for similar proposals.
 - Open a new issue with the **Feature Request** label and describe the "why" and "how".
 
 ### 3. Pull Requests
+
 1. Fork the repo and create your branch from `main`.
 2. Ensure your code follows the existing style and passess all linting/testing checks.
 3. Provide a clear, concise description of your changes in the PR.
@@ -90,7 +97,7 @@ We use **Playwright** for UI and flow testing.
 - **TypeScript**: Use strict types. Avoid `any` at all costs.
 - **Styling**: Use **Tailwind CSS v4** and follow the theme variables defined in `app/globals.css`.
 - **Components**: Utilize **Shadcn UI** components from the `components/ui` directory for consistency.
-- **Naming**: 
+- **Naming**:
   - Components: `PascalCase.tsx`
   - Hooks: `use-hook-name.ts`
   - Utilities/Libs: `kebab-case.ts`

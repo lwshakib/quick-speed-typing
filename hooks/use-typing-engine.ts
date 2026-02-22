@@ -53,6 +53,7 @@ interface TypingOptions {
   includePunctuation?: boolean;
   language?: string;
   disabled?: boolean;
+  confidenceMode?: boolean;
 }
 
 /**
@@ -442,6 +443,7 @@ export const useTypingEngine = (options: TypingOptions = {}) => {
 
       // -- Actual Character Processing --
       if (e.key === 'Backspace') {
+        if (options.confidenceMode) return; // Ignore backspace in confidence mode
         setTyped((prev: string) => prev.slice(0, -1));
         // In professional typing tools, raw wpm includes backspaced characters (keystrokes).
         // Accuracy is focused on the final correct characters.
@@ -505,6 +507,7 @@ export const useTypingEngine = (options: TypingOptions = {}) => {
       finish,
       disabled,
       resume,
+      options.confidenceMode,
     ],
   );
 

@@ -271,6 +271,67 @@ export async function getUserTheme() {
 }
 
 /**
+ * Persistently updates the user's configuration settings in the database.
+ */
+export async function updateUserSettings(settings: {
+  quickRestart?: boolean;
+  smoothCaret?: boolean;
+  showLiveWpm?: boolean;
+  soundEnabled?: boolean;
+  soundVolume?: number;
+  fontFamily?: string;
+  fontSize?: number;
+  caretStyle?: string;
+  timerPosition?: string;
+  confidenceMode?: boolean;
+}) {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session) {
+    throw new Error('Unauthorized');
+  }
+
+  return await prisma.user.update({
+    where: { id: session.user.id },
+    data: settings,
+  });
+}
+
+/**
+ * Retrieves the complete settings object for the authenticated user.
+ */
+export async function getUserSettings() {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session) {
+    return null;
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: {
+      quickRestart: true,
+      smoothCaret: true,
+      showLiveWpm: true,
+      soundEnabled: true,
+      soundVolume: true,
+      fontFamily: true,
+      fontSize: true,
+      caretStyle: true,
+      timerPosition: true,
+      confidenceMode: true,
+      theme: true,
+    },
+  });
+
+  return user;
+}
+
+/**
  * Heavyweight Action: Computes a comprehensive statistical overview for the user's profile.
  * Heavily transforms raw performance data into actionable insights (averages, personal bests, chart data).
  */

@@ -102,6 +102,7 @@ import { CustomThemeManager } from '@/components/custom-theme-manager';
 import { Header } from '@/components/header';
 import { Footer } from '@/components/footer';
 import { GlobalModals } from '@/components/global-modals';
+import { SettingsSync } from '@/components/settings-sync';
 
 // Root Layout component that wraps the entire application
 export default function RootLayout({
@@ -231,9 +232,8 @@ export default function RootLayout({
         />
         {/* Next.js ThemeProvider for managing data-theme attributes */}
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
-          {/* Custom component to sync React state with the applied theme */}
+          <SettingsSync />
           <CustomThemeManager />
-
           {/* Main application container with shared styles */}
           <div className="bg-background text-secondary selection:bg-primary/30 selection:text-primary flex min-h-screen flex-col items-center font-mono transition-colors duration-300">
             {/* Global site header */}

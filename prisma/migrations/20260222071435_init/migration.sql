@@ -1,0 +1,11 @@
+-- AlterTable
+ALTER TABLE "user" ADD COLUMN     "caretStyle" TEXT NOT NULL DEFAULT 'line',
+ADD COLUMN     "confidenceMode" BOOLEAN NOT NULL DEFAULT false,
+ADD COLUMN     "fontFamily" TEXT NOT NULL DEFAULT 'font-mono',
+ADD COLUMN     "fontSize" INTEGER NOT NULL DEFAULT 32,
+ADD COLUMN     "quickRestart" BOOLEAN NOT NULL DEFAULT true,
+ADD COLUMN     "showLiveWpm" BOOLEAN NOT NULL DEFAULT true,
+ADD COLUMN     "smoothCaret" BOOLEAN NOT NULL DEFAULT true,
+ADD COLUMN     "soundEnabled" BOOLEAN NOT NULL DEFAULT false,
+ADD COLUMN     "soundVolume" DOUBLE PRECISION NOT NULL DEFAULT 0.5,
+ADD COLUMN     "timerPosition" TEXT NOT NULL DEFAULT 'top';

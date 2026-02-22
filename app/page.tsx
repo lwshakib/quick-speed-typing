@@ -13,7 +13,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 // Import icons from Lucide
 import {
   RefreshCw,
-  Settings,
+  Settings as SettingsIcon,
   Globe,
   Quote as QuoteIcon,
   Hash,
@@ -29,6 +29,8 @@ import { toast } from 'sonner';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { useUiStore } from '@/hooks/use-ui-store';
+import { useSettingsStore, Settings } from '@/hooks/use-settings-store';
+import { getUserSettings } from '@/lib/actions';
 // Import charting library for results visualization
 import {
   LineChart,
@@ -41,6 +43,7 @@ import {
 } from 'recharts';
 
 export default function Home() {
+  const settings = useSettingsStore();
   // State for typing test configuration
   const [duration, setDuration] = useState(60); // Default duration in seconds
   const [wordCount, setWordCount] = useState(25); // Default word count for 'words' mode
@@ -76,6 +79,18 @@ export default function Home() {
   const [isMounted, setIsMounted] = useState(false); // Used to ensure client-side rendering
   const [hasSaved, setHasSaved] = useState(false); // Prevents duplicate saving of results
 
+  // Sync settings with DB on mount
+  useEffect(() => {
+    if (session) {
+      getUserSettings().then((dbSettings) => {
+        if (dbSettings) {
+          settings.initializeSettings(dbSettings as Partial<Settings>);
+        }
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session]);
+
   // Initialize the typing engine with the current configuration
   const {
     state,
@@ -100,6 +115,7 @@ export default function Home() {
     language,
     // Disable engine interactions when any modal or dialog is open
     disabled: isLangOpen || isThemeOpen || isNotificationsOpen || isCustomDurationOpen,
+    confidenceMode: settings.confidenceMode,
   });
 
   // Refs and state for handling UI focus and automatic pausing
@@ -237,6 +253,36 @@ export default function Home() {
     return () =>
       window.removeEventListener('language-changed', handleLanguageChange as EventListener);
   }, []);
+
+  // -- Sound Logic --
+  const audioCtxRef = useRef<AudioContext | null>(null);
+
+  useEffect(() => {
+    if (settings.soundEnabled && typed.length > 0 && state === 'run') {
+      if (!audioCtxRef.current) {
+        const AudioContextClass =
+          window.AudioContext ||
+          (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+        audioCtxRef.current = new AudioContextClass();
+      }
+
+      const ctx = audioCtxRef.current;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(120 + Math.random() * 30, ctx.currentTime);
+
+      gain.gain.setValueAtTime(settings.soundVolume, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.05);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.start();
+      osc.stop(ctx.currentTime + 0.05);
+    }
+  }, [typed, settings.soundEnabled, settings.soundVolume, state]);
 
   // Do not render anything until the component has mounted on the client
   if (!isMounted) return null;
@@ -387,7 +433,7 @@ export default function Home() {
                             onClick={() => setIsCustomDurationOpen(true)}
                             className="hover:text-foreground ml-1 transition-all duration-300 hover:scale-110 hover:rotate-90 active:scale-90"
                           >
-                            <Settings size={12} />
+                            <SettingsIcon size={12} />
                           </button>
                         </motion.div>
                       )}
@@ -426,7 +472,7 @@ export default function Home() {
                 }
                 dir={language === 'arabic' ? 'rtl' : 'ltr'} // Arabic script requires Right-To-Left direction
                 className={cn(
-                  'perspective-1000 relative min-h-[140px] w-full text-left text-2xl leading-relaxed focus:outline-none md:text-3xl',
+                  'perspective-1000 relative min-h-[140px] w-full text-left leading-relaxed transition-all duration-300 focus:outline-none',
                   // Apply specific fonts for localized scripts
                   language === 'bengali'
                     ? 'font-bengali'
@@ -436,15 +482,21 @@ export default function Home() {
                         ? 'font-arabic'
                         : language === 'japanese' || language === 'chinese' || language === 'korean'
                           ? 'font-cjk'
-                          : 'font-mono tracking-wide',
+                          : settings.fontFamily + ' tracking-wide',
                 )}
+                style={{ fontSize: `${settings.fontSize ?? 32}px` }}
               >
                 {/* Real-time Timer or Stopwatch Display during testing */}
                 {state === 'run' && (
                   <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    className="text-primary absolute top-[-3.5rem] left-0 text-3xl font-bold tabular-nums transition-colors duration-300"
+                    className={cn(
+                      'text-primary absolute z-20 text-3xl font-bold tabular-nums transition-all duration-300',
+                      settings.timerPosition === 'bottom'
+                        ? 'bottom-[-3.5rem] left-0'
+                        : 'top-[-3.5rem] left-0',
+                    )}
                   >
                     {/* Show elapsed time in Zen mode, countdown otherwise */}
                     {mode === 'zen' ? (
@@ -455,6 +507,23 @@ export default function Home() {
                     ) : (
                       timeLeft
                     )}
+                  </motion.div>
+                )}
+
+                {/* Live WPM Indicator */}
+                {state === 'run' && settings.showLiveWpm && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className={cn(
+                      'text-secondary absolute z-20 text-3xl font-bold tabular-nums opacity-20 transition-all duration-300',
+                      settings.timerPosition === 'bottom'
+                        ? 'top-[-3.5rem] left-0'
+                        : 'top-[-3.5rem] right-0',
+                    )}
+                  >
+                    {wpm}{' '}
+                    <span className="text-xs font-medium tracking-tighter uppercase">wpm</span>
                   </motion.div>
                 )}
 
@@ -540,13 +609,32 @@ export default function Home() {
                               item.state === 'untyped' && 'text-secondary',
                             )}
                           >
-                            {/* Visual Caret (the blinking line indicating current position) */}
+                            {/* Visual Caret (indicating current position) */}
                             {item.isCurrent && (
                               <motion.div
                                 layoutId="caret"
-                                className="bg-primary absolute top-[10%] left-[-1px] z-10 h-[80%] w-[2.5px] rounded-full"
-                                transition={{ type: 'spring', stiffness: 450, damping: 40 }}
-                                style={{ boxShadow: '0 0 10px var(--primary)' }}
+                                className={cn(
+                                  'bg-primary absolute z-10 transition-all',
+                                  settings.caretStyle === 'block' &&
+                                    'top-0 left-0 h-[1.1em] w-[0.6em] rounded-none opacity-50',
+                                  settings.caretStyle === 'underline' &&
+                                    'bottom-0 left-0 h-[2px] w-[0.6em] rounded-full',
+                                  settings.caretStyle === 'line' &&
+                                    'top-[10%] left-[-1px] h-[80%] w-[2.5px] rounded-full',
+                                  settings.caretStyle === 'pulse' &&
+                                    'top-[10%] left-[-1px] h-[80%] w-[2.5px] animate-pulse rounded-full',
+                                )}
+                                transition={
+                                  settings.smoothCaret
+                                    ? { type: 'spring', stiffness: 450, damping: 40 }
+                                    : { duration: 0 }
+                                }
+                                style={{
+                                  boxShadow:
+                                    settings.caretStyle === 'line'
+                                      ? '0 0 10px var(--primary)'
+                                      : 'none',
+                                }}
                               />
                             )}
                             {item.char}
@@ -556,9 +644,26 @@ export default function Home() {
                         {isActive && currentTypedWord.length === targetWord.length && (
                           <motion.div
                             layoutId="caret"
-                            className="bg-primary absolute top-[10%] right-[-2px] z-10 h-[80%] w-[2.5px] rounded-full"
-                            transition={{ type: 'spring', stiffness: 450, damping: 40 }}
-                            style={{ boxShadow: '0 0 10px var(--primary)' }}
+                            className={cn(
+                              'bg-primary absolute z-10 transition-all',
+                              settings.caretStyle === 'block' &&
+                                'top-0 right-[-0.6em] h-[1.1em] w-[0.6em] rounded-none opacity-50',
+                              settings.caretStyle === 'underline' &&
+                                'right-[-0.6em] bottom-0 h-[2px] w-[0.6em] rounded-full',
+                              settings.caretStyle === 'line' &&
+                                'top-[10%] right-[-2px] h-[80%] w-[2.5px] rounded-full',
+                              settings.caretStyle === 'pulse' &&
+                                'top-[10%] right-[-2px] h-[80%] w-[2.5px] animate-pulse rounded-full',
+                            )}
+                            transition={
+                              settings.smoothCaret
+                                ? { type: 'spring', stiffness: 450, damping: 40 }
+                                : { duration: 0 }
+                            }
+                            style={{
+                              boxShadow:
+                                settings.caretStyle === 'line' ? '0 0 10px var(--primary)' : 'none',
+                            }}
                           />
                         )}
                       </div>

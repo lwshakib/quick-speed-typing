@@ -22,6 +22,19 @@ model User {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   theme         String?   @default("default-theme")
+  
+  // Settings
+  quickRestart     Boolean @default(true)
+  smoothCaret      Boolean @default(true)
+  showLiveWpm      Boolean @default(true)
+  soundEnabled     Boolean @default(false)
+  soundVolume      Float   @default(0.5)
+  fontFamily       String  @default("font-mono")
+  fontSize         Int     @default(32)
+  caretStyle       String  @default("line") // line, block, underline, pulse
+  timerPosition    String  @default("top") // top, bottom
+  confidenceMode   Boolean @default(false)
+  
   sessions      Session[]
   accounts      Account[]
   typingHistory TypingHistory[]
