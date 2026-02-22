@@ -36,10 +36,5 @@ export default async function ProfilePage() {
   }
 
   // Pass the fetched data to the client-side ProfileView for rich visualization
-  return (
-    <ProfileView
-      contributionData={contributionData}
-      profileStats={profileStats}
-    />
-  );
+  return <ProfileView contributionData={contributionData} profileStats={profileStats} />;
 }
