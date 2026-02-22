@@ -26,8 +26,8 @@ export default function TermsPage() {
 
       <PolicySection title="3. disclaimer">
         <p>
-          the materials on quick type are provided on an &apos;as is&apos; basis. quick type makes no
-          warranties, expressed or implied, and hereby disclaims and negates all other warranties
+          the materials on quick type are provided on an &apos;as is&apos; basis. quick type makes
+          no warranties, expressed or implied, and hereby disclaims and negates all other warranties
           including, without limitation, implied warranties or conditions of merchantability,
           fitness for a particular purpose, or non-infringement of intellectual property or other
           violation of rights.

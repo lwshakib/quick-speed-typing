@@ -255,7 +255,9 @@ function RankingRow({ rank, data }: { rank: number; data: Record<string, unknown
       <div className="text-primary text-base font-black md:text-xl">{data.wpm as number}</div>
 
       <div className="hidden text-sm font-bold opacity-60 md:block">{data.accuracy as number}%</div>
-      <div className="hidden text-sm font-bold opacity-40 md:block">{(data.rawWpm as number) || (data.wpm as number)}</div>
+      <div className="hidden text-sm font-bold opacity-40 md:block">
+        {(data.rawWpm as number) || (data.wpm as number)}
+      </div>
       <div className="hidden text-sm font-bold opacity-40 md:block">
         {(data.consistency as number) || '--'}%
       </div>

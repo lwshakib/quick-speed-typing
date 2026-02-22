@@ -74,7 +74,11 @@ export function AccountView() {
   const fetchAccounts = async () => {
     try {
       if ('listAccounts' in authClient) {
-        const { data } = await (authClient as unknown as { listAccounts: () => Promise<{ data: Record<string, unknown>[] }> }).listAccounts();
+        const { data } = await (
+          authClient as unknown as {
+            listAccounts: () => Promise<{ data: Record<string, unknown>[] }>;
+          }
+        ).listAccounts();
         setLinkedAccounts(data || []);
       }
     } catch {
@@ -145,7 +149,9 @@ export function AccountView() {
 
     try {
       if ('unlinkAccount' in authClient) {
-        await (authClient as unknown as { unlinkAccount: (p: { accountId: string }) => Promise<void> }).unlinkAccount({ accountId });
+        await (
+          authClient as unknown as { unlinkAccount: (p: { accountId: string }) => Promise<void> }
+        ).unlinkAccount({ accountId });
         toast.success('account unlinked');
         fetchAccounts();
       }
@@ -271,8 +277,14 @@ export function AccountView() {
             {/* Individal provider account status visualization */}
             <div className="flex items-center justify-between rounded-lg border border-white/10 bg-white/5 p-4">
               <div className="flex items-center gap-3">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white overflow-hidden">
-                  <Image src="https://www.google.com/favicon.ico" alt="Google" width={16} height={16} className="h-4 w-4" />
+                <div className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-lg bg-white">
+                  <Image
+                    src="https://www.google.com/favicon.ico"
+                    alt="Google"
+                    width={16}
+                    height={16}
+                    className="h-4 w-4"
+                  />
                 </div>
                 <div>
                   <p className="text-sm font-bold lowercase">google</p>

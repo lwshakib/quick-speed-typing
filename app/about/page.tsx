@@ -2,13 +2,7 @@
 
 // Import visual identifiers and UI helpers
 // Import a set of iconic symbols to represent features and navigate
-import {
-  Info,
-  Lock,
-  Keyboard,
-  Palette,
-  History,
-} from 'lucide-react';
+import { Info, Lock, Keyboard, Palette, History } from 'lucide-react';
 // Import animation library for smooth transitions
 import { motion } from 'framer-motion';
 
@@ -35,9 +29,9 @@ export default function AboutPage() {
             providing detailed analytics and progress tracking.
           </p>
           <p>
-            Whether you&apos;re a competitive typist looking to break your personal records or a beginner
-            wanting to improve your speed and accuracy, quick type provides the tools you need to
-            reach your goals.
+            Whether you&apos;re a competitive typist looking to break your personal records or a
+            beginner wanting to improve your speed and accuracy, quick type provides the tools you
+            need to reach your goals.
           </p>
         </div>
       </motion.div>

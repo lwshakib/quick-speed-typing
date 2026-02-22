@@ -131,10 +131,7 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-export function ProfileView({
-  contributionData,
-  profileStats,
-}: ProfileViewProps) {
+export function ProfileView({ contributionData, profileStats }: ProfileViewProps) {
   // State for chart filtering and metric selection
   const [timeRange, setTimeRange] = React.useState('90d');
   const [activeMetric, setActiveMetric] = React.useState<keyof typeof chartConfig>('wpm');

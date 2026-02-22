@@ -21,10 +21,10 @@ function VerifyEmailContent() {
 
   // Local state to track the verification lifecycle and error feedback
   const [status, setStatus] = useState<'verifying' | 'success' | 'error'>(
-    token ? 'verifying' : 'error'
+    token ? 'verifying' : 'error',
   );
   const [errorMessage, setErrorMessage] = useState<string | null>(
-    token ? null : 'Missing verification token.'
+    token ? null : 'Missing verification token.',
   );
 
   // Trigger verification as soon as the component mounts and the token is available

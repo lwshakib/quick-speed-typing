@@ -35,7 +35,6 @@ export function ThemeDialog({
   const inputRef = useRef<HTMLInputElement>(null);
   const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
 
-
   const [customColors, setCustomColors] = useState({
     background: '#323437',
     main: '#e2b714',
@@ -260,7 +259,12 @@ export function ThemeDialog({
                         <input
                           type="color"
                           value={value}
-                          onChange={(e) => handleCustomColorChange(key as keyof typeof customColors, e.target.value)}
+                          onChange={(e) =>
+                            handleCustomColorChange(
+                              key as keyof typeof customColors,
+                              e.target.value,
+                            )
+                          }
                           className="h-5 w-5 cursor-pointer appearance-none overflow-hidden rounded border-none bg-transparent"
                         />
                       </div>

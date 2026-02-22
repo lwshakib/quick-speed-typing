@@ -46,8 +46,6 @@ export interface LogoProps {
   hideText?: boolean;
 }
 
-
-
 /**
  * Logo: The primary branding component used in the Header, Footer, and other areas.
  * It combines the LogoIcon with stylized text using the application's global theme variables.
