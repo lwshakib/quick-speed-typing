@@ -11,6 +11,16 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import {
   Table,
   TableBody,
   TableCell,
@@ -64,6 +74,8 @@ export function AccountView() {
   // Tracking loading states for different segments of the account view
   const [isLoadingSessions, setIsLoadingSessions] = useState(true);
   const [isLoadingAccounts, setIsLoadingAccounts] = useState(true);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Synchronize state with current session data when it becomes available
   useEffect(() => {
@@ -127,14 +139,15 @@ export function AccountView() {
 
   // Logic to delete the entire user profile and linked data
   const handleDeleteAccount = async () => {
-    if (confirm('are you sure? this will delete all your typing data permanently.')) {
-      try {
-        await authClient.deleteUser();
-        toast.success('account deleted');
-        window.location.href = '/'; // Force redirect to homepage
-      } catch {
-        toast.error('failed to delete account');
-      }
+    setIsDeleting(true);
+    try {
+      await authClient.deleteUser();
+      toast.success('account deleted');
+      window.location.href = '/'; // Force redirect to homepage
+    } catch {
+      toast.error('failed to delete account');
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -486,7 +499,7 @@ export function AccountView() {
             <Button
               variant="destructive"
               size="sm"
-              onClick={handleDeleteAccount}
+              onClick={() => setDeleteOpen(true)}
               className="h-10 rounded-lg px-6 font-bold lowercase"
             >
               delete profile
@@ -494,6 +507,26 @@ export function AccountView() {
           </div>
         </section>
       </div>
+      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>delete profile?</AlertDialogTitle>
+            <AlertDialogDescription>
+              this action cannot be undone. it will permanently remove your account and typing data.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>cancel</AlertDialogCancel>
+            <AlertDialogAction
+              variant="destructive"
+              disabled={isDeleting}
+              onClick={handleDeleteAccount}
+            >
+              {isDeleting ? 'deleting...' : 'delete'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </motion.main>
   );
 }

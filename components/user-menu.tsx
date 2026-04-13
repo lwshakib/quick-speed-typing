@@ -2,6 +2,7 @@
 
 // Import authentication utilities for session access and termination
 import { useSession, signOut } from '@/lib/auth-client';
+import { useState } from 'react';
 // Import dropdown menu primitive for the user interface
 import {
   DropdownMenu,
@@ -19,6 +20,16 @@ import { User, LogOut, LayoutDashboard, Settings } from 'lucide-react';
 import Link from 'next/link';
 // Import notification toolkit
 import { toast } from 'sonner';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 /**
  * UserMenu: A specialized dropdown component allowing authenticated users to
@@ -26,6 +37,8 @@ import { toast } from 'sonner';
  */
 export function UserMenu() {
   const { data: session } = useSession();
+  const [logoutOpen, setLogoutOpen] = useState(false);
+  const [isSigningOut, setIsSigningOut] = useState(false);
 
   // Guard clause: Ensure the menu only renders for authenticated users
   if (!session) return null;
@@ -41,7 +54,8 @@ export function UserMenu() {
     : 'U';
 
   return (
-    <DropdownMenu>
+    <>
+      <DropdownMenu>
       {/* TRIGGER: A minimalist user icon with subtle hover scale effects */}
       <DropdownMenuTrigger asChild>
         <button className="hover:text-foreground cursor-pointer transition-colors duration-200 outline-none hover:scale-110 active:scale-95">
@@ -128,10 +142,9 @@ export function UserMenu() {
         <div className="p-1">
           <DropdownMenuItem
             className="hover:bg-destructive/10 focus:bg-destructive/10 group cursor-pointer rounded-lg transition-all duration-200"
-            onClick={async () => {
-              await signOut();
-              toast.success('logged out successfully');
-              window.location.href = '/'; // Force redirect to home
+            onSelect={(e) => {
+              e.preventDefault();
+              setLogoutOpen(true);
             }}
           >
             <div className="text-destructive flex w-full items-center px-2 py-2">
@@ -142,5 +155,35 @@ export function UserMenu() {
         </div>
       </DropdownMenuContent>
     </DropdownMenu>
+      <AlertDialog open={logoutOpen} onOpenChange={setLogoutOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>log out?</AlertDialogTitle>
+            <AlertDialogDescription>
+              you will be signed out of this device. you can sign back in anytime.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isSigningOut}>cancel</AlertDialogCancel>
+            <AlertDialogAction
+              variant="destructive"
+              disabled={isSigningOut}
+              onClick={async () => {
+                setIsSigningOut(true);
+                try {
+                  await signOut();
+                  toast.success('logged out successfully');
+                  window.location.href = '/';
+                } finally {
+                  setIsSigningOut(false);
+                }
+              }}
+            >
+              {isSigningOut ? 'logging out...' : 'log out'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 }
