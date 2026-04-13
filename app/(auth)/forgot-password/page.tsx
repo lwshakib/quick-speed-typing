@@ -66,7 +66,7 @@ export default function ForgotPasswordPage() {
             email sent
           </h2>
           <p className="text-sm lowercase opacity-60">
-            Check your inbox for a link to reset your password.
+            We have sent a reset link. You have to check your email to get it.
           </p>
         </div>
 

@@ -70,14 +70,13 @@ export const auth = betterAuth({
   // Manages the "Check your email" loop after account registration.
   emailVerification: {
     sendOnSignUp: true, // Automatically triggers the verification mail as soon as a user signs up.
-    sendVerificationEmail: async ({ user, token }) => {
-      const verifyUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/verify-email?token=${token}`;
+    sendVerificationEmail: async ({ user, url }) => {
       try {
         await resend.emails.send({
           from: 'Quick Type <noreply@lwshakib.site>',
           to: user.email,
           subject: 'Verify your email address',
-          react: AuthEmailTemplate({ type: 'email-verification', url: verifyUrl }),
+          react: AuthEmailTemplate({ type: 'email-verification', url }),
         });
       } catch (err) {
         console.error('Verification email dispatch failed:', err);

@@ -1,9 +1,8 @@
 'use client';
 
 // Import core React functionality and authentication actions
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { signUp, signIn } from '@/lib/auth-client';
-import { useRouter } from 'next/navigation';
 // Import UI design system components
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -21,7 +20,19 @@ export default function SignUpPage() {
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
-  useRouter();
+  const successKey = 'quicktype:signup:successEmail';
+
+  useEffect(() => {
+    try {
+      const storedEmail = sessionStorage.getItem(successKey);
+      if (storedEmail) {
+        setEmail(storedEmail);
+        setIsSuccess(true);
+      }
+    } catch {
+      // Ignore storage access issues (e.g. restricted environments)
+    }
+  }, []);
 
   // Handler for creating a new account via Email and Password
   const handleSignUp = async (e: React.FormEvent) => {
@@ -34,11 +45,16 @@ export default function SignUpPage() {
           email,
           password,
           name,
-          callbackURL: '/', // Target redirect after verification
+          callbackURL: '/sign-in', // Target redirect after verification
         },
         {
           onSuccess: () => {
             setIsSuccess(true);
+            try {
+              sessionStorage.setItem(successKey, email);
+            } catch {
+              // Ignore storage access issues (e.g. restricted environments)
+            }
             toast.success('Account created! Please verify your email.');
           },
           onError: (ctx: { error: { message?: string } }) => {
@@ -85,7 +101,7 @@ export default function SignUpPage() {
           </h2>
           <p className="text-sm lowercase opacity-60">
             We&apos;ve sent a link to <span className="text-foreground font-bold">{email}</span> to
-            verify your account.
+            verify your account. Without email verification, you cannot sign in.
           </p>
         </div>
 
@@ -104,6 +120,13 @@ export default function SignUpPage() {
               className="hover:bg-main/5 h-12 w-full border-2 font-black tracking-widest uppercase transition-all"
               style={{ borderColor: 'var(--sub-color)', color: 'var(--sub-color)' }}
               // Hover micro-interactions
+              onClick={() => {
+                try {
+                  sessionStorage.removeItem(successKey);
+                } catch {
+                  // Ignore storage access issues (e.g. restricted environments)
+                }
+              }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.borderColor = 'var(--main-color)';
                 e.currentTarget.style.color = 'var(--main-color)';
