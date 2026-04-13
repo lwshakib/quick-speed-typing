@@ -3,7 +3,6 @@
 **Quicktype** is a high-performance, minimalist speed typing application designed for the modern web. Built with a focus on speed, precision, and aesthetics, it provides a distraction-free environment with real-time analytics, deep progress tracking, and a premium user experience.
 
 [![Project Status: Active](https://img.shields.io/badge/Project%20Status-Active-brightgreen.svg)](https://github.com/lwshakib/quick-speed-typing)
-[![CI](https://github.com/lwshakib/quick-speed-typing/actions/workflows/ci.yml/badge.svg)](https://github.com/lwshakib/quick-speed-typing/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Built with Bun](https://img.shields.io/badge/Built%20with-Bun-f9f9f9.svg?logo=bun&logoColor=black)](https://bun.sh)
 
@@ -63,7 +62,6 @@ Quicktype is built using a modern, type-safe stack designed for performance and 
 - **Auth**: [Better-Auth](https://better-auth.com/)
 - **Charts**: [Recharts](https://recharts.org/)
 - **State Management**: [Zustand](https://zustand.docs.pmnd.rs/)
-- **Testing**: [Jest](https://jestjs.io/) & [Playwright](https://playwright.dev/)
 - **Icons**: [Lucide React](https://lucide.dev/)
 - **Notifications**: [Sonner](https://sonner.emilkowal.ski/)
 
@@ -126,16 +124,6 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 ---
 
-## 🧪 Testing
-
-Quicktype includes a comprehensive testing suite:
-
-- **Unit Tests**: `bun test:unit`
-- **End-to-End Tests**: `bun test:e2e` (Requires Playwright browsers: `bun x playwright install`)
-- **All Tests**: `bun test:all`
-
----
-
 ## 📂 Project Structure
 
 ```text
@@ -145,7 +133,6 @@ Quicktype includes a comprehensive testing suite:
 ├── lib/              # Core logic (Auth, Prisma client, Calculations, Language Data)
 ├── prisma/           # Database schema and migration files
 ├── public/           # Static assets (Images, Logos, Fonts)
-├── __tests__/        # Test suites (Unit & E2E)
 └── types/            # Global TypeScript definitions
 ```
 

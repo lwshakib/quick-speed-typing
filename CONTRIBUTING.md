@@ -44,33 +44,6 @@ Quicktype aims to be:
 
 ---
 
-## 🧪 Testing Guidelines
-
-We prioritize stability. Please ensure your changes pass all tests before submitting a PR.
-
-### Unit Tests
-
-We use **Jest** for unit testing core logic (calculations, utilities).
-
-```bash
-bun test:unit
-```
-
-### End-to-End (E2E) Tests
-
-We use **Playwright** for UI and flow testing.
-
-1. Install browsers (first time only):
-   ```bash
-   bun x playwright install
-   ```
-2. Run tests:
-   ```bash
-   bun test:e2e
-   ```
-
----
-
 ## 🤝 How to Contribute
 
 ### 1. Reporting Bugs
@@ -86,7 +59,7 @@ We use **Playwright** for UI and flow testing.
 ### 3. Pull Requests
 
 1. Fork the repo and create your branch from `main`.
-2. Ensure your code follows the existing style and passess all linting/testing checks.
+2. Ensure your code follows the existing style and passess all linting checks.
 3. Provide a clear, concise description of your changes in the PR.
 4. Link the PR to any relevant issues.
 
