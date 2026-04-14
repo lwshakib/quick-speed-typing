@@ -79,10 +79,7 @@ export function ContributionActivity({ calendar, totalContributions }: Contribut
         </div>
       </div>
 
-      <div
-        className="overflow-hidden p-0"
-        style={{ backgroundColor: 'transparent', border: 'none' }}
-      >
+      <div className="overflow-hidden p-0" style={{ backgroundColor: 'transparent', border: 'none' }}>
         <div className="flex w-full flex-col items-center overflow-hidden">
           <div className="inline-flex max-w-full flex-col gap-2 overflow-x-auto pb-2">
             {/* Month labels */}
@@ -248,3 +245,4 @@ export function ContributionActivitySkeleton() {
     </div>
   );
 }
+

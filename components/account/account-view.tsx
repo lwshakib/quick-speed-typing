@@ -20,14 +20,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
 // Import a set of icons to enrich the visual categories
 import {
   User,
@@ -517,11 +509,7 @@ export function AccountView() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel disabled={isDeleting}>cancel</AlertDialogCancel>
-            <AlertDialogAction
-              variant="destructive"
-              disabled={isDeleting}
-              onClick={handleDeleteAccount}
-            >
+            <AlertDialogAction variant="destructive" disabled={isDeleting} onClick={handleDeleteAccount}>
               {isDeleting ? 'deleting...' : 'delete'}
             </AlertDialogAction>
           </AlertDialogFooter>
@@ -530,3 +518,4 @@ export function AccountView() {
     </motion.main>
   );
 }
+

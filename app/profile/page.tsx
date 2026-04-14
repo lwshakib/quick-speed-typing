@@ -7,7 +7,7 @@ import { headers } from 'next/headers';
 // Import redirection utility for unauthenticated access control
 import { redirect } from 'next/navigation';
 // Import the client-side ProfileView component for rendering the stats
-import { ProfileView } from '@/components/profile-view';
+import { ProfileView } from '@/components/profile/profile-view';
 
 /**
  * ProfilePage: A server-side component that orchestrates data fetching for the user's profile.

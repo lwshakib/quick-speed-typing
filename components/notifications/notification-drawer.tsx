@@ -4,7 +4,6 @@
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 // Import descriptive icon set
 import { Bell, Info, Trophy, Star } from 'lucide-react';
-// Import animation toolkit
 
 // Import utility for conditional class merging
 import { cn } from '@/lib/utils';
@@ -170,3 +169,4 @@ function NotificationIcon({ type }: { type: Notification['type'] }) {
       return <Bell size={18} />;
   }
 }
+

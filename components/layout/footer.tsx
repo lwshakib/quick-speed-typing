@@ -15,7 +15,7 @@ import {
   Palette,
 } from 'lucide-react';
 // Import a custom helper component for rendering links with icons consistently
-import { LinkWithIcon } from '@/components/link-with-icon';
+import { LinkWithIcon } from '@/components/common/link-with-icon';
 // Import global state to handle reactive UI changes
 import { useUiStore } from '@/hooks/use-ui-store';
 
@@ -64,7 +64,7 @@ export function Footer() {
       <div className="flex items-center gap-8">
         {/* Theme indicator/button to quickly open theme settings */}
         <span
-          className="hover:text-foreground group flex cursor-pointer items-center gap-2 rounded-md px-2 py-1 transition-all transition-colors duration-300 hover:bg-white/5"
+          className="hover:text-foreground group flex cursor-pointer items-center gap-2 rounded-md px-2 py-1 transition-colors duration-300 hover:bg-white/5"
           onClick={() => setIsThemeOpen(true)}
         >
           <Palette
@@ -81,3 +81,4 @@ export function Footer() {
     </motion.footer>
   );
 }
+

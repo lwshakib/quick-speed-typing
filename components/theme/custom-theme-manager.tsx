@@ -22,7 +22,6 @@ export function CustomThemeManager() {
     root.style.setProperty('--ring', theme.colors.main);
     root.style.setProperty('--destructive', theme.colors.error);
 
-    // Calculate depth-based colors for secondary UI elements
     const isLight = (color: string) => {
       const hex = color.replace('#', '');
       const r = parseInt(hex.substring(0, 2), 16);
@@ -35,7 +34,10 @@ export function CustomThemeManager() {
     const lightTheme = isLight(theme.colors.background);
 
     root.style.setProperty('--muted', lightTheme ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.05)');
-    root.style.setProperty('--border', lightTheme ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.1)');
+    root.style.setProperty(
+      '--border',
+      lightTheme ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.1)',
+    );
     root.style.setProperty('--input', lightTheme ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.1)');
     root.style.setProperty('--popover', theme.colors.background);
     root.style.setProperty('--card', theme.colors.background);
@@ -67,7 +69,6 @@ export function CustomThemeManager() {
       applyTheme(theme);
     }
 
-    // Listen for theme changes from other components
     const handleThemeChange = (e: CustomEvent<Theme>) => {
       if (e.detail) {
         applyTheme(e.detail);
@@ -80,3 +81,4 @@ export function CustomThemeManager() {
 
   return null;
 }
+

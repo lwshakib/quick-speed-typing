@@ -5,7 +5,7 @@ import { headers } from 'next/headers';
 // Import redirection for unauthenticated navigation control
 import { redirect } from 'next/navigation';
 // Import the AccountView component which handles the actual UI and session management
-import { AccountView } from '@/components/account-view';
+import { AccountView } from '@/components/account/account-view';
 
 /**
  * AccountPage: A server-side entry point for the user's account management view.

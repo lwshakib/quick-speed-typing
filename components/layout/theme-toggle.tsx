@@ -14,7 +14,6 @@ export function ThemeToggle() {
     const saved = localStorage.getItem('typing-theme') || 'default-light';
     setCurrentThemeId(saved);
 
-    // Listen for theme changes from other components (like ThemeDialog)
     const handleThemeChange = () => {
       setCurrentThemeId(localStorage.getItem('typing-theme') || 'default-light');
     };
@@ -30,15 +29,10 @@ export function ThemeToggle() {
   const isDark = currentTheme.type === 'dark';
 
   const toggleTheme = () => {
-    let targetTheme;
-
-    // Find counterpart (e.g., serika-dark -> serika-light)
     const baseName = currentTheme.id.replace('-light', '').replace('-dark', '');
     const counterpartId = isDark ? `${baseName}-light` : `${baseName}-dark`;
 
-    targetTheme = THEMES.find((t) => t.id === counterpartId);
-
-    // Fallback if no direct counterpart exists
+    let targetTheme = THEMES.find((t) => t.id === counterpartId);
     if (!targetTheme) {
       targetTheme = THEMES.find((t) => t.type === (isDark ? 'light' : 'dark'));
     }
@@ -46,7 +40,6 @@ export function ThemeToggle() {
     if (targetTheme) {
       localStorage.setItem('typing-theme', targetTheme.id);
       setCurrentThemeId(targetTheme.id);
-      // Dispatch custom event so app/page.tsx can update
       window.dispatchEvent(new CustomEvent('theme-changed', { detail: targetTheme }));
     }
   };
@@ -72,3 +65,4 @@ export function ThemeToggle() {
     </button>
   );
 }
+

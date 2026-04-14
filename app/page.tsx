@@ -1,7 +1,7 @@
 'use client';
 
 // Import UI components and dialogs
-import { TestDurationDialog } from '@/components/test-duration-dialog';
+import { TestDurationDialog } from '@/components/dialogs/test-duration-dialog';
 import { Kbd } from '@/components/ui/kbd';
 // Import server actions and authentication client
 import { saveTypingHistory } from '@/lib/actions';

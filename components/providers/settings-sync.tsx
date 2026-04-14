@@ -15,7 +15,6 @@ export function SettingsSync() {
   const hasSynced = useRef(false);
 
   useEffect(() => {
-    // If a user is logged in and we haven't synced yet, fetch settings from DB
     if (session && !hasSynced.current) {
       getUserSettings().then((dbSettings) => {
         if (dbSettings) {
@@ -24,10 +23,10 @@ export function SettingsSync() {
         }
       });
     } else if (!session) {
-      // Reset sync flag if user logs out so we can re-sync if a different user logs in
       hasSynced.current = false;
     }
   }, [session, settings]);
 
   return null;
 }
+

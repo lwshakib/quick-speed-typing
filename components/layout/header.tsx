@@ -9,9 +9,9 @@ import { Keyboard, Trophy, Info, Settings, Bell, User as UserIcon } from 'lucide
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 // Import local branding and feature components
-import { Logo } from '@/components/logo';
-import { ThemeToggle } from '@/components/theme-toggle';
-import { UserMenu } from '@/components/user-menu';
+import { Logo } from '@/components/layout/logo';
+import { ThemeToggle } from '@/components/layout/theme-toggle';
+import { UserMenu } from '@/components/layout/user-menu';
 // Import authentication and state management hooks
 import { useSession } from '@/lib/auth-client';
 import { useUiStore } from '@/hooks/use-ui-store';
@@ -30,11 +30,6 @@ export function Header() {
   // Ref to prevent multiple theme sync calls on initial load
   const hasSyncedTheme = useRef(false);
 
-  /**
-   * EFFECT: Initial theme synchronization from localStorage.
-   * This ensures the user's preferred visual style is applied immediately,
-   * even before the session is fully resolved from the server.
-   */
   useEffect(() => {
     const savedThemeId = localStorage.getItem('typing-theme');
     if (savedThemeId) {
@@ -60,11 +55,6 @@ export function Header() {
     }
   }, [session, applyTheme]);
 
-  /**
-   * EFFECT: Profile-based theme synchronization.
-   * If a user is logged in, fetch their saved theme from the database to ensure
-   * a consistent experience across different devices.
-   */
   useEffect(() => {
     if (session && !hasSyncedTheme.current) {
       getUserTheme().then((dbTheme) => {
@@ -80,7 +70,7 @@ export function Header() {
                   colors: JSON.parse(savedCustom),
                 },
                 null,
-              ); // don't re-save to DB if already matched
+              );
             }
           } else if (currentTheme.id !== dbTheme) {
             const theme = THEMES.find((t) => t.id === dbTheme);
@@ -97,10 +87,8 @@ export function Header() {
   }, [session, currentTheme.id, applyTheme]);
 
   return (
-    // Fixed header with glassmorphism effect
     <header className="bg-background/80 fixed top-0 right-0 left-0 z-50 flex w-full justify-center backdrop-blur-md transition-all duration-300">
       <div className="flex w-full max-w-[1440px] items-center justify-between px-8 py-6">
-        {/* Left side: Branding and Main Navigation */}
         <div className="flex items-center gap-6">
           <Link
             href="/"
@@ -109,11 +97,9 @@ export function Header() {
               isFocusMode ? 'opacity-100' : 'hover:scale-105 active:scale-95',
             )}
           >
-            {/* Consistent brand identity through the Logo component */}
             <Logo iconSize={32} textSize="1.5rem" className="text-foreground" hideText={false} />
           </Link>
 
-          {/* Animated Navigation: Hidden during active typing in focus mode */}
           <motion.nav
             animate={{
               opacity: showUi ? 1 : 0,
@@ -123,7 +109,6 @@ export function Header() {
             transition={{ duration: 0.5 }}
             className="ml-4 flex items-center gap-4"
           >
-            {/* Navigation Links with active state indicators */}
             <Link
               href="/"
               className="hover:text-foreground group relative cursor-pointer transition-colors"
@@ -168,7 +153,6 @@ export function Header() {
           </motion.nav>
         </div>
 
-        {/* Right side: Global Actions and User Identity */}
         <motion.div
           animate={{
             opacity: showUi ? 1 : 0,
@@ -178,7 +162,6 @@ export function Header() {
           transition={{ duration: 0.5 }}
           className="flex items-center gap-4"
         >
-          {/* Notification trigger button with active indicator */}
           <button
             onClick={() => setIsNotificationsOpen(true)}
             className="hover:text-foreground group relative cursor-pointer transition-colors duration-200 hover:scale-110 active:scale-95"
@@ -187,9 +170,7 @@ export function Header() {
             <Bell size={16} />
             <span className="bg-primary border-background absolute top-0 right-0 h-2 w-2 rounded-full border-2 group-hover:animate-ping" />
           </button>
-          {/* Visual theme switcher */}
           <ThemeToggle />
-          {/* User menu for authenticated users, otherwise a login link */}
           {session ? (
             <UserMenu />
           ) : (
@@ -206,3 +187,4 @@ export function Header() {
     </header>
   );
 }
+

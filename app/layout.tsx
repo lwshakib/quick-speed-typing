@@ -96,13 +96,13 @@ export const metadata: Metadata = {
 };
 
 // Import UI components and providers
-import { ThemeProvider } from '@/components/theme-provider';
+import { ThemeProvider } from '@/components/providers/theme-provider';
 import { Toaster } from '@/components/ui/sonner';
-import { CustomThemeManager } from '@/components/custom-theme-manager';
-import { Header } from '@/components/header';
-import { Footer } from '@/components/footer';
-import { GlobalModals } from '@/components/global-modals';
-import { SettingsSync } from '@/components/settings-sync';
+import { CustomThemeManager } from '@/components/theme/custom-theme-manager';
+import { Header } from '@/components/layout/header';
+import { Footer } from '@/components/layout/footer';
+import { GlobalModals } from '@/components/providers/global-modals';
+import { SettingsSync } from '@/components/providers/settings-sync';
 
 // Root Layout component that wraps the entire application
 export default function RootLayout({
