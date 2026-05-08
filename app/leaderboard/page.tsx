@@ -46,7 +46,10 @@ export default function LeaderboardPage() {
 
   // Re-fetch data whenever the chosen filter period changes
   useEffect(() => {
-    fetchRankings();
+    const handle = requestAnimationFrame(() => {
+      fetchRankings();
+    });
+    return () => cancelAnimationFrame(handle);
   }, [fetchRankings]);
 
   return (
