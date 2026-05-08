@@ -27,20 +27,20 @@ Quicktype aims to be:
 1.  Fork and clone the repository.
 2.  Install dependencies:
     ```bash
-    bun install
+    pnpm install
     ```
 3.  Set up your `.env` file based on `.env.example`.
 4.  Initialize the database:
     ```bash
-    bun db:migrate
+    pnpm db:migrate
     ```
 
 ### Useful Commands
 
-- `bun dev`: Start the development server.
-- `bun db:studio`: Open Prisma Studio to view/edit database records.
-- `bun lint`: Run ESLint to check for code quality issues.
-- `bun format`: Format the codebase using Prettier.
+- `pnpm dev`: Start the development server.
+- `pnpm db:studio`: Open Prisma Studio to view/edit database records.
+- `pnpm lint`: Run ESLint to check for code quality issues.
+- `pnpm format`: Format the codebase using Prettier.
 
 ---
 

@@ -4,7 +4,7 @@
 
 [![Project Status: Active](https://img.shields.io/badge/Project%20Status-Active-brightgreen.svg)](https://github.com/lwshakib/quick-speed-typing)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Built with Bun](https://img.shields.io/badge/Built%20with-Bun-f9f9f9.svg?logo=bun&logoColor=black)](https://bun.sh)
+[![Built with pnpm](https://img.shields.io/badge/Built%20with-pnpm-f69220.svg?logo=pnpm&logoColor=white)](https://pnpm.io)
 
 ---
 
@@ -71,7 +71,8 @@ graph TD
 Quicktype is built using a modern, type-safe stack designed for performance and scalability:
 
 - **Framework**: [Next.js 16 (Canary)](https://nextjs.org/) (App Router, Server Actions)
-- **Runtime**: [Bun](https://bun.sh) (Blazing fast JS runtime & package manager)
+- **Runtime**: [Bun](https://bun.sh) / [Node.js](https://nodejs.org)
+- **Package Manager**: [pnpm](https://pnpm.io) (Efficient, disk-space friendly)
 - **Styling**: [Tailwind CSS v4](https://tailwindcss.com/)
 - **Components**: [Shadcn UI](https://ui.shadcn.com/) & [Radix UI](https://www.radix-ui.com/)
 - **Animations**: [Framer Motion](https://www.framer.com/motion/)
@@ -105,7 +106,7 @@ Quicktype is built using a modern, type-safe stack designed for performance and 
 2. **Install dependencies:**
 
    ```bash
-   bun install
+   pnpm install
    ```
 
 3. **Environment Setup:**
@@ -130,12 +131,12 @@ Quicktype is built using a modern, type-safe stack designed for performance and 
 4. **Initialize Database:**
 
    ```bash
-   bun db:migrate
+   pnpm db:migrate
    ```
 
 5. **Run Development Server:**
    ```bash
-   bun dev
+   pnpm dev
    ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
