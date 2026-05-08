@@ -5,7 +5,7 @@ import Image from 'next/image';
 // Import core React hooks for state and lifecycle management
 import { useState, useEffect } from 'react';
 // Import authentication client hooks for sessions and user data
-import { authClient, useSession } from '@/lib/auth-client';
+import { authClient, useSession, signIn } from '@/lib/auth-client';
 // Import UI components from the project's design system
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -69,15 +69,6 @@ export function AccountView() {
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  // Synchronize state with current session data when it becomes available
-  useEffect(() => {
-    if (session?.user) {
-      setName(session.user.name || '');
-      fetchSessions();
-      fetchAccounts();
-    }
-  }, [session]);
-
   // Fetch all active browser/app sessions for the current user
   const fetchSessions = async () => {
     try {
@@ -112,6 +103,18 @@ export function AccountView() {
       setIsLoadingAccounts(false);
     }
   };
+
+  // Synchronize state with current session data when it becomes available
+  useEffect(() => {
+    if (session?.user) {
+      const handle = requestAnimationFrame(() => {
+        setName(session.user.name || '');
+        fetchSessions();
+        fetchAccounts();
+      });
+      return () => cancelAnimationFrame(handle);
+    }
+  }, [session]);
 
   // Logic to update the user's public display name
   const handleUpdateName = async () => {
@@ -158,15 +161,17 @@ export function AccountView() {
   const handleLinkAccount = async (provider: 'google') => {
     try {
       if ('linkSocial' in authClient) {
-        await (authClient as unknown as {
-          linkSocial: (p: { provider: 'google'; callbackURL: string }) => Promise<void>;
-        }).linkSocial({
+        await (
+          authClient as unknown as {
+            linkSocial: (p: { provider: 'google'; callbackURL: string }) => Promise<void>;
+          }
+        ).linkSocial({
           provider,
           callbackURL: window.location.href,
         });
       } else {
         // Fallback: Better Auth can still link via social sign-in when account linking is enabled.
-        await authClient.signIn.social({
+        await signIn.social({
           provider,
           callbackURL: window.location.href,
         });
@@ -180,9 +185,11 @@ export function AccountView() {
   const handleUnlinkAccount = async (providerId: string, accountId?: string) => {
     try {
       if ('unlinkAccount' in authClient) {
-        const unlink = (authClient as unknown as {
-          unlinkAccount: (p: { providerId?: string; accountId?: string }) => Promise<unknown>;
-        }).unlinkAccount;
+        const unlink = (
+          authClient as unknown as {
+            unlinkAccount: (p: { providerId?: string; accountId?: string }) => Promise<unknown>;
+          }
+        ).unlinkAccount;
         await unlink({ providerId, accountId });
         toast.success('account unlinked');
         fetchAccounts();
@@ -509,7 +516,11 @@ export function AccountView() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel disabled={isDeleting}>cancel</AlertDialogCancel>
-            <AlertDialogAction variant="destructive" disabled={isDeleting} onClick={handleDeleteAccount}>
+            <AlertDialogAction
+              variant="destructive"
+              disabled={isDeleting}
+              onClick={handleDeleteAccount}
+            >
               {isDeleting ? 'deleting...' : 'delete'}
             </AlertDialogAction>
           </AlertDialogFooter>
@@ -518,4 +529,3 @@ export function AccountView() {
     </motion.main>
   );
 }
-
