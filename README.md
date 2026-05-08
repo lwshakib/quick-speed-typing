@@ -48,6 +48,24 @@ Clean, high-contrast interface for maximum legibility and focus.
 
 ---
 
+## 🔄 Application Workflow
+
+```mermaid
+graph TD
+    A[Start Test] --> B[Generate Localized Content]
+    B --> C[Capture Keyboard Input]
+    C --> D{Engine Validation}
+    D -- Correct --> E[Real-time Stats Calculation]
+    D -- Incorrect --> F[Error Tracking]
+    E --> G{Test Finished?}
+    F --> C
+    G -- No --> C
+    G -- Yes --> H[Persist Results via Server Action]
+    H --> I[Update User Profile & Leaderboard]
+```
+
+---
+
 ## 🛠️ Tech Stack
 
 Quicktype is built using a modern, type-safe stack designed for performance and scalability:
