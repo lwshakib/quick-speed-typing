@@ -88,17 +88,19 @@ function Carousel({
 
   React.useEffect(() => {
     if (!api || !setApi) return;
-    setApi(api);
+    const handle = requestAnimationFrame(() => setApi(api));
+    return () => cancelAnimationFrame(handle);
   }, [api, setApi]);
 
   React.useEffect(() => {
     if (!api) return;
-    onSelect(api);
+    const handle = requestAnimationFrame(() => onSelect(api));
     api.on('reInit', onSelect);
     api.on('select', onSelect);
 
     return () => {
       api?.off('select', onSelect);
+      cancelAnimationFrame(handle);
     };
   }, [api, onSelect]);
 
