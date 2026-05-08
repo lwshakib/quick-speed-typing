@@ -34,10 +34,7 @@ export function CustomThemeManager() {
     const lightTheme = isLight(theme.colors.background);
 
     root.style.setProperty('--muted', lightTheme ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.05)');
-    root.style.setProperty(
-      '--border',
-      lightTheme ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.1)',
-    );
+    root.style.setProperty('--border', lightTheme ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.1)');
     root.style.setProperty('--input', lightTheme ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.1)');
     root.style.setProperty('--popover', theme.colors.background);
     root.style.setProperty('--card', theme.colors.background);
@@ -81,4 +78,3 @@ export function CustomThemeManager() {
 
   return null;
 }
-

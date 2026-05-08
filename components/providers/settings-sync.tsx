@@ -29,4 +29,3 @@ export function SettingsSync() {
 
   return null;
 }
-

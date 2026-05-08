@@ -169,4 +169,3 @@ function NotificationIcon({ type }: { type: Notification['type'] }) {
       return <Bell size={18} />;
   }
 }
-

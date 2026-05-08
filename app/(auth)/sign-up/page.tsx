@@ -26,8 +26,11 @@ export default function SignUpPage() {
     try {
       const storedEmail = sessionStorage.getItem(successKey);
       if (storedEmail) {
-        setEmail(storedEmail);
-        setIsSuccess(true);
+        const handle = requestAnimationFrame(() => {
+          setEmail(storedEmail);
+          setIsSuccess(true);
+        });
+        return () => cancelAnimationFrame(handle);
       }
     } catch {
       // Ignore storage access issues (e.g. restricted environments)

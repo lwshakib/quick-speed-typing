@@ -429,7 +429,10 @@ export function ProfileView({ contributionData, profileStats }: ProfileViewProps
               <ChartTooltip
                 cursor={{ stroke: 'var(--border)', strokeWidth: 1 }}
                 content={
-                  <ChartTooltipContent indicator="dot" className="bg-background rounded-lg border-white/10 shadow-xl" />
+                  <ChartTooltipContent
+                    indicator="dot"
+                    className="bg-background rounded-lg border-white/10 shadow-xl"
+                  />
                 }
               />
               <Area
@@ -455,26 +458,34 @@ export function ProfileView({ contributionData, profileStats }: ProfileViewProps
         <div className="grid grid-cols-2 gap-x-8 gap-y-12 md:grid-cols-4">
           {/* Split statistics across lifetime and last-10-test windows to show momentum */}
           <div className="space-y-1">
-            <p className="text-[10px] font-bold tracking-widest uppercase opacity-30">all-time avg</p>
+            <p className="text-[10px] font-bold tracking-widest uppercase opacity-30">
+              all-time avg
+            </p>
             <p className="text-3xl font-black lowercase">
               {profileStats.avgWpm.toFixed(1)} <span className="text-xs opacity-20">wpm</span>
             </p>
           </div>
           <div className="space-y-1">
-            <p className="text-[10px] font-bold tracking-widest uppercase opacity-30">all-time raw</p>
+            <p className="text-[10px] font-bold tracking-widest uppercase opacity-30">
+              all-time raw
+            </p>
             <p className="text-3xl font-black lowercase">
               {profileStats.avgRawWpm.toFixed(1)} <span className="text-xs opacity-20">wpm</span>
             </p>
           </div>
           <div className="space-y-1">
-            <p className="text-[10px] font-bold tracking-widest uppercase opacity-30">avg accuracy</p>
+            <p className="text-[10px] font-bold tracking-widest uppercase opacity-30">
+              avg accuracy
+            </p>
             <p className="text-3xl font-black lowercase">{profileStats.avgAccuracy.toFixed(1)}%</p>
           </div>
           <div className="space-y-1">
             <p className="text-[10px] font-bold tracking-widest uppercase opacity-30">
               avg consistency
             </p>
-            <p className="text-3xl font-black lowercase">{profileStats.avgConsistency.toFixed(1)}%</p>
+            <p className="text-3xl font-black lowercase">
+              {profileStats.avgConsistency.toFixed(1)}%
+            </p>
           </div>
 
           <div className="space-y-1">
@@ -490,7 +501,9 @@ export function ProfileView({ contributionData, profileStats }: ProfileViewProps
             </p>
           </div>
           <div className="space-y-1">
-            <p className="text-[10px] font-bold tracking-widest uppercase opacity-30">l10 accuracy</p>
+            <p className="text-[10px] font-bold tracking-widest uppercase opacity-30">
+              l10 accuracy
+            </p>
             <p className="text-3xl font-black lowercase">
               {profileStats.avgAccuracy10.toFixed(1)}%
             </p>
@@ -569,13 +582,18 @@ export function ProfileView({ contributionData, profileStats }: ProfileViewProps
                         {/* Crown icon for all-time highest Wpm */}
                         {isBest && <Crown size={14} className="text-primary fill-primary/10" />}
                       </td>
-                      <td className="px-4 py-3 text-lg font-bold tabular-nums" style={{ color: 'var(--text-color)' }}>
+                      <td
+                        className="px-4 py-3 text-lg font-bold tabular-nums"
+                        style={{ color: 'var(--text-color)' }}
+                      >
                         {h.wpm.toFixed(0)}
                       </td>
                       <td className="px-4 py-3 tabular-nums opacity-40">
                         {h.rawWpm?.toFixed(0) || h.wpm.toFixed(0)}
                       </td>
-                      <td className="px-4 py-3 tabular-nums opacity-60">{h.accuracy.toFixed(0)}%</td>
+                      <td className="px-4 py-3 tabular-nums opacity-60">
+                        {h.accuracy.toFixed(0)}%
+                      </td>
                       <td className="px-4 py-3 tabular-nums opacity-40">
                         {h.consistency?.toFixed(0) || 0}%
                       </td>
@@ -602,4 +620,3 @@ export function ProfileView({ contributionData, profileStats }: ProfileViewProps
     </motion.main>
   );
 }
-
