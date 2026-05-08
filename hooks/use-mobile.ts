@@ -29,10 +29,13 @@ export function useIsMobile() {
     mql.addEventListener('change', onChange);
 
     // Perform initial check on mount
-    setIsMobile(window.innerWidth < MOBILE_BREAKPOINT);
-
-    // Clean up listener to prevent memory leaks
-    return () => mql.removeEventListener('change', onChange);
+    const handle = requestAnimationFrame(() => {
+      setIsMobile(window.innerWidth < MOBILE_BREAKPOINT);
+    });
+    return () => {
+      mql.removeEventListener('change', onChange);
+      cancelAnimationFrame(handle);
+    };
   }, []);
 
   // Coerce undefined to false if not yet determined
