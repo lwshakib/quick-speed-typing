@@ -160,13 +160,17 @@ export default function Home() {
   // Synchronize focus mode with the typing state and mouse movement
   useEffect(() => {
     const focus = state === 'run' && !isMouseMoving;
-    setIsFocusMode(focus);
-    setShowUi(!focus);
+    const handle = requestAnimationFrame(() => {
+      setIsFocusMode(focus);
+      setShowUi(!focus);
+    });
+    return () => cancelAnimationFrame(handle);
   }, [state, isMouseMoving, setIsFocusMode, setShowUi]);
 
   // Set mounted state on component mount
   useEffect(() => {
-    setIsMounted(true);
+    const handle = requestAnimationFrame(() => setIsMounted(true));
+    return () => cancelAnimationFrame(handle);
   }, []);
 
   // Monitor restart requests from the global store (e.g., from the header)
@@ -215,10 +219,13 @@ export default function Home() {
   useEffect(() => {
     const isFinished = state === 'finish';
     if (isFinished && !lastFinishRef.current) {
-      setHasSaved(false);
-      if (session) {
-        handleSave();
-      }
+      const handle = requestAnimationFrame(() => {
+        setHasSaved(false);
+        if (session) {
+          handleSave();
+        }
+      });
+      return () => cancelAnimationFrame(handle);
     }
     lastFinishRef.current = isFinished;
     // eslint-disable-next-line react-hooks/exhaustive-deps
