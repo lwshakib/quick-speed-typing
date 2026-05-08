@@ -10,15 +10,20 @@ export function ThemeToggle() {
   const [mounted, setMounted] = React.useState(false);
 
   React.useEffect(() => {
-    setMounted(true);
-    const saved = localStorage.getItem('typing-theme') || 'default-light';
-    setCurrentThemeId(saved);
+    const handle = requestAnimationFrame(() => {
+      setMounted(true);
+      const saved = localStorage.getItem('typing-theme') || 'default-light';
+      setCurrentThemeId(saved);
+    });
 
     const handleThemeChange = () => {
       setCurrentThemeId(localStorage.getItem('typing-theme') || 'default-light');
     };
     window.addEventListener('theme-changed', handleThemeChange);
-    return () => window.removeEventListener('theme-changed', handleThemeChange);
+    return () => {
+      window.removeEventListener('theme-changed', handleThemeChange);
+      cancelAnimationFrame(handle);
+    };
   }, []);
 
   if (!mounted) {
@@ -65,4 +70,3 @@ export function ThemeToggle() {
     </button>
   );
 }
-
