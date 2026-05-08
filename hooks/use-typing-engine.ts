@@ -352,7 +352,8 @@ export const useTypingEngine = (options: TypingOptions = {}) => {
   /** Initial load or manual mode switches */
   useEffect(() => {
     if (!words && mode !== 'zen') {
-      updateWords();
+      const handle = requestAnimationFrame(() => updateWords());
+      return () => cancelAnimationFrame(handle);
     }
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
@@ -362,7 +363,8 @@ export const useTypingEngine = (options: TypingOptions = {}) => {
   /** Sync timeLeft with amount when switching modes */
   useEffect(() => {
     if (state === 'start') {
-      setTimeLeft(amount);
+      const handle = requestAnimationFrame(() => setTimeLeft(amount));
+      return () => cancelAnimationFrame(handle);
     }
   }, [amount, mode, state]);
 
@@ -371,7 +373,6 @@ export const useTypingEngine = (options: TypingOptions = {}) => {
     if (mode === 'words') {
       const currentTypedWords = typed.trim().split(/\s+/).filter(Boolean);
       const remaining = Math.max(0, amount - currentTypedWords.length);
-      setTimeLeft(remaining);
 
       if (remaining === 0 && typed.endsWith(' ')) {
         finish();
@@ -517,8 +518,13 @@ export const useTypingEngine = (options: TypingOptions = {}) => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [handleKeyDown]);
 
-  const finalElapsedTime =
-    testDuration || (startTimeRef.current ? (Date.now() - startTimeRef.current) / 1000 : 0);
+  // Derived metrics calculated during render for purity and performance
+  const displayTimeLeft =
+    mode === 'words'
+      ? Math.max(0, amount - typed.trim().split(/\s+/).filter(Boolean).length)
+      : timeLeft;
+
+  const finalElapsedTime = testDuration || 1 / 60;
 
   /**
    * Comprehensive performance statistics.
@@ -562,7 +568,7 @@ export const useTypingEngine = (options: TypingOptions = {}) => {
     state,
     words,
     typed,
-    timeLeft,
+    timeLeft: displayTimeLeft,
     errors,
     isError,
     lastError,
