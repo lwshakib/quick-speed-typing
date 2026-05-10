@@ -13,9 +13,14 @@
     "db:studio": "prisma studio",
     "db:reset": "prisma migrate reset",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "typecheck": "tsc --noEmit",
+    "bucket:setup": "pnpm ts-node scripts/bucket-setup.ts",
+    "bucket:teardown": "pnpm ts-node scripts/bucket-teardown.ts"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1045.0",
+    "@aws-sdk/s3-request-presigner": "^3.1045.0",
     "@faker-js/faker": "^10.2.0",
     "@hookform/resolvers": "^5.2.2",
     "@prisma/adapter-pg": "^7.2.0",

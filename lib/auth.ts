@@ -10,7 +10,7 @@ import { Resend } from 'resend';
 import { AuthEmailTemplate } from '@/components/emails/auth-email-template';
 
 // Initialize Resend client for transactional email delivery
-const resend = new Resend(process.env.RESEND_API_KEY);
+const resend = new Resend(process.env.RESEND_API_KEY || 're_dummy');
 
 /**
  * Main Auth Configuration:

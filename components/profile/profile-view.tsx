@@ -42,6 +42,9 @@ import { motion } from 'framer-motion';
 // Local sub-components for specialized views
 import { ContributionActivity } from '@/components/profile/contribution-activity';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { authClient, useSession } from '@/lib/auth-client';
+import { toast } from 'sonner';
+import { Plus } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 
@@ -139,6 +142,78 @@ export function ProfileView({ contributionData, profileStats }: ProfileViewProps
   const [activeMetric, setActiveMetric] = React.useState<keyof typeof chartConfig>('wpm');
   const { user, totalTests, completedTests, totalTimeSeconds } = profileStats;
 
+  const { data: session } = useSession();
+  const [isUploadingImage, setIsUploadingImage] = React.useState(false);
+  const [avatarUrl, setAvatarUrl] = React.useState<string | null>(null);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+  // Sync avatar URL with user image
+  React.useEffect(() => {
+    const fetchAvatarUrl = async () => {
+      const image = session?.user?.image || user.image;
+      if (image && !image.startsWith('http')) {
+        try {
+          const res = await fetch(`/api/s3/signed-url?key=${encodeURIComponent(image)}`);
+          const data = await res.json();
+          if (data.url) setAvatarUrl(data.url);
+        } catch (err) {
+          console.error('Failed to fetch signed avatar URL:', err);
+        }
+      } else {
+        setAvatarUrl(image || null);
+      }
+    };
+    fetchAvatarUrl();
+  }, [session?.user?.image, user.image]);
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      return toast.error('Please upload an image file');
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      return toast.error('File size must be less than 2MB');
+    }
+
+    setIsUploadingImage(true);
+    try {
+      const res = await fetch('/api/s3/presigned-url', {
+        method: 'POST',
+        body: JSON.stringify({
+          fileName: file.name,
+          fileType: file.type,
+        }),
+      });
+
+      const { url, key, error } = await res.json();
+      if (error) throw new Error(error);
+
+      const uploadRes = await fetch(url, {
+        method: 'PUT',
+        body: file,
+        headers: {
+          'Content-Type': file.type,
+        },
+      });
+
+      if (!uploadRes.ok) throw new Error('Failed to upload to S3');
+
+      await authClient.updateUser({
+        image: key,
+      });
+
+      toast.success('avatar updated');
+    } catch (err) {
+      console.error('Upload error:', err);
+      toast.error(err instanceof Error ? err.message : 'failed to upload avatar');
+    } finally {
+      setIsUploadingImage(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
   /**
    * Filter and format data for the progress area chart based on the selected time range.
    */
@@ -231,12 +306,36 @@ export function ProfileView({ contributionData, profileStats }: ProfileViewProps
       <section className="flex flex-col items-center justify-between gap-8 border-b border-white/5 pb-12 md:flex-row">
         <div className="flex items-center gap-6">
           {/* Large user avatar with fallback branding */}
-          <Avatar className="h-24 w-24 rounded-2xl border border-white/10">
-            <AvatarImage src={user.image || ''} />
-            <AvatarFallback className="text-primary bg-white/5 text-3xl font-black">
-              {user.name?.[0]?.toUpperCase()}
-            </AvatarFallback>
-          </Avatar>
+          <div
+            className="group relative h-24 w-24 cursor-pointer transition-all hover:scale-105"
+            onClick={() => fileInputRef.current?.click()}
+          >
+            <Avatar className="h-full w-full rounded-2xl border border-white/10">
+              <AvatarImage
+                src={avatarUrl || ''}
+                className="object-cover transition-opacity group-hover:opacity-50"
+              />
+              <AvatarFallback className="text-primary bg-white/5 text-3xl font-black">
+                {user.name?.[0]?.toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+            {isUploadingImage && (
+              <div className="absolute inset-0 flex items-center justify-center rounded-2xl bg-black/40">
+                <div className="border-primary h-6 w-6 animate-spin rounded-full border-2 border-t-transparent"></div>
+              </div>
+            )}
+            <div className="absolute inset-0 flex items-center justify-center rounded-2xl bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
+              <Plus size={32} className="text-primary" />
+            </div>
+            <input
+              type="file"
+              ref={fileInputRef}
+              className="hidden"
+              accept="image/*"
+              onChange={handleImageUpload}
+            />
+          </div>
+
           <div className="space-y-1">
             <h1
               className="text-4xl leading-none font-black tracking-tighter lowercase"

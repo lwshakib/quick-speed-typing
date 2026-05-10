@@ -39,6 +39,7 @@ import { toast } from 'sonner';
 import { format } from 'date-fns';
 // Import animation library for entrance transitions
 import { motion } from 'framer-motion';
+import { useRef } from 'react';
 
 interface SessionData {
   id?: string;
@@ -68,6 +69,9 @@ export function AccountView() {
   const [isLoadingAccounts, setIsLoadingAccounts] = useState(true);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Fetch all active browser/app sessions for the current user
   const fetchSessions = async () => {
@@ -116,6 +120,26 @@ export function AccountView() {
     }
   }, [session]);
 
+  // Fetch signed URL if image is a path
+  useEffect(() => {
+    const fetchAvatarUrl = async () => {
+      if (session?.user?.image && !session.user.image.startsWith('http')) {
+        try {
+          const res = await fetch(
+            `/api/s3/signed-url?key=${encodeURIComponent(session.user.image)}`,
+          );
+          const data = await res.json();
+          if (data.url) setAvatarUrl(data.url);
+        } catch (err) {
+          console.error('Failed to fetch signed avatar URL:', err);
+        }
+      } else {
+        setAvatarUrl(session?.user?.image || null);
+      }
+    };
+    fetchAvatarUrl();
+  }, [session?.user?.image]);
+
   // Logic to update the user's public display name
   const handleUpdateName = async () => {
     if (!name.trim()) return toast.error('name cannot be empty');
@@ -129,6 +153,58 @@ export function AccountView() {
       toast.error('failed to update profile');
     } finally {
       setIsUpdating(false);
+    }
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Basic validation
+    if (!file.type.startsWith('image/')) {
+      return toast.error('Please upload an image file');
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      return toast.error('File size must be less than 2MB');
+    }
+
+    setIsUploadingImage(true);
+    try {
+      // 1. Get presigned URL
+      const res = await fetch('/api/s3/presigned-url', {
+        method: 'POST',
+        body: JSON.stringify({
+          fileName: file.name,
+          fileType: file.type,
+        }),
+      });
+
+      const { url, key, error } = await res.json();
+      if (error) throw new Error(error);
+
+      // 2. Upload to S3
+      const uploadRes = await fetch(url, {
+        method: 'PUT',
+        body: file,
+        headers: {
+          'Content-Type': file.type,
+        },
+      });
+
+      if (!uploadRes.ok) throw new Error('Failed to upload to S3');
+
+      // 3. Update User Profile
+      await authClient.updateUser({
+        image: key,
+      });
+
+      toast.success('avatar updated');
+    } catch (err) {
+      console.error('Upload error:', err);
+      toast.error(err instanceof Error ? err.message : 'failed to upload avatar');
+    } finally {
+      setIsUploadingImage(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
     }
   };
 
@@ -252,22 +328,44 @@ export function AccountView() {
             {/* Avatar and Name update block */}
             <div className="space-y-4">
               <div className="mb-2 flex items-center gap-4">
-                <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-xl border border-white/10 bg-white/5">
-                  {session.user.image ? (
+                <div
+                  className="group hover:border-primary/50 relative flex h-16 w-16 cursor-pointer items-center justify-center overflow-hidden rounded-xl border border-white/10 bg-white/5 transition-all"
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  {avatarUrl ? (
                     <Image
-                      src={session.user.image}
+                      src={avatarUrl}
                       alt={session.user.name || 'user avatar'}
                       width={64}
                       height={64}
-                      className="h-full w-full object-cover"
+                      className="h-full w-full object-cover transition-opacity group-hover:opacity-50"
                     />
                   ) : (
                     <User className="h-8 w-8 opacity-20" />
                   )}
+                  {isUploadingImage && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/40">
+                      <div className="border-primary h-4 w-4 animate-spin rounded-full border-2 border-t-transparent"></div>
+                    </div>
+                  )}
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
+                    <Plus size={20} className="text-primary" />
+                  </div>
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    className="hidden"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                  />
                 </div>
                 <div>
                   <p className="text-sm font-bold lowercase opacity-40">profile picture</p>
-                  <p className="text-xs lowercase opacity-20">linked from your provider</p>
+                  <p className="text-xs lowercase opacity-20">
+                    {session.user.image && !session.user.image.startsWith('http')
+                      ? 'stored securely on s3'
+                      : 'linked from your provider'}
+                  </p>
                 </div>
               </div>
 
