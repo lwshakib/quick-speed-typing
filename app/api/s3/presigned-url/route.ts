@@ -21,7 +21,9 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Missing file details' }, { status: 400 });
     }
 
-    const key = `avatars/${session.user.id}-${Date.now()}-${fileName}`;
+    const fileExtension = fileName.split('.').pop() || '';
+    const safeKey = `${session.user.id}-${crypto.randomUUID()}${fileExtension ? `.${fileExtension}` : ''}`;
+    const key = `avatars/${safeKey}`;
 
     const command = new PutObjectCommand({
       Bucket: BUCKET_NAME,
