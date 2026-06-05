@@ -18,8 +18,8 @@ export async function GET(req: Request) {
     const { searchParams } = new URL(req.url);
     const key = searchParams.get('key');
 
-    if (!key) {
-      return NextResponse.json({ error: 'Missing key' }, { status: 400 });
+    if (!key || key.includes('..') || !key.startsWith(`avatars/${session.user.id}/`)) {
+      return NextResponse.json({ error: 'Invalid or unauthorized key' }, { status: 403 });
     }
 
     const command = new GetObjectCommand({
