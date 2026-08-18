@@ -46,14 +46,14 @@ jobs:
       - name: Build
         run: pnpm build
         env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          BETTER_AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/postgres' }}
+          BETTER_AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET || 'dummy-better-auth-secret-key-for-build' }}
           NEXT_PUBLIC_BASE_URL: http://localhost:3000
-          AWS_REGION: ${{ secrets.AWS_REGION }}
-          AWS_ENDPOINT: ${{ secrets.AWS_ENDPOINT }}
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_S3_BUCKET_NAME: ${{ secrets.AWS_S3_BUCKET_NAME }}
-          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
-          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
-          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+          AWS_REGION: ${{ secrets.AWS_REGION || 'auto' }}
+          AWS_ENDPOINT: ${{ secrets.AWS_ENDPOINT || 'https://dummy.r2.cloudflarestorage.com' }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID || 'dummy_aws_access_key_id' }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY || 'dummy_aws_secret_access_key' }}
+          AWS_S3_BUCKET_NAME: ${{ secrets.AWS_S3_BUCKET_NAME || 'dummy_aws_s3_bucket_name' }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY || 're_dummy_api_key' }}
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID || 'dummy_google_client_id' }}
+          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET || 'dummy_google_client_secret' }}
