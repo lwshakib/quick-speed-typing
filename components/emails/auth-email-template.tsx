@@ -59,7 +59,8 @@ export const AuthEmailTemplate = ({ type, url }: AuthEmailTemplateProps) => {
             </Text>
 
             <Text className="text-[12px] leading-[20px] text-[#666666]">
-              This link will expire in 1 hour. If you did not request this, please ignore this email.
+              This link will expire in 1 hour. If you did not request this, please ignore this
+              email.
             </Text>
 
             <Hr className="mx-0 my-[26px] w-full border border-solid border-[#eaeaea]" />

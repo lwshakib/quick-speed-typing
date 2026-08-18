@@ -6,7 +6,7 @@ if (
   !process.env.AWS_S3_BUCKET_NAME
 ) {
   throw new Error(
-    'Missing required AWS environment variables: AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, and AWS_S3_BUCKET_NAME must be provided.'
+    'Missing required AWS environment variables: AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, and AWS_S3_BUCKET_NAME must be provided.',
   );
 }
 
@@ -21,4 +21,3 @@ export const s3Client = new S3Client({
 });
 
 export const BUCKET_NAME = process.env.AWS_S3_BUCKET_NAME;
-
