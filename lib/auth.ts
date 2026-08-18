@@ -72,14 +72,20 @@ export const auth = betterAuth({
     sendOnSignUp: true, // Automatically triggers the verification mail as soon as a user signs up.
     sendVerificationEmail: async ({ user, url }) => {
       try {
-        await resend.emails.send({
+        const { error } = await resend.emails.send({
           from: 'Quick Type <noreply@lwshakib.site>',
           to: user.email,
           subject: 'Verify your email address',
           react: AuthEmailTemplate({ type: 'email-verification', url }),
         });
+
+        if (error) {
+          console.error('Failed to send verification email:', error);
+          throw new Error('Failed to send verification email.');
+        }
       } catch (err) {
-        console.error('Verification email dispatch failed:', err);
+        console.error('Critical Resend failure:', err);
+        throw err;
       }
     },
   },
