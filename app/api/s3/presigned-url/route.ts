@@ -22,7 +22,7 @@ export async function POST(req: Request) {
     }
 
     const fileExtension = fileName.split('.').pop() || '';
-    const safeKey = `${session.user.id}-${crypto.randomUUID()}${fileExtension ? `.${fileExtension}` : ''}`;
+    const safeKey = `${session.user.id}/${crypto.randomUUID()}${fileExtension ? `.${fileExtension}` : ''}`;
     const key = `avatars/${safeKey}`;
 
     const command = new PutObjectCommand({
