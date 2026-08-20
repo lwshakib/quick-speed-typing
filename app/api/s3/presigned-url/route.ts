@@ -21,6 +21,11 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Missing file details' }, { status: 400 });
     }
 
+    const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+    if (!ALLOWED_MIME_TYPES.includes(fileType)) {
+      return NextResponse.json({ error: 'Invalid or unsupported file type' }, { status: 400 });
+    }
+
     const fileExtension = fileName.split('.').pop() || '';
     const safeKey = `${session.user.id}/${crypto.randomUUID()}${fileExtension ? `.${fileExtension}` : ''}`;
     const key = `avatars/${safeKey}`;
